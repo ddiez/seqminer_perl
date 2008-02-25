@@ -3,6 +3,7 @@ svn
 Makefile$
 .PL$
 .gz$
+.bak$
 MANIFEST
 MANIFEST.SKIP
 _build
