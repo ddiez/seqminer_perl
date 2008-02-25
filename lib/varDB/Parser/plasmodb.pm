@@ -1,4 +1,4 @@
-package varDB::Parser::kegg;
+package varDB::Parser::plasmodb;
 
 use varDB::Parser;
 @ISA = qw(varDB::Parser);

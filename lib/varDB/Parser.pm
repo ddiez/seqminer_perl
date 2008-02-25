@@ -50,11 +50,11 @@ sub _initialize {
 	$self->{file} = undef;
 	
 	# check parameters.
-	foreach my $field (@{$param}) {
+	foreach my $field (keys %{$param}) {
 		die "[varDB::Parser] unknown parameter $field.\n" if ! exists $self->{$field};
 	}
 	
-	foreach my $field (@{$self}) {
+	foreach my $field (keys %{$self}) {
 		die "[varDB::Parser] parameter $field is required.\n" if ! exists $param->{$field};
 		$self->{$field} = $param->{$field};
 	}
