@@ -1,4 +1,10 @@
-package varDB::Parser.pm;
+package varDB::Parser;
+
+#use varDB::Config;
+
+use strict;
+use warnings;
+use Bio::SeqIO;
 
 sub new {
     my $class = shift;
@@ -43,7 +49,7 @@ sub _initialize {
 	$self->{type} = undef;
 	$self->{file} = undef;
 	
-	# load the appropiate driver.
+	# check parameters.
 	foreach my $field (@{$param}) {
 		die "[varDB::Parser] unknown parameter $field.\n" if ! exists $self->{$field};
 	}
@@ -52,6 +58,10 @@ sub _initialize {
 		die "[varDB::Parser] parameter $field is required.\n" if ! exists $param->{$field};
 		$self->{$field} = $param->{$field};
 	}
+	
+	$self->{obj} = undef;
+	my $in = new Bio::SeqIO(-file => $self->file);
+	$self->{obj} = $in;
 }
 
 1;

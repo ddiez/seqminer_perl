@@ -1,2 +1,5 @@
 Build
 lib/varDB.pm
+lib/varDB/Config.pm
+lib/varDB/Parser.pm
+lib/varDB/Parser/kegg.pm
