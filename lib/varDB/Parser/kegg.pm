@@ -43,7 +43,9 @@ sub process {
 			foreach my $pos (@pos) {;
 				my $loc_ = Bio::Factory::FTLocationFactory->from_string($pos->text);
 				$loc->add({id => $id, start => $loc_->start, end => $loc_->end});
-				print STDERR $seq->accession_number, "\t$nexons\t", $seq->display_id, "\t", $loc_->start, "\t", $loc_->end, "\t", $loc_->strand, "\n";
+				my $strand = "+";
+				$strand = "-" if $loc_->strand == -1;
+				print $seq->accession_number, "\texon\t$nexons\t", $loc_->start, "\t", $loc_->end, "\t$strand\n";
 			}
 		} elsif ($output eq "protein") {
 			my $seq_ = new Bio::PrimarySeq(
