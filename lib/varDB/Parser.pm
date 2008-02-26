@@ -23,12 +23,12 @@ sub file {
 	}
 }
 
-sub driver {
+sub format {
 	my $self = shift;
 	if (@_) {
-		$self->{driver} = $_;
+		$self->{format} = $_;
 	} else {
-		return $self->{driver};
+		return $self->{format};
 	}
 }
 
@@ -45,7 +45,7 @@ sub _initialize {
     my $self = shift;
     my $param = shift;
 	
-	$self->{driver} = undef;
+	$self->{format} = undef;
 	$self->{type} = undef;
 	$self->{file} = undef;
 	
@@ -55,13 +55,18 @@ sub _initialize {
 	}
 	
 	foreach my $field (keys %{$self}) {
-		die "[varDB::Parser] parameter $field is required.\n" if ! exists $param->{$field};
+	#	die "[varDB::Parser] parameter $field is required.\n" if ! exists $param->{$field};
 		$self->{$field} = $param->{$field};
 	}
 	
-	$self->{obj} = undef;
-	my $in = new Bio::SeqIO(-file => $self->file);
-	$self->{obj} = $in;
+	$self->{instance} = undef;
+	my $in = new Bio::SeqIO(-file => $self->file, -format => $self->format);
+	$self->{instance} = $in;
+}
+
+sub instance {
+	my $self = shift;
+	return $self->{instance};
 }
 
 1;
