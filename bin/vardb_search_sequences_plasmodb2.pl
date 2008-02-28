@@ -122,12 +122,12 @@ while (<IN>) {
 	my $pos = new varDB::Position({file => "$GENOMEDB/$organism/position.txt", format => $format});
 	
 	# read list file.
-	my $np = check_exons("$base-protein.list", $eexons, $pos);
-	my $ng = check_exons("$base-gene.list", $eexons, $pos);
-	my $np_ls = check_exons("$base-protein_ls.list", $eexons, $pos);
-	my $np_fs = check_exons("$base-protein_fs.list", $eexons, $pos);
-	my $ng_ls = check_exons("$base-gene_ls.list", $eexons, $pos);
-	my $ng_fs = check_exons("$base-gene_fs.list", $eexons, $pos);
+	my $np = check_exons("$base-protein.list", $eexons, $pos, 0);
+	my $ng = check_exons("$base-gene.list", $eexons, $pos, 0);
+	my $np_ls = check_exons("$base-protein_ls.list", $eexons, $pos, 0);
+	my $np_fs = check_exons("$base-protein_fs.list", $eexons, $pos, 0);
+	my $ng_ls = check_exons("$base-gene_ls.list", $eexons, $pos, 1);
+	my $ng_fs = check_exons("$base-gene_fs.list", $eexons, $pos, 1);
 	
 	print STDERR << "OUT";
 organism: $organism
@@ -194,6 +194,7 @@ sub check_exons {
 	my $file = shift;
 	my $eexons = shift;
 	my $pos = shift;
+	my $gene_trans = shift;
 	
 	my $seqs = parse_list_file($file);
 	my $nseqs = $seqs->{nseq};
@@ -204,10 +205,11 @@ sub check_exons {
 	foreach my $id (@{$seqs->{gene_list}}) {
 		# fix KEGG ids.
 		#$id =~ /.+:(.+)/;
-		#my $fixid = $1;
-		#print STDERR ">$id#\t";
-		my $nexons = $pos->get_nexon($id);
-		print STDERR ">$nexons#\n";
+		my $fixid = $id;
+		$fixid =~ s/(.+)-.+/$1/ if $gene_trans == 1;
+		#print STDERR ">$id#$fixid#\t";
+		my $nexons = $pos->get_nexon($fixid);
+		#print STDERR ">$nexons#\n";
 		if ($nexons != $eexons) {
 			if ($nexons == 1) {
 				$seqs->{gene}->{$id}->{quality} = "putative pseudogene";
