@@ -5,14 +5,15 @@ use warnings;
 
 use varDB::Config;
 use varDB::Position;
+use Sets;
 
 my $file = shift;
 
 # define locations.
 my $VARDB_RELEASE = 1;
 my $OUTDIR = "$VARDB_HOME/families/vardb-$VARDB_RELEASE";
-my $debug = 1;
-if ($debug == 1) {
+my $DEBUG = 1;
+if ($DEBUG == 1) {
 	my @time = localtime time;
 	$time[5] += 1900;
 	$time[4] ++;
@@ -24,6 +25,7 @@ if ($debug == 1) {
 
 	$OUTDIR = "$VARDB_HOME/families/test/$time[5]$time[4]$time[3].$time[2]$time[1]$time[0]";
 }
+print STDERR "output_dir: $OUTDIR\n";
 
 # create working directory, die on failure.
 if (! -d $OUTDIR) {
@@ -35,9 +37,10 @@ if (! -d $OUTDIR) {
 open IN, "$file" or die "$!";
 while (<IN>) {
 	# skip blank and comment lines.
-	/^[#|\n]/ && do {
-		next;
-	};
+	#/^[#|\n]/ && do {
+	#	next;
+	#};
+	next if /^[#|\n]/;
 	chomp;
 	
 	my ($super, $organism, $family, $seed, $pssm_eval, $psi_eval, $tbn_eval, $iter, $hmm_acc, $hmm_name, $hmm_eval, $eexons, $format) = split '\t', $_;
@@ -122,22 +125,46 @@ while (<IN>) {
 	my $pos = new varDB::Position({file => "$GENOMEDB/$organism/position.txt", format => $format});
 	
 	# read list file.
-	my $np = check_exons("$base-protein.list", $eexons, $pos, 0);
-	my $ng = check_exons("$base-gene.list", $eexons, $pos, 0);
-	my $np_ls = check_exons("$base-protein_ls.list", $eexons, $pos, 0);
-	my $np_fs = check_exons("$base-protein_fs.list", $eexons, $pos, 0);
-	my $ng_ls = check_exons("$base-gene_ls.list", $eexons, $pos, 1);
-	my $ng_fs = check_exons("$base-gene_fs.list", $eexons, $pos, 1);
+	my $lp = parse_list_file("$base-protein.list");
+	my $lg = parse_list_file("$base-gene.list");
+	my $lp_ls = parse_list_file("$base-protein_ls.list");
+	my $lp_fs = parse_list_file("$base-protein_fs.list");
+	my $lg_ls = parse_list_file("$base-gene_ls.list");
+	my $lg_fs = parse_list_file("$base-gene_fs.list");
+	
+	my $np = check_exons($lp, $eexons, $pos, 0);
+	my $ng = check_exons($lg, $eexons, $pos, 0);
+	my $np_ls = check_exons($lp_ls, $eexons, $pos, 0);
+	my $np_fs = check_exons($lp_fs, $eexons, $pos, 0);
+	my $ng_ls = check_exons($lg_ls, $eexons, $pos, 1);
+	my $ng_fs = check_exons($lg_fs, $eexons, $pos, 1);
+	
+	my $set1 = new Sets($lp->{gene_list},
+		$lg->{gene_list},
+		$lp_ls->{gene_list},
+		$lp_fs->{gene_list},
+		fix_array_id($lg_ls->{gene_list}),
+		fix_array_id($lg_ls->{gene_list}));
+	my $i = $set1->intersect;
+	my $u = $set1->union;
+	my $ni = scalar @{$i};
+	my $nu = scalar @{$u};
+	#my @s1 = $set->intersect($lp->{gene_list}, $lp_ls->{gene_list});
+	#my @s2 = $set->intersect($lp->{gene_list}, $lp_fs->{gene_list});
+	#my @s3 = $set->intersect($lg->{gene_list}, $lp_ls->{gene_list});
+	#my @s4 = $set->intersect($lg->{gene_list}, $lp_fs->{gene_list});
 	
 	print STDERR << "OUT";
-organism: $organism
-family:   $family
-np_ls:    $np_ls
-np_fs:    $np_fs
-ng_ls:    $ng_ls
-ng_fs:    $ng_fs
-np-psi:   $np
-ng-psi:   $ng
+organism:  $organism
+family:    $family
+np_ls:     $np_ls
+np_fs:     $np_fs
+ng_ls:     $ng_ls
+ng_fs:     $ng_fs
+np-psi:    $np
+ng-psi:    $ng
+union:     $nu
+intersect: $ni
 OUT
 
 	# print number of sequences.
@@ -147,7 +174,12 @@ OUT
 	print NUMBER "$np_fs\t$family\t$organism\tprotein_fs\n";
 	print NUMBER "$ng_ls\t$family\t$organism\tgene_ls\n";
 	print NUMBER "$ng_fs\t$family\t$organism\tgene_fs\n";
-
+	print NUMBER "$nu\t$family\t$organism\tunion\n";
+	print NUMBER "$ni\t$family\t$organism\tintersect\n";
+	#print NUMBER scalar @s1, "\t$family\t$organism\tprotein^protein_ls\n";
+	#print NUMBER scalar @s2, "\t$family\t$organism\tprotein^protein_fs\n";
+	#print NUMBER scalar @s3, "\t$family\t$organism\tgene^protein_ls\n";
+	#print NUMBER scalar @s4, "\t$family\t$organism\tgene^protein_ls\n";
 
 	####################################################################
 	##			
@@ -173,6 +205,7 @@ sub parse_list_file {
 	open TMP, $file or die "ERROR [parse_list_file]: cannot open file $file: $!\n";
 	
 	my $gene = {};
+	$gene->{file} = $file;
 	while (<TMP>) {
 		chomp;
 		my ($id, $score, $evalue) = split '\t', $_;
@@ -191,22 +224,23 @@ sub parse_list_file {
 }
 
 sub check_exons {
-	my $file = shift;
+	#my $file = shift;
+	my $seqs = shift;
 	my $eexons = shift;
 	my $pos = shift;
 	my $gene_trans = shift;
 	
-	my $seqs = parse_list_file($file);
+	#my $seqs = parse_list_file($file);
 	my $nseqs = $seqs->{nseq};
 	
 	
 	# quality check: check number of exons.
-	open OUTLIST, ">$file";
+	open OUTLIST, ">$seqs->{file}";
 	foreach my $id (@{$seqs->{gene_list}}) {
 		# fix KEGG ids.
 		#$id =~ /.+:(.+)/;
 		my $fixid = $id;
-		$fixid =~ s/(.+)-.+/$1/ if $gene_trans == 1;
+		$fixid = fix_id($id) if $gene_trans == 1;
 		#print STDERR ">$id#$fixid#\t";
 		my $nexons = $pos->get_nexon($fixid);
 		#print STDERR ">$nexons#\n";
@@ -226,4 +260,19 @@ sub check_exons {
 	}
 	close OUTLIST;
 	return $nseqs;
+}
+
+sub fix_array_id {
+	my $id_orig = shift;
+	my @id_fixed = ();
+	foreach my $id (@{$id_orig}) {
+		push @id_fixed, fix_id($id);
+	}
+	return \@id_fixed;
+}
+
+sub fix_id {
+	my $id = shift;
+	$id =~  s/(.+)-.+/$1/;
+	return $id;
 }
