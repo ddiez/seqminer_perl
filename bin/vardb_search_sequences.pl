@@ -5,9 +5,13 @@ use warnings;
 
 use varDB::Config;
 use varDB::Position;
+use varDB::ListIO;
 use Sets;
 
 my $file = shift;
+$file = "$VARDB_HOME/etc/search_sequences.txt" if !defined $file;
+
+print STDERR "reading config file: $file\n";
 
 # define locations.
 my $VARDB_RELEASE = 1;
@@ -69,30 +73,42 @@ while (<IN>) {
 	# use libraries Pfam_ls and Pfam_fs.
 	my $fs = $hmm_name."_ls";
 	my $ls = $hmm_name."_fs";
+	print STDERR "fetching Pfam models ... ";
 	system "hmmfetch $HMMDB/$PFAM_VERSION/Pfam_ls $hmm_name > $fs.hmm";
 	system "hmmfetch $HMMDB/$PFAM_VERSION/Pfam_fs $hmm_name > $ls.hmm";
+	print STDERR "OK\n";
 
 	# search in protein genome.
+	print STDERR "searching with Pfam models in protein database ... ";
 	system "hmmsearch $ls.hmm $GENOMEDB/$organism/protein.fa > $base-protein\_ls.log";
 	system "hmmsearch $fs.hmm $GENOMEDB/$organism/protein.fa > $base-protein\_fs.log";
+	print STDERR "OK\n";
 	
 	# parse results.
+	print STDERR "parsing results ... ";
 	system "hmmer_parse.pl -i $base-protein\_ls.log -e $hmm_eval > $base-protein\_ls.list";
 	system "hmmer_parse.pl -i $base-protein\_fs.log -e $hmm_eval > $base-protein\_fs.list";
+	print STDERR "OK\n";
 	
 	# the best seed would be the best hit in the Pfam_ls search.
 	# TODO: check that it is indeed a suitable seed (e-value/score).
 	# if no suitable seed found, use the one provided in the config file.
-	my $list = parse_list_file("$base-protein\_ls.list");
-	$seed = $list->{gene_list}->[0];
+	#my $list = parse_list_file("$base-protein\_ls.list");
+	my $list = new varDB::ListIO({file => "$base-protein\_ls.list"});
+	$seed = $list->get_id(0);
+	#$seed = $list->{gene_list}->[0];
 	
 	## 1.3 search with hmmsearch in gene-trans.
+	print STDERR "searching with Pfam models in nucleotide database ... ";
 	system "hmmsearch $ls.hmm $GENOMEDB/$organism/gene-trans.fa > $base-gene\_ls.log";
 	system "hmmsearch $fs.hmm $GENOMEDB/$organism/gene-trans.fa > $base-gene\_fs.log";
+	print STDERR "OK\n";
 	
 	# parse results.
+	print STDERR "parsing results ... ";
 	system "hmmer_parse.pl -i $base-gene\_ls.log -e $hmm_eval > $base-gene\_ls.list";
 	system "hmmer_parse.pl -i $base-gene\_fs.log -e $hmm_eval > $base-gene\_fs.list";
+	print STDERR "OK\n";
 	
 	# TODO:
 	# check for genes with multiple matches (with different offset/revcom) and
@@ -105,32 +121,46 @@ while (<IN>) {
 	system "extract_fasta.pl -d $seed -i $GENOMEDB/$organism/protein.idx > $seedfile";
 	
 	# search in protein database with psi-blast and generate pssm file.
+	print STDERR "searching with PSI-Blast in protein database ... ";
 	system "blastpgp -d $GENOMEDB/$organism/protein -i $seedfile -s T -j $iter -h $pssm_eval -C $base.chk -F T -b 10000  > $base.blastpgp";
+	print STDERR "OK\n";
 	# write psi-blast report.
 	system "psiblast_report.pl -i $base.blastpgp -e $pssm_eval > $base-cycles.txt";
+	print STDERR "parsing results ... ";
+	system "blast_parse.pl -i $base.blastpgp -e $psi_eval > $base-protein.list";
+	print STDERR "OK\n";
 
 	#####################################################
 	## 3. do psitblastn and find best nuclotide hits.
 	# search in nucleotide database with psitblastn.
+	print STDERR "searching with Blast-psitblastn in nucleotide database ... ";
 	system "blastall -p psitblastn -d $GENOMEDB/$organism/gene -i $seedfile -R $base.chk -b 10000 > $base.psitblastn";
+	print STDERR "OK\n";
+	print STDERR "parsing results ... ";
+	system "blast_parse.pl -i $base.psitblastn -e $tbn_eval > $base-gene.list";
+	print STDERR "OK\n";
 	
 	####################################################################
 	## 4. do QUALITY CHECK
-	
-	# get list of ids.
-	system "blast_parse.pl -i $base.psitblastn -e $tbn_eval > $base-gene.list";
-	system "blast_parse.pl -i $base.blastpgp -e $psi_eval > $base-protein.list";
 	
 	# read position file.
 	my $pos = new varDB::Position({file => "$GENOMEDB/$organism/position.txt", format => $format});
 	
 	# read list file.
-	my $lp = parse_list_file("$base-protein.list");
-	my $lg = parse_list_file("$base-gene.list");
-	my $lp_ls = parse_list_file("$base-protein_ls.list");
-	my $lp_fs = parse_list_file("$base-protein_fs.list");
-	my $lg_ls = parse_list_file("$base-gene_ls.list");
-	my $lg_fs = parse_list_file("$base-gene_fs.list");
+	#my $lp = parse_list_file("$base-protein.list");
+	#my $lg = parse_list_file("$base-gene.list");
+	#my $lp_ls = parse_list_file("$base-protein_ls.list");
+	#my $lp_fs = parse_list_file("$base-protein_fs.list");
+	#my $lg_ls = parse_list_file("$base-gene_ls.list");
+	#my $lg_fs = parse_list_file("$base-gene_fs.list");
+	
+	my $lp = new varDB::ListIO({file => "$base-protein.list"});
+	my $lg = new varDB::ListIO({file => "$base-gene.list"});
+	my $lp_ls = new varDB::ListIO({file => "$base-protein_ls.list"});
+	my $lp_fs = new varDB::ListIO({file => "$base-protein_fs.list"});
+	my $lg_ls = new varDB::ListIO({file => "$base-gene_ls.list"});
+	my $lg_fs = new varDB::ListIO({file => "$base-gene_fs.list"});
+	
 	
 	my $np = check_exons($lp, $eexons, $pos, 0);
 	my $ng = check_exons($lg, $eexons, $pos, 0);
@@ -139,32 +169,32 @@ while (<IN>) {
 	my $ng_ls = check_exons($lg_ls, $eexons, $pos, 1);
 	my $ng_fs = check_exons($lg_fs, $eexons, $pos, 1);
 	
-	my $set1 = new Sets($lp->{gene_list},
-		$lg->{gene_list},
-		$lp_ls->{gene_list},
-		$lp_fs->{gene_list},
-		fix_array_id($lg_ls->{gene_list}),
-		fix_array_id($lg_ls->{gene_list}));
-	my $i = $set1->intersect;
-	my $u = $set1->union;
-	my $ni = scalar @{$i};
-	my $nu = scalar @{$u};
-	#my @s1 = $set->intersect($lp->{gene_list}, $lp_ls->{gene_list});
-	#my @s2 = $set->intersect($lp->{gene_list}, $lp_fs->{gene_list});
-	#my @s3 = $set->intersect($lg->{gene_list}, $lp_ls->{gene_list});
-	#my @s4 = $set->intersect($lg->{gene_list}, $lp_fs->{gene_list});
+	my $pset = new Sets($lp->{gene_list}, $lp_ls->{gene_list}, $lp_fs->{gene_list});
+	my $gset = new Sets($lg->{gene_list}, fix_array_id($lg_ls->{gene_list}), fix_array_id($lg_ls->{gene_list}));
+	
+	my $pi = $pset->intersect;
+	my $pu = $pset->union;
+	my $npi = scalar @{$pi};
+	my $npu = scalar @{$pu};
+	
+	my $gi = $gset->intersect;
+	my $gu = $gset->union;
+	my $ngi = scalar @{$gi};
+	my $ngu = scalar @{$gu};
 	
 	print STDERR << "OUT";
-organism:  $organism
-family:    $family
-np_ls:     $np_ls
-np_fs:     $np_fs
-ng_ls:     $ng_ls
-ng_fs:     $ng_fs
-np-psi:    $np
-ng-psi:    $ng
-union:     $nu
-intersect: $ni
+organism:    $organism
+family:      $family
+np_ls:       $np_ls
+np_fs:       $np_fs
+ng_ls:       $ng_ls
+ng_fs:       $ng_fs
+np-psi:      $np
+ng-psi:      $ng
+p union:     $npu
+p intersect: $npi
+g union:     $ngu
+g intersect: $ngi
 OUT
 
 	# print number of sequences.
@@ -174,8 +204,10 @@ OUT
 	print NUMBER "$np_fs\t$family\t$organism\tprotein_fs\n";
 	print NUMBER "$ng_ls\t$family\t$organism\tgene_ls\n";
 	print NUMBER "$ng_fs\t$family\t$organism\tgene_fs\n";
-	print NUMBER "$nu\t$family\t$organism\tunion\n";
-	print NUMBER "$ni\t$family\t$organism\tintersect\n";
+	print NUMBER "$npu\t$family\t$organism\tprotein union\n";
+	print NUMBER "$npi\t$family\t$organism\tprotein intersect\n";
+	print NUMBER "$ngu\t$family\t$organism\tgene union\n";
+	print NUMBER "$ngi\t$family\t$organism\tgene intersect\n";
 	#print NUMBER scalar @s1, "\t$family\t$organism\tprotein^protein_ls\n";
 	#print NUMBER scalar @s2, "\t$family\t$organism\tprotein^protein_fs\n";
 	#print NUMBER scalar @s3, "\t$family\t$organism\tgene^protein_ls\n";
@@ -200,28 +232,28 @@ OUT
 }
 close IN;
 
-sub parse_list_file {
-	my $file = shift;
-	open TMP, $file or die "ERROR [parse_list_file]: cannot open file $file: $!\n";
+#sub parse_list_file {
+#	my $file = shift;
+#	open TMP, $file or die "ERROR [parse_list_file]: cannot open file $file: $!\n";
 	
-	my $gene = {};
-	$gene->{file} = $file;
-	while (<TMP>) {
-		chomp;
-		my ($id, $score, $evalue) = split '\t', $_;
-		if (! exists $gene->{gene}->{$id}) {
-			$gene->{gene}->{$id}->{score} = $score;
-			$gene->{gene}->{$id}->{evalue} = $evalue;
-			push @{$gene->{gene_list}}, $id;
-			$gene->{nseq}++;
-		} else {
-			print STDERR "WARNING [parse_list_file]: duplicated id $id\n";
-		}
-	}
-	close TMP;
-	
-	return $gene;
-}
+#	my $gene = {};
+#	$gene->{file} = $file;
+#	while (<TMP>) {
+#		chomp;
+#		my ($id, $score, $evalue) = split '\t', $_;
+#		if (! exists $gene->{gene}->{$id}) {
+#			$gene->{gene}->{$id}->{score} = $score;
+#			$gene->{gene}->{$id}->{evalue} = $evalue;
+#			push @{$gene->{gene_list}}, $id;
+#			$gene->{nseq}++;
+#		} else {
+#			print STDERR "WARNING [parse_list_file]: duplicated id $id\n";
+#		}
+#	}
+#	close TMP;
+#	
+#	return $gene;
+#}
 
 sub check_exons {
 	#my $file = shift;
@@ -231,12 +263,16 @@ sub check_exons {
 	my $gene_trans = shift;
 	
 	#my $seqs = parse_list_file($file);
-	my $nseqs = $seqs->{nseq};
+	#my $nseqs = $seqs->{nseq};
+	my $nseqs = $seqs->get_number;
+
 	
 	
 	# quality check: check number of exons.
-	open OUTLIST, ">$seqs->{file}";
-	foreach my $id (@{$seqs->{gene_list}}) {
+	#open OUTLIST, ">$seqs->{file}";
+	open OUTLIST, ">".$seqs->get_file;
+	#foreach my $id (@{$seqs->{gene_list}}) {
+	foreach my $id (@{$seqs->get_gene_list}) {
 		# fix KEGG ids.
 		#$id =~ /.+:(.+)/;
 		my $fixid = $id;
@@ -246,16 +282,22 @@ sub check_exons {
 		#print STDERR ">$nexons#\n";
 		if ($nexons != $eexons) {
 			if ($nexons == 1) {
-				$seqs->{gene}->{$id}->{quality} = "putative pseudogene";
+				#$seqs->{gene}->{$id}->{quality} = "putative pseudogene";
+				$seqs->set_quality($id, "putative pseudogene");
 			} else {
-				$seqs->{gene}->{$id}->{quality} = "incorrect exons";
+				#$seqs->{gene}->{$id}->{quality} = "incorrect exons";
+				$seqs->set_quality($id, "incorrect exons");
 			}
 		} else { # good number of exons.
-			$seqs->{gene}->{$id}->{quality} = "correct exons";
+			#$seqs->{gene}->{$id}->{quality} = "correct exons";
+			$seqs->set_quality($id, "correct exons");
 		}
-		my $score = $seqs->{gene}->{$id}->{score};
-		my $evalue = $seqs->{gene}->{$id}->{evalue};
-		my $quality = $seqs->{gene}->{$id}->{quality};
+		#my $score = $seqs->{gene}->{$id}->{score};
+		#my $evalue = $seqs->{gene}->{$id}->{evalue};
+		#my $quality = $seqs->{gene}->{$id}->{quality};
+		my $score = $seqs->get_score($id);
+		my $evalue = $seqs->get_evalue($id);
+		my $quality = $seqs->get_quality($id);
 		print OUTLIST "$id\t$score\t$evalue\t$eexons\t$nexons\t$quality\n";
 	}
 	close OUTLIST;
