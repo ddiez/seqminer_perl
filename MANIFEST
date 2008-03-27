@@ -2,6 +2,7 @@ bin/vardb_align.pl
 bin/vardb_count_genes.pl
 bin/vardb_count_list.pl
 bin/vardb_formatdb.pl
+bin/vardb_plasmodb_format_gff.pl
 bin/vardb_run.sh
 bin/vardb_search_genomes.pl
 bin/vardb_search_genomes_blast.pl
