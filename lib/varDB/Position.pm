@@ -54,6 +54,8 @@ sub _initialize {
 			chomp;
 			my ($id, $type, $number, $pos_start, $pos_end) = split '\t', $_;
 			#print STDERR "$id\t$type\t$pos_start\t$pos_end\n";
+			push @{$self->{gene}->{$id}->{type}}, $type;
+			push @{$self->{gene}->{$id}->{number}}, $number;
 			push @{$self->{gene}->{$id}->{exon_start}}, $pos_start;
 			push @{$self->{gene}->{$id}->{exon_end}}, $pos_end;
 			$self->{gene}->{$id}->{nexon}++;

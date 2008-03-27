@@ -16,6 +16,10 @@ bin/vardb_update_uniprot.pl
 Build
 lib/varDB.pm
 lib/varDB/Config.pm
+lib/varDB/Exon.pm
+lib/varDB/Gene.pm
+lib/varDB/Genome.pm
+lib/varDB/Info.pm
 lib/varDB/ListIO.pm
 lib/varDB/Location.pm
 lib/varDB/Parser.pm

@@ -1,7 +1,14 @@
 package varDB::ListIO;
 
+use varDB::Position;
 use strict;
 use warnings;
+
+our %QUALITY_SCORE = (
+	0 => 'ONE_STAR',
+	1 => 'TWO_STARS',
+	2 => 'THREE_STARS',
+);
 
 sub new {
 	my $class = shift;
@@ -27,21 +34,15 @@ sub _initialize {
 			$self->{gene}->{$id}->{score} = $score;
 			$self->{gene}->{$id}->{evalue} = $evalue;
 			$self->{gene}->{$id}->{quality} = "";
+			$self->{gene}->{$id}->{eexons} = 0;
+			$self->{gene}->{$id}->{pexons} = 0;
 			push @{$self->{gene_list}}, $id;
 			$self->{nseq}++;
 		} else {
-			print STDERR "WARNING [parse_list_file]: duplicated id $id\n";
+			print STDERR "WARNING [ListIO:_initialize]: duplicated id $id\n";
 		}
 	}
 	close TMP;
-}
-
-sub get_subset {
-	my $self = shift;
-	my @ids = @_;
-	
-	foreach my $id (@ids) {
-	}
 }
 
 sub get_file {
@@ -49,7 +50,13 @@ sub get_file {
 }
 
 sub get_gene_list {
-	return shift->{gene_list};
+	my $self = shift;
+	my $fix = shift;
+	if ($fix) {
+		return fix_array_id($self->{gene_list});
+	} else {
+		return $self->{gene_list};
+	}
 }
 
 sub get_number {
@@ -81,8 +88,130 @@ sub get_quality {
 sub set_quality {
 	my $self = shift;
 	my $id = shift;
-	my $quality = shift;
-	$self->{gene}->{$id}->{quality} = $quality;
+	$self->{gene}->{$id}->{quality} = shift;
+}
+
+=head3 get_eexons set_eexons
+	Get and sets expected exons.
+=cut
+sub get_eexons {
+	my $self = shift;
+	my $id = shift;
+	return $self->{gene}->{$id}->{eexons};
+}
+
+sub set_eexons {
+	my $self = shift;
+	my $id = shift;
+	$self->{gene}->{$id}->{eexons} = shift;
+}
+
+=head3 get_pexons set_pexons
+	Get and sets predicted exons.
+=cut
+sub get_pexons {
+	my $self = shift;
+	my $id = shift;
+	return $self->{gene}->{$id}->{pexons};
+}
+
+sub set_pexons {
+	my $self = shift;
+	my $id = shift;
+	$self->{gene}->{$id}->{pexons} = shift;
+}
+
+sub check_exons {
+	my $self = shift;
+	my $eexons = shift;
+	my $pos = shift;
+	my $gene_trans = shift;
+	
+	foreach my $id (@{$self->get_gene_list}) {
+		# fix gene_trans ids.
+		my $fixid = $id;
+		$fixid = fix_id($id) if $gene_trans == 1;
+		#print STDERR ">$id#$fixid#\t";
+		my $nexons = $pos->get_nexon($fixid);
+		my $strain = $pos->get_strain;
+		$self->set_eexons($id, $eexons);
+		$self->set_pexons($id, $nexons);
+		#print STDERR ">$nexons#\n";
+		if ($nexons != $eexons) {
+			if ($nexons == 1) {
+				# could be a processed pseudogene.
+				$self->set_quality($id, $QUALITY_SCORE{1});
+			} else {
+				$self->set_quality($id, $QUALITY_SCORE{0});
+			}
+		} else { # good number of exons.
+			$self->set_quality($id, $QUALITY_SCORE{2});
+		}
+	}
+}
+
+sub print {
+	my $self = shift;
+	my $param = shift;
+	
+	my $file = $self->get_file;
+	$file = $param->{file} if defined $param->{file};
+	open OUTLIST, ">$file";
+	foreach my $id (@{$self->get_gene_list}) {
+		my $score = $self->get_score($id);
+		my $evalue = $self->get_evalue($id);
+		my $quality = $self->get_quality($id);
+		my $eexons = $self->get_eexons($id);
+		my $pexons = $self->get_pexons($id);
+		print OUTLIST "$id\t$score\t$evalue\t$eexons\t$pexons\t$quality\n";
+	}
+	
+	close OUTLIST;
+}
+
+sub export_nelson {
+	my $self = shift;
+	my $param = shift;
+	
+	# parse and fix information.
+	my $info = $param->{info};
+	my $strain = $info->{organism};
+	$strain =~ s/(.+)_(.+)/$2/;
+	my $genome = $1;
+	
+	#
+	my $file = $self->get_file;
+	$file = $param->{file} if defined $param->{file};
+	open OUT, ">$file" or die "[ListIO::export_nelson] cannot open file $file for writing: $!\n";
+	print OUT "SEQUENCE\tfamily\tgenome\tstrain\n"; 
+	foreach my $id (@{$self->get_gene_list}) {
+		#
+		print OUT "$id\t",
+			$info->{family}, "\t",
+			$genome, "\t",
+			$strain, "\n";
+	}
+	close OUT;
+}
+
+=head3 fix_array_id
+	Fixes every element of an array removing the ORF number at the end of the
+	identifiers. Returns a reference to a new array containing the fixed
+	identifiers.
+=cut
+sub fix_array_id {
+	my $id_orig = shift;
+	my @id_fixed = ();
+	foreach my $id (@{$id_orig}) {
+		push @id_fixed, fix_id($id);
+	}
+	return \@id_fixed;
+}
+
+sub fix_id {
+	my $id = shift;
+	$id =~  s/(.+)-.+/$1/;
+	return $id;
 }
 
 1;

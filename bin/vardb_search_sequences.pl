@@ -50,8 +50,15 @@ while (<IN>) {
 	my ($super, $organism, $family, $seed, $pssm_eval, $psi_eval, $tbn_eval, $iter, $hmm_acc, $hmm_name, $hmm_eval, $eexons, $format) = split '\t', $_;
 	
 	my $base = undef; # defined in each search type.
+
+	my $info = {};	
+	$info->{family} = $family;
+	$info->{organism} = $organism;
+	$info->{super} = $super;
 	
-	#print STDERR "searching for family $family in $organism ... ";
+	print STDERR "searching for ...\n";
+	print STDERR "family: $family\n";
+	print STDERR "organism: $organism\n";
 
 	# neither like this.
 	my $outdir = "$OUTDIR/$super";
@@ -147,13 +154,6 @@ while (<IN>) {
 	my $pos = new varDB::Position({file => "$GENOMEDB/$organism/position.txt", format => $format});
 	
 	# read list file.
-	#my $lp = parse_list_file("$base-protein.list");
-	#my $lg = parse_list_file("$base-gene.list");
-	#my $lp_ls = parse_list_file("$base-protein_ls.list");
-	#my $lp_fs = parse_list_file("$base-protein_fs.list");
-	#my $lg_ls = parse_list_file("$base-gene_ls.list");
-	#my $lg_fs = parse_list_file("$base-gene_fs.list");
-	
 	my $lp = new varDB::ListIO({file => "$base-protein.list"});
 	my $lg = new varDB::ListIO({file => "$base-gene.list"});
 	my $lp_ls = new varDB::ListIO({file => "$base-protein_ls.list"});
@@ -161,26 +161,26 @@ while (<IN>) {
 	my $lg_ls = new varDB::ListIO({file => "$base-gene_ls.list"});
 	my $lg_fs = new varDB::ListIO({file => "$base-gene_fs.list"});
 	
+	my $np = $lp->get_number;
+	my $ng = $lg->get_number;
+	my $np_ls = $lp_ls->get_number;
+	my $np_fs = $lp_fs->get_number;
+	my $ng_ls = $lg_ls->get_number;
+	my $ng_fs = $lg_fs->get_number;
 	
-	my $np = check_exons($lp, $eexons, $pos, 0);
-	my $ng = check_exons($lg, $eexons, $pos, 0);
-	my $np_ls = check_exons($lp_ls, $eexons, $pos, 0);
-	my $np_fs = check_exons($lp_fs, $eexons, $pos, 0);
-	my $ng_ls = check_exons($lg_ls, $eexons, $pos, 1);
-	my $ng_fs = check_exons($lg_fs, $eexons, $pos, 1);
-	
-	my $pset = new Sets($lp->{gene_list}, $lp_ls->{gene_list}, $lp_fs->{gene_list});
-	my $gset = new Sets($lg->{gene_list}, fix_array_id($lg_ls->{gene_list}), fix_array_id($lg_ls->{gene_list}));
+	# compute sets stuff.
+	my $pset = new Sets($lp->get_gene_list, $lp_ls->get_gene_list, $lp_fs->get_gene_list);
+	my $gset = new Sets($lg->get_gene_list, $lg_ls->get_gene_list(1), $lg_ls->get_gene_list(1));
 	
 	my $pi = $pset->intersect;
 	my $pu = $pset->union;
-	my $npi = scalar @{$pi};
-	my $npu = scalar @{$pu};
+	my $npi = $pi->get_items(0);
+	my $npu = $pu->get_items(0);
 	
 	my $gi = $gset->intersect;
 	my $gu = $gset->union;
-	my $ngi = scalar @{$gi};
-	my $ngu = scalar @{$gu};
+	my $ngi = $gi->get_items(0);
+	my $ngu = $gu->get_items(0);
 	
 	print STDERR << "OUT";
 organism:    $organism
@@ -208,15 +208,28 @@ OUT
 	print NUMBER "$npi\t$family\t$organism\tprotein intersect\n";
 	print NUMBER "$ngu\t$family\t$organism\tgene union\n";
 	print NUMBER "$ngi\t$family\t$organism\tgene intersect\n";
-	#print NUMBER scalar @s1, "\t$family\t$organism\tprotein^protein_ls\n";
-	#print NUMBER scalar @s2, "\t$family\t$organism\tprotein^protein_fs\n";
-	#print NUMBER scalar @s3, "\t$family\t$organism\tgene^protein_ls\n";
-	#print NUMBER scalar @s4, "\t$family\t$organism\tgene^protein_ls\n";
+	
+	# check exons.
+	$lp->check_exons($eexons, $pos, 0);
+	$lg->check_exons($eexons, $pos, 0);
+	$lp_ls->check_exons($eexons, $pos, 0);
+	$lp_fs->check_exons($eexons, $pos, 0);
+	$lg_ls->check_exons($eexons, $pos, 1);
+	$lg_fs->check_exons($eexons, $pos, 1);
+	
+	$lp->print;
+	$lp_ls->print;
+	$lp_fs->print;
+	$lg->print;
+	$lg_ls->print;
+	$lg_fs->print;
+	
+	$lp->export_nelson({file => "foo.txt", info => $info});
 
 	####################################################################
 	##			
 	# count number of sequences.
-	# NOTE: TODO: if read list file do that here.
+	# TODO: if read list file do that here.
 	#system "vardb_count_list.pl $base-nucleotide.list \"$family\t$organism\tnucleotide\" >> number.txt";
 	#system "vardb_count_list.pl $base-protein.list \"$family\t$organism\tprotein\" >> number.txt";
 	
@@ -231,90 +244,3 @@ OUT
 	##    sequences obtained with hmmer and psi-blast.
 }
 close IN;
-
-#sub parse_list_file {
-#	my $file = shift;
-#	open TMP, $file or die "ERROR [parse_list_file]: cannot open file $file: $!\n";
-	
-#	my $gene = {};
-#	$gene->{file} = $file;
-#	while (<TMP>) {
-#		chomp;
-#		my ($id, $score, $evalue) = split '\t', $_;
-#		if (! exists $gene->{gene}->{$id}) {
-#			$gene->{gene}->{$id}->{score} = $score;
-#			$gene->{gene}->{$id}->{evalue} = $evalue;
-#			push @{$gene->{gene_list}}, $id;
-#			$gene->{nseq}++;
-#		} else {
-#			print STDERR "WARNING [parse_list_file]: duplicated id $id\n";
-#		}
-#	}
-#	close TMP;
-#	
-#	return $gene;
-#}
-
-sub check_exons {
-	#my $file = shift;
-	my $seqs = shift;
-	my $eexons = shift;
-	my $pos = shift;
-	my $gene_trans = shift;
-	
-	#my $seqs = parse_list_file($file);
-	#my $nseqs = $seqs->{nseq};
-	my $nseqs = $seqs->get_number;
-
-	
-	
-	# quality check: check number of exons.
-	#open OUTLIST, ">$seqs->{file}";
-	open OUTLIST, ">".$seqs->get_file;
-	#foreach my $id (@{$seqs->{gene_list}}) {
-	foreach my $id (@{$seqs->get_gene_list}) {
-		# fix KEGG ids.
-		#$id =~ /.+:(.+)/;
-		my $fixid = $id;
-		$fixid = fix_id($id) if $gene_trans == 1;
-		#print STDERR ">$id#$fixid#\t";
-		my $nexons = $pos->get_nexon($fixid);
-		#print STDERR ">$nexons#\n";
-		if ($nexons != $eexons) {
-			if ($nexons == 1) {
-				#$seqs->{gene}->{$id}->{quality} = "putative pseudogene";
-				$seqs->set_quality($id, "putative pseudogene");
-			} else {
-				#$seqs->{gene}->{$id}->{quality} = "incorrect exons";
-				$seqs->set_quality($id, "incorrect exons");
-			}
-		} else { # good number of exons.
-			#$seqs->{gene}->{$id}->{quality} = "correct exons";
-			$seqs->set_quality($id, "correct exons");
-		}
-		#my $score = $seqs->{gene}->{$id}->{score};
-		#my $evalue = $seqs->{gene}->{$id}->{evalue};
-		#my $quality = $seqs->{gene}->{$id}->{quality};
-		my $score = $seqs->get_score($id);
-		my $evalue = $seqs->get_evalue($id);
-		my $quality = $seqs->get_quality($id);
-		print OUTLIST "$id\t$score\t$evalue\t$eexons\t$nexons\t$quality\n";
-	}
-	close OUTLIST;
-	return $nseqs;
-}
-
-sub fix_array_id {
-	my $id_orig = shift;
-	my @id_fixed = ();
-	foreach my $id (@{$id_orig}) {
-		push @id_fixed, fix_id($id);
-	}
-	return \@id_fixed;
-}
-
-sub fix_id {
-	my $id = shift;
-	$id =~  s/(.+)-.+/$1/;
-	return $id;
-}
