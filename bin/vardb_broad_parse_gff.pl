@@ -18,6 +18,7 @@ while (<IN>) {
 		$gene->set_start($start);
 		$gene->set_chromosome($chr);
 		$gene->set_description("");
+		$gene->set_source("broad");
 		$genome->add_gene($gene);
 	} elsif ($type eq "stop_codon") {
 		$info = parse_info($info);
@@ -28,6 +29,23 @@ while (<IN>) {
 		my $gene = $genome->get_gene($info->{parent});
 		if (defined $gene) {
 			$info->{id} = $gene->get_nexons() + 1;
+			my $exon = new varDB::Exon($info);
+			$exon->set_strand($strand);
+			$exon->set_start($start);
+			$exon->set_end($end);
+			$genome->add_exon($exon);
+		} else { # ok try to fix this mess.
+			my $gene = new varDB::Gene;
+			$gene->set_id($info->{parent});
+			$gene->set_strand($strand);
+			$gene->set_start($start);
+			$gene->set_end($end);
+			$gene->set_chromosome($chr);
+			$gene->set_description("");
+			$gene->set_source("broad");
+			$genome->add_gene($gene);
+			
+			$info->{id} = 1;
 			my $exon = new varDB::Exon($info);
 			$exon->set_strand($strand);
 			$exon->set_start($start);

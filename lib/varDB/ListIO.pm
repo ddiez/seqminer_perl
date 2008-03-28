@@ -132,8 +132,8 @@ sub check_exons {
 		my $fixid = $id;
 		$fixid = fix_id($id) if $gene_trans == 1;
 		#print STDERR ">$id#$fixid#\t";
-		my $nexons = $pos->get_nexon($fixid);
-		my $strain = $pos->get_strain;
+		my $nexons = $pos->get_nexons($fixid);
+		#my $strain = $pos->get_strain;
 		$self->set_eexons($id, $eexons);
 		$self->set_pexons($id, $nexons);
 		#print STDERR ">$nexons#\n";
@@ -173,23 +173,43 @@ sub export_nelson {
 	my $self = shift;
 	my $param = shift;
 	
+	# que sequence objects.
+	my $pro = $param->{protein};
+	my $nuc = $param->{nucleotide};
+	$pro->set_uc;
+	$nuc->set_uc;
+	#
+	my $genome = $param->{genome};
+	
 	# parse and fix information.
 	my $info = $param->{info};
-	my $strain = $info->{organism};
-	$strain =~ s/(.+)_(.+)/$2/;
-	my $genome = $1;
+	my $organism = $info->{organism};
+	my $strain = $info->{strain};
+	my $family = "$organism.".$info->{family};
 	
-	#
 	my $file = $self->get_file;
 	$file = $param->{file} if defined $param->{file};
 	open OUT, ">$file" or die "[ListIO::export_nelson] cannot open file $file for writing: $!\n";
-	print OUT "SEQUENCE\tfamily\tgenome\tstrain\n"; 
+	print OUT "SEQUENCE\tfamily\tgenome\tstrain\tchromosome\ttranslation\tsequence\tstrand\texons\tpseudogene\ttruncated\trating\n"; 
 	foreach my $id (@{$self->get_gene_list}) {
-		#
+		# chromosome?
+		my $gene = $genome->get_gene($id);
+		my $chromosome = "$organism.".$gene->get_chromosome;
+		my $strand = "forward";
+		$strand = "reverse" if $gene->get_strand eq "-";
+		my $nexons = $gene->get_nexons;
 		print OUT "$id\t",
-			$info->{family}, "\t",
-			$genome, "\t",
-			$strain, "\n";
+			$family, "\t",
+			$organism, "\t",
+			uc $strain, "\t",
+			"$chromosome\t",
+			$pro->get_seq($id), "\t",
+			$nuc->get_seq($id), "\t",
+			"$strand\t",
+			"$nexons\t",
+			"-\t",
+			"-\t",
+			$self->get_quality($id), "\n";
 	}
 	close OUT;
 }

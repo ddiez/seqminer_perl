@@ -27,6 +27,11 @@ sub get_id {
 	return shift->{id};
 }
 
+sub set_id {
+	my $self = shift;
+	$self->{id} = shift;
+}
+
 sub get_start {
 	return shift->{start};
 }
@@ -56,6 +61,11 @@ sub set_strand {
 
 sub get_parent {
 	return shift->{parent};
+}
+
+sub set_parent {
+	my $self = shift;
+	$self->{parent} = shift;
 }
 
 1;

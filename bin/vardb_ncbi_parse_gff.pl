@@ -9,55 +9,57 @@ my $file = shift;
 
 open IN, $file or die "ERROR: cannot open file $file: $!\n";
 while (<IN>) {
-	last if /^##FASTA/; # skip sequences.
 	next if /^##/; # skip comments.
 	chomp;
 	my ($id, $source, $type, $start, $end, $foo, $strand, $foo2, $info) = split '\t', $_;
-	my $chr = $1 if $id =~ /apidb\|(.+)/;
+	my $chr = "-"; # no chromosome for bacteria.
 	if ($type eq "gene") {
 		$info = parse_gene_info($info);
 		my $gene = new varDB::Gene($info);
-		$gene->set_chromosome($chr);
 		$gene->set_strand($strand);
 		$gene->set_start($start);
 		$gene->set_end($end);
-		$gene->set_source("plasmodb");
+		$gene->set_chromosome($chr);
+		$gene->set_source($source);
 		$genome->add_gene($gene);
-	#	$gene->set_description("") if !defined $gene->get_description;
-	} elsif ($type eq "exon") {
+	} elsif ($type eq "exon" or $type eq "CDS") {
 		$info = parse_exon_info($info);
+		my $gene = $genome->get_gene($info->{parent});
+		if (defined $info->{product}) {
+			$gene->set_description($info->{product});
+		} else {
+			$gene->set_description("-");
+		}
 		my $exon = new varDB::Exon($info);
-		$exon->set_strand($strand);
-		$exon->set_start($start);
-		$exon->set_end($end);
+		$exon->set_start($gene->get_start);
+		$exon->set_end($gene->get_end);
+		$exon->set_strand($gene->get_strand);
 		$genome->add_exon($exon);
-	} # skip other information.
+	} # skip the rest.
 }
 close IN;
 
 $genome->print_gff;
 
+
 sub parse_info {
-	my $tmp = shift;
 	my $info = {};
-	my @tokens = split ";", $tmp;
+	my @tokens = split ";", shift;
 	foreach my $token (@tokens) {
 		$token =~ /(.+)=(.+)/;
 		$info->{lc $1} = $2;
 	}
-	$info->{id} =~ s/apidb\|(.+)/$1/;
+	$info->{id} = $info->{locus_tag};
 	return $info;
 }
 
 sub parse_gene_info {
-	my $tmp = shift;
-	return parse_info($tmp);
+	return parse_info(shift);
 } 
 
 sub parse_exon_info {
-	my $tmp = shift;
-	my $info = parse_info($tmp);
-	$info->{parent} =~ s/apidb\|rna_(.+)-.+/$1/;
-	$info->{id} =~ s/exon_.+-(.+)/$1/;
+	my $info = parse_info(shift);
+	$info->{parent} = $info->{id};
+	$info->{id} = 1;
 	return $info;
 }

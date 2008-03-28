@@ -1,8 +1,11 @@
 bin/vardb_align.pl
+bin/vardb_analyze_sequences.pl
 bin/vardb_broad_parse_gff.pl
 bin/vardb_count_genes.pl
 bin/vardb_count_list.pl
 bin/vardb_formatdb.pl
+bin/vardb_keeg_ent2gff.pl
+bin/vardb_ncbi_parse_gff.pl
 bin/vardb_plasmodb_parse_gff.pl
 bin/vardb_run.sh
 bin/vardb_search_sequences.pl
@@ -25,3 +28,5 @@ lib/varDB/Parser/broad.pm
 lib/varDB/Parser/kegg.pm
 lib/varDB/Parser/plasmodb.pm
 lib/varDB/Position.pm
+lib/varDB/SearchIO.pm
+lib/varDB/SeqIO.pm

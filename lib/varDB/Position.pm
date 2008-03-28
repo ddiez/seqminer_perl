@@ -1,5 +1,8 @@
 package varDB::Position;
 
+use strict;
+use warnings;
+
 sub new {
 	my $class = shift;
 	
@@ -48,6 +51,7 @@ sub _initialize {
 		}
 		close IN;
 	} elsif ($format eq "kegg_pos") {
+	} elsif ($format eq "new_gff") {
 	} elsif ($format eq "new") {
 		open IN, $file or die "ERROR [] cannot open file $file: $!\n";
 		while (<IN>) {
@@ -63,7 +67,7 @@ sub _initialize {
 	}# add drivers here.
 }
 
-sub get_nexon {
+sub get_nexons {
 	my $self = shift;
 	my $id = shift;
 	if (! exists $self->{gene}->{$id}) {

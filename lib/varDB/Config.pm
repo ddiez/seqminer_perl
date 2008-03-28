@@ -1,9 +1,14 @@
 package varDB::Config;
 
 our @ISA = qw/Exporter/;
-our @EXPORT = qw/$VARDB_HOME $UNIPROTDB $PDBDB $HMMDB $GENOMEDB $PFAM_VERSION/;
+our @EXPORT = qw/$VARDB_RELEASE $VARDB_HOME $VARDB_SEARCH_FILE 
+	$UNIPROTDB $PDBDB $HMMDB $GENOMEDB $PFAM_VERSION/;
+
+our $VARDB_RELEASE = 1;
 
 our $VARDB_HOME = "/Volumes/Data/projects/vardb";
+our $VARDB_SEARCH_FILE = "$VARDB_HOME/etc/search_sequences.txt";
+
 
 our $UNIPROTDB = "$VARDB_HOME/db/uniprot";
 our $PDBDB = "$VARDB_HOME/db/pdb";

@@ -23,6 +23,7 @@ sub _initialize {
 	$self->{start} = $param->{start};
 	$self->{end} = $param->{end};
 	$self->{strand} = $param->{strand};
+	$self->{source} = $param->{source};
 	$self->{exons} = {};
 	$self->{exon_list} = [];
 	$self->{nexons} = 0;
@@ -30,6 +31,11 @@ sub _initialize {
 
 sub get_id {
 	return shift->{id};
+}
+
+sub set_id {
+	my $self = shift;
+	$self->{id} = shift;
 }
 
 sub get_name {
@@ -91,6 +97,14 @@ sub get_exon {
 	return $self->{exons}->{$id};
 }
 
+sub get_source {
+	return shift->{source};
+}
+
+sub set_source {
+	my $self = shift;
+	$self->{source} = shift;
+}
 
 sub add_exon {
 	my $self = shift;

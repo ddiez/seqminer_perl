@@ -15,9 +15,11 @@ sub new {
 
 sub _initialize {
 	my $self = shift;
+	my $param = shift;
 	$self->{genes} = {};
 	$self->{gene_list} = [];
 	$self->{ngenes} = 0;
+	$self->read_gff($param) if defined $param->{file};
 }
 
 sub get_ngenes {
@@ -49,6 +51,40 @@ sub add_exon {
 	$gene->add_exon($exon);
 }
 
+sub read_gff {
+	my $self = shift;
+	my $param = shift;
+	
+	my $file = $param->{file};
+	open IN, "$file" or die "[Genome:read_gff]: cannot read file $file: $!\n";
+	while (<IN>) {
+		chomp;
+		my ($id, $source, $type, $chromosome, $strand, $start, $end, $foo, $description) = split '\t', $_;
+		if ($type eq "gene") {
+			my $gene = new varDB::Gene;
+			$gene->set_id($id);
+			$gene->set_source($source);
+			$gene->set_chromosome($chromosome);
+			$gene->set_strand($strand);
+			$gene->set_start($start);
+			$gene->set_end($end);
+#			$description = "" if !defined $description;
+			$gene->set_description($description);
+			$self->add_gene($gene);
+		} elsif ($type eq "exon") {
+			my $gene = $self->get_gene($id);
+			my $exon = new varDB::Exon;
+			$exon->set_id($gene->get_nexons() + 1);
+			$exon->set_parent($id);
+			$exon->set_strand($strand);
+			$exon->set_start($start);
+			$exon->set_end($end);
+			$self->add_exon($exon);
+		} # nothing else.
+	}
+	close IN;
+}
+
 # format:
 # id
 # type
@@ -64,7 +100,9 @@ sub print_gff {
 	foreach my $id (@{ $self->{gene_list} }) {
 		my $gene = $self->get_gene($id);
 		print
-			"$id\tgene\t",
+			"$id\t",
+			$gene->get_source, "\t",
+			"gene\t",
 			$gene->get_chromosome, "\t",
 			$gene->get_strand, "\t",
 			$gene->get_start, "\t",
@@ -75,7 +113,9 @@ sub print_gff {
 		foreach my $n (1 .. $nexons) {
 		my $exon = $gene->get_exon($n);
 		print 
-			"$id\texon\t",
+			"$id\t",
+			$gene->get_source, "\t",
+			"exon\t",
 			"-\t",
 			$exon->get_strand, "\t",
 			$exon->get_start, "\t",
