@@ -4,7 +4,7 @@ bin/vardb_broad_parse_gff.pl
 bin/vardb_count_genes.pl
 bin/vardb_count_list.pl
 bin/vardb_formatdb.pl
-bin/vardb_keeg_ent2gff.pl
+bin/vardb_kegg_ent2gff.pl
 bin/vardb_ncbi_parse_gff.pl
 bin/vardb_plasmodb_parse_gff.pl
 bin/vardb_run.sh
