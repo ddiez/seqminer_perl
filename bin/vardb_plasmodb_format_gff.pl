@@ -4,12 +4,10 @@ use varDB::Genome;
 use strict;
 use warnings;
 
-my $file = shift;
-open IN, $file or die "ERROR: cannot open file $file: $!\n";
-my $self = undef;
-
 my $genome = new varDB::Genome();
+my $file = shift;
 
+open IN, $file or die "ERROR: cannot open file $file: $!\n";
 while (<IN>) {
 	last if /^##FASTA/; # skip sequences.
 	next if /^##/; # skip comments.

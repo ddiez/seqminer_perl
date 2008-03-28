@@ -40,6 +40,11 @@ sub get_description {
 	return shift->{description};
 }
 
+sub set_description {
+	my $self = shift;
+	$self->{description} = shift;
+}
+
 sub get_chromosome {
 	return shift->{chromosome};
 }
