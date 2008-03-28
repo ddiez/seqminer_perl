@@ -12,7 +12,7 @@ while (my $seq = $in->next_seq) {
 	my $gene = new varDB::Gene;
 	$gene->set_id($seq->accession_number);
 	$gene->set_source("kegg");
-	$gene->set_chromosome("-");
+	$gene->set_chromosome("1");
 
 	my @pos = $seq->annotation()->get_Annotations('position');
 	my $pos = Bio::Factory::FTLocationFactory->from_string($pos[0]->text);
