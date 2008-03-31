@@ -119,6 +119,17 @@ while (<IN>) {
 	# TODO:
 	# check for genes with multiple matches (with different offset/revcom) and
 	# create an unified list for sequence retrieval? 
+	#
+	# 1.2 do genewisedb for search with hmm in nucleotide database.
+	print STDERR "searching with Pfam models in nucleotide database (genewisedb) ... ";
+	system "genewisedb -hmmer $ls.hmm $GENOMEDB/$organism_dir/gene.fa > $base-gene\_ls-genewise.log";
+	system "genewisedb -hmmer $fs.hmm $GENOMEDB/$organism_dir/gene.fa > $base-gene\_fs-genewise.log";
+	print STDERR "OK\n";
+	# parse results.
+	print STDERR "parsing results ... ";
+	system "genewise_parse.pl -i $base-gene\_ls-genewise.log > $base-gene\_ls-genewise.list";
+	system "genewise_parse.pl -i $base-gene\_fs-genewise.log > $base-gene\_fs-genewise.list";
+	print STDERR "OK\n";
 	
 	###########################################################
 	## 2. do psi-blast find best protein hits and get pssm.
