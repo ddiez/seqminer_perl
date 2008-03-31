@@ -198,17 +198,21 @@ sub export_nelson {
 		my $strand = "forward";
 		$strand = "reverse" if $gene->get_strand eq "-";
 		my $nexons = $gene->get_nexons;
+		my $nuc_seq = $nuc->get_seq($id);
+		my $pro_seq = $pro->get_seq($id);
+		$nuc_seq = "" if !defined $nuc_seq;
+		$pro_seq = "" if !defined $pro_seq;
 		print OUT "$id\t",
 			$family, "\t",
 			$organism, "\t",
 			uc $strain, "\t",
 			"$chromosome\t",
-			$pro->get_seq($id), "\t",
-			$nuc->get_seq($id), "\t",
+			$pro_seq, "\t",
+			$nuc_seq, "\t",
 			"$strand\t",
 			"$nexons\t",
-			"-\t",
-			"-\t",
+			"\t",
+			"\t",
 			$self->get_quality($id), "\n";
 	}
 	close OUT;

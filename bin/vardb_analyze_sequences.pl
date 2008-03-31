@@ -55,6 +55,8 @@ while (<IN>) {
 	my $lp_fs = new varDB::ListIO({file => "$base-protein_fs.list"});
 	my $lg_ls = new varDB::ListIO({file => "$base-gene_ls.list"});
 	my $lg_fs = new varDB::ListIO({file => "$base-gene_fs.list"});
+	my $lgg_ls = new varDB::ListIO({file => "$base-gene_ls-genewise.list"});
+	my $lgg_fs = new varDB::ListIO({file => "$base-gene_fs-genewise.list"});
 	
 	my $np = $lp->get_number;
 	my $ng = $lg->get_number;
@@ -62,10 +64,12 @@ while (<IN>) {
 	my $np_fs = $lp_fs->get_number;
 	my $ng_ls = $lg_ls->get_number;
 	my $ng_fs = $lg_fs->get_number;
+	my $ngg_ls = $lgg_ls->get_number;
+	my $ngg_fs = $lgg_fs->get_number;
 	
 	# compute sets stuff.
 	my $pset = new Sets($lp->get_gene_list, $lp_ls->get_gene_list, $lp_fs->get_gene_list);
-	my $gset = new Sets($lg->get_gene_list, $lg_ls->get_gene_list(1), $lg_ls->get_gene_list(1));
+	my $gset = new Sets($lg->get_gene_list, $lg_ls->get_gene_list(1), $lg_fs->get_gene_list(1), $lgg_ls->get_gene_list, $lgg_fs->get_gene_list);
 	
 	my $pi = $pset->intersect;
 	my $pu = $pset->union;
@@ -82,6 +86,8 @@ np_ls:       $np_ls
 np_fs:       $np_fs
 ng_ls:       $ng_ls
 ng_fs:       $ng_fs
+ngg_ls:      $ngg_ls
+ngg_fs:      $ngg_fs
 np-psi:      $np
 ng-psi:      $ng
 p union:     $npu
@@ -97,6 +103,8 @@ OUT
 	print NUMBER "$np_fs\t$family\t$organism_dir\tprotein_fs\n";
 	print NUMBER "$ng_ls\t$family\t$organism_dir\tgene_ls\n";
 	print NUMBER "$ng_fs\t$family\t$organism_dir\tgene_fs\n";
+	print NUMBER "$ngg_ls\t$family\t$organism_dir\tgene_ls-gw\n";
+	print NUMBER "$ngg_fs\t$family\t$organism_dir\tgene_fs-gw\n";
 	print NUMBER "$npu\t$family\t$organism_dir\tprotein union\n";
 	print NUMBER "$npi\t$family\t$organism_dir\tprotein intersect\n";
 	print NUMBER "$ngu\t$family\t$organism_dir\tgene union\n";
@@ -109,6 +117,8 @@ OUT
 	$lp_fs->check_exons($eexons, $pos, 0);
 	$lg_ls->check_exons($eexons, $pos, 1);
 	$lg_fs->check_exons($eexons, $pos, 1);
+	$lgg_ls->check_exons($eexons, $pos, 1);
+	$lgg_fs->check_exons($eexons, $pos, 1);
 	
 	$lp->print({file => "$base-foo.txt"});
 	
@@ -118,7 +128,8 @@ OUT
 	my $genome = new varDB::Genome({file => "$GENOMEDB/$organism_dir/genome.gff"});
 	
 	# export in nelson's format.
-	$lp->export_nelson({file => "$base-nelson.txt", info => $info, protein => $pro, nucleotide => $nuc, genome => $genome});
+	$lp->export_nelson({file => "$base-protein-nelson.txt", info => $info, protein => $pro, nucleotide => $nuc, genome => $genome});
+	$lgg_ls->export_nelson({file => "$base-gene_ls-gw-nelson.txt", info => $info, protein => $pro, nucleotide => $nuc, genome => $genome});
 
 	close NUMBER;
 	
