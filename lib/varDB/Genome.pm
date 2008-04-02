@@ -19,7 +19,27 @@ sub _initialize {
 	$self->{genes} = {};
 	$self->{gene_list} = [];
 	$self->{ngenes} = 0;
+	$self->{organism} = "";
+	$self->{strain} = "";
 	$self->read_gff($param) if defined $param->{file};
+}
+
+sub get_organism {
+	return shift->{organism};
+}
+
+sub set_organism {
+	my $self = shift;
+	$self->{organism} = shift;
+}
+
+sub get_strain {
+	return shift->{strain};
+}
+
+sub set_strain {
+	my $self = shift;
+	$self->{strain} = shift;
 }
 
 sub get_ngenes {

@@ -59,6 +59,12 @@ sub get_gene_list {
 	}
 }
 
+sub has_id {
+	my $self = shift;
+	my $id = shift;
+	return 1 if exists $self->{gene}->{$id};
+}
+
 sub get_number {
 	return shift->{nseq};
 }

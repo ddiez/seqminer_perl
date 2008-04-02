@@ -4,8 +4,12 @@ bin/vardb_broad_parse_gff.pl
 bin/vardb_count_genes.pl
 bin/vardb_count_list.pl
 bin/vardb_formatdb.pl
+bin/vardb_genbank2gff.pl
+bin/vardb_genedb_embl2gff.pl
 bin/vardb_kegg_ent2gff.pl
 bin/vardb_ncbi_parse_gff.pl
+bin/vardb_plasmodb_format_genome_est.pl
+bin/vardb_plasmodb_format_protein_cds.pl
 bin/vardb_plasmodb_parse_gff.pl
 bin/vardb_run.sh
 bin/vardb_search_sequences.pl
@@ -29,4 +33,5 @@ lib/varDB/Parser/kegg.pm
 lib/varDB/Parser/plasmodb.pm
 lib/varDB/Position.pm
 lib/varDB/SearchIO.pm
+lib/varDB/SearchResult.pm
 lib/varDB/SeqIO.pm

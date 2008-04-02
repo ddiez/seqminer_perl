@@ -12,7 +12,7 @@ while (<IN>) {
 	next if /^##/; # skip comments.
 	chomp;
 	my ($id, $source, $type, $start, $end, $foo, $strand, $foo2, $info) = split '\t', $_;
-	my $chr = "-"; # no chromosome for bacteria.
+	my $chr = $1 if $id =~ /(.+?)\./; # no chromosome for bacteria.
 	if ($type eq "gene") {
 		$info = parse_gene_info($info);
 		my $gene = new varDB::Gene($info);
