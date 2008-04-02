@@ -52,12 +52,12 @@ while (<IN>) {
 	# read list file.
 	#my $lp = new varDB::SearchResult({file => "$base-protein.log", search_type => 'psiblast'});
 	#my $lg = new varDB::SearchResult({file => "$base-gene.log", search_type => 'psiblast'});
-	my $lp_ls = new varDB::SearchResult({file => "$base-protein_ls.log", search_type => 'hmmer', model_name => $info->get_hmm_name."_ls"});
-	my $lp_fs = new varDB::SearchResult({file => "$base-protein_fs.log", search_type => 'hmmer', model_name => $info->get_hmm_name."_fs"});
+	my $lp_ls = new varDB::SearchResult({file => "$base-protein_ls.log", search_type => 'hmmer'});
+	my $lp_fs = new varDB::SearchResult({file => "$base-protein_fs.log", search_type => 'hmmer'});
 	#my $lg_ls = new varDB::SearchResult({file => "$base-gene_ls.log", search_type => 'hmmer'});
 	#my $lg_fs = new varDB::SearchResult({file => "$base-gene_fs.log", search_type => 'hmmer'});
-	my $lgg_ls = new varDB::SearchResult({file => "$base-gene_ls-genewise.log", search_type => 'genewise', model_name => $info->get_hmm_name."_ls"});
-	my $lgg_fs = new varDB::SearchResult({file => "$base-gene_fs-genewise.log", search_type => 'genewise', model_name => $info->get_hmm_name."_fs"});
+	my $lgg_ls = new varDB::SearchResult({file => "$base-gene_ls-genewise.log", search_type => 'genewise'});
+	my $lgg_fs = new varDB::SearchResult({file => "$base-gene_fs-genewise.log", search_type => 'genewise'});
 	
 	#my $np = $lp->length;
 	#my $ng = $lg->length;

@@ -34,6 +34,23 @@ sub _initialize {
 	}
 }
 
+sub id_by_pos {
+	return shift->{gene_list}->[shift];
+}
+
+sub first {
+	return shift->{gene_list}->[0];
+}
+
+sub best_hit {
+	my $self = shift;
+	my $best_hit = $self->first;
+	foreach my $id (@{ $self->id_list }) {
+		$best_hit = $id if $self->{id}->{$id}->{evalue} < $self->{id}->{$best_hit}->{evalue};
+	}
+	return $best_hit;
+}
+
 sub add {
 	my $self = shift;
 	my $id = shift;
@@ -44,6 +61,7 @@ sub add {
 	$self->{id}->{$id}->{pexons} = 0;
 	$self->{id}->{$id}->{strand} = "";
 	$self->{id}->{$id}->{method} = "";
+	$self->{id}->{$id}->{model} = "";
 	push @{$self->{id_list}}, $id;
 	$self->{nids}++; 
 }
@@ -53,15 +71,16 @@ sub merge {
 	my $list = shift;
 	foreach my $id (@{ $list->id_list }) {
 		if ($self->has_id($id)) {
-			if ($list->evalue($id) < $self->evalue($id)) {
-				$self->score($id, $list->score($id));
-				$self->evalue($id, $list->evalue($id));
-				$self->quality($id, $list->quality($id));
-				$self->eexons($id, $list->eexons($id));
-				$self->pexons($id, $list->pexons($id));
-				$self->strand($id, $list->strand($id));
-				$self->method($id, $list->method($id));
-			}
+			#if ($list->evalue($id) < $self->evalue($id)) {
+			#	$self->score($id, $list->score($id));
+			#	$self->evalue($id, $list->evalue($id));
+			#	$self->quality($id, $list->quality($id));
+			#	$self->eexons($id, $list->eexons($id));
+			#	$self->pexons($id, $list->pexons($id));
+			#	$self->strand($id, $list->strand($id));
+			#	$self->method($id, $list->method($id));
+			#	$self->model($id, $list->model($id));
+			#}
 		} else {
 			$self->add($id);
 			$self->score($id, $list->score($id));
@@ -71,6 +90,7 @@ sub merge {
 			$self->pexons($id, $list->pexons($id));
 			$self->strand($id, $list->strand($id));
 			$self->method($id, $list->method($id));
+			$self->model($id, $list->model($id));
 		}
 	}
 }
@@ -184,13 +204,14 @@ sub print {
 	
 	open OUT, ">$param->{file}" or die "[SearchResult::print] cannot open file $param->{file} for writing: $!\n";
 	foreach my $id (@{$self->id_list}) {
-		my $score = $self->score($id);
-		my $evalue = $self->evalue($id);
-		my $eexons = $self->eexons($id);
-		my $pexons = $self->pexons($id);
-		my $quality = $self->quality($id);
-		my $method = $self->method($id);
-		print OUT "$id\t$score\t$evalue\t$eexons\t$pexons\t$quality\t$method\n";
+		print OUT "$id\t",
+			$self->score($id), "\t",
+			$self->evalue($id), "\t",
+			$self->eexons($id), "\t",
+			$self->pexons($id), "\t",
+			$self->quality($id), "\t",
+			$self->model($id), "\t",
+			$self->method($id), "\n";
 	}
 	close OUT;
 }
@@ -227,6 +248,7 @@ sub export_nelson {
 		"truncated\t",
 		"rating\t",
 		"method\t",
+		"model\t",
 		"score\t",
 		"evalue\n"; 
 	foreach my $id (@{ $self->id_list }) {
@@ -253,6 +275,7 @@ sub export_nelson {
 			"\t",
 			$self->quality($id), "\t",
 			$self->method($id), "\t",
+			$self->model($id), "\t",
 			$self->score($id), "\t",
 			$self->evalue($id), "\n";
 	}
@@ -263,10 +286,17 @@ sub _parse_hmmer_file {
 	my $self = shift;
 	my $file = shift;
 	my $cutoff = shift;
+	my $model;
 	
 	$cutoff = 0.01 if !defined $cutoff; # set default cutoff.
 	open IN, $file or die "[SearchResult:_parse_hmmer_file]: cannot open file $file: $!\n";
 	while (<IN>) {
+		if (/HMM file/) {
+			my @line1 = split;
+			$model = $line1[$#line1-1];
+			$model =~ s/(.+)\.hmm/$1/;
+			print STDERR "$model\n";
+		}
 		next unless /^Scores for complete sequences/;
 		while (<IN>) {
 			last if /^[\n]$/;
@@ -282,6 +312,7 @@ sub _parse_hmmer_file {
 				$self->{id}->{$id}->{pexons} = 0;
 				$self->{id}->{$id}->{strand} = "";
 				$self->{id}->{$id}->{method} = "hmmer";
+				$self->{id}->{$id}->{model} = $model;
 				push @{$self->{id_list}}, $id;
 				$self->{nids}++;
 			}
@@ -294,11 +325,18 @@ sub _parse_genewise_file {
 	my $self = shift;
 	my $file = shift;
 	my $cutoff = shift;
+	my $model;
 	
 	$cutoff = 0.01 if !defined $cutoff; # set default cutoff.
 	
 	open IN, $file or die "[SearchResult:_parse_genewise_file]: cannot open file $file: $!\n";
 	while (<IN>) {
+		if (/Protein info from/) {
+			my @line = split;
+			$model = pop @line;
+			$model =~ s/(.+)\.hmm/$1/;
+			print STDERR "$model\n";
+		}
 		next unless /^#High Score list/;
 		my $skip = <IN>;
 		$skip = <IN>;
@@ -314,6 +352,7 @@ sub _parse_genewise_file {
 				$self->{id}->{$id}->{pexons} = 0;
 				$self->{id}->{$id}->{strand} = $strand =~ /\[(.)\]/ ? $1 : "";
 				$self->{id}->{$id}->{method} = "genewise";
+				$self->{id}->{$id}->{model} = $model;
 				push @{$self->{id_list}}, $id;
 				$self->{nids}++;
 			}

@@ -35,74 +35,74 @@ sub _initialize {
 	$self->{format} = $format;
 }
 
-sub get_organism {
+sub organism {
 	return shift->{organism};
 }
 
-sub get_strain {
+sub strain {
 	return shift->{strain};
 }
 
-sub get_organism_dir {
+sub organism_dir {
 	return shift->{organism_dir};
 }
 
-sub get_super_family {
+sub super_family {
 	return shift->{super_family};
 }
 
-sub get_family {
+sub family {
 	return shift->{family};
 }
 
-sub get_seed {
+sub seed {
 	return shift->{seed};
 }
 
-sub get_pssm_eval {
+sub pssm_eval {
 	return shift->{pssm_eval};
 }
 
-sub get_psi_eval {
+sub psi_eval {
 	return shift->{psi_eval};
 }
 
-sub get_tbn_eval {
+sub tbn_eval {
 	return shift->{tbn_eval};
 }
 
-sub get_iter {
+sub iter {
 	return shift->{iter};
 }
 
-sub get_hmm_acc {
+sub hmm_acc {
 	return shift->{hmm_acc};
 }
 
-sub get_hmm_name {
+sub hmm_name {
 	return shift->{hmm_name};
 }
 
-sub get_hmm_eval {
+sub hmm_eval {
 	return shift->{hmm_eval};
 }
 
-sub get_eexons {
+sub eexons {
 	return shift->{eexons};
 }
 
-sub get_format {
+sub format {
 	return shift->{format};
 }
 
 sub debug {
 	my $self = shift;
 	print STDERR <<"TXT";
-----------------------------------------------
- organism: $self->{organism}
- strain:   $self->{strain}
- family:   $self->{family}
-----------------------------------------------
+*
+* organism: $self->{organism}
+* strain: $self->{strain}
+* family: $self->{family}
+*
 TXT
 
 }
