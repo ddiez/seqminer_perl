@@ -214,8 +214,21 @@ sub export_nelson {
 	my $family = "$organism.".$info->{family};
 	
 	open OUT, ">$param->{file}" or die "[SearchResult::export_nelson] cannot open file $param->{file} for writing: $!\n";
-	print OUT "SEQUENCE\tfamily\tgenome\tstrain\tchromosome\ttranslation\t",
-		"sequence\tstrand\texons\tpseudogene\ttruncated\trating\n"; 
+	print OUT "SEQUENCE\t",
+		"family\t",
+		"genome\t",
+		"strain\t",
+		"chromosome\t",
+		"translation\t",
+		"sequence\t",
+		"strand\t",
+		"exons\t",
+		"pseudogene\t",
+		"truncated\t",
+		"rating\t",
+		"method\t",
+		"score\t",
+		"evalue\n"; 
 	foreach my $id (@{ $self->id_list }) {
 		# chromosome?
 		my $gene = $genome->get_gene($id);
@@ -238,7 +251,10 @@ sub export_nelson {
 			"$nexons\t",
 			"\t",
 			"\t",
-			$self->quality($id), "\n";
+			$self->quality($id), "\t",
+			$self->method($id), "\t",
+			$self->score($id), "\t",
+			$self->evalue($id), "\n";
 	}
 	close OUT;
 }

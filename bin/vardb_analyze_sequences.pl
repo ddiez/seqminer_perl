@@ -50,15 +50,6 @@ while (<IN>) {
 	my $pos = new varDB::Position({file => "$GENOMEDB/$organism_dir/position.txt", format => $info->get_format});
 	
 	# read list file.
-	#my $lp = new varDB::ListIO({file => "$base-protein.list"});
-	#my $lg = new varDB::ListIO({file => "$base-gene.list"});
-	#my $lp_ls = new varDB::ListIO({file => "$base-protein_ls.list"});
-	#my $lp_fs = new varDB::ListIO({file => "$base-protein_fs.list"});
-	#my $lg_ls = new varDB::ListIO({file => "$base-gene_ls.list"});
-	#my $lg_fs = new varDB::ListIO({file => "$base-gene_fs.list"});
-	#my $lgg_ls = new varDB::ListIO({file => "$base-gene_ls-genewise.list"});
-	#my $lgg_fs = new varDB::ListIO({file => "$base-gene_fs-genewise.list"});
-	
 	#my $lp = new varDB::SearchResult({file => "$base-protein.log", search_type => 'psiblast'});
 	#my $lg = new varDB::SearchResult({file => "$base-gene.log", search_type => 'psiblast'});
 	my $lp_ls = new varDB::SearchResult({file => "$base-protein_ls.log", search_type => 'hmmer', model_name => $info->get_hmm_name."_ls"});
@@ -67,15 +58,6 @@ while (<IN>) {
 	#my $lg_fs = new varDB::SearchResult({file => "$base-gene_fs.log", search_type => 'hmmer'});
 	my $lgg_ls = new varDB::SearchResult({file => "$base-gene_ls-genewise.log", search_type => 'genewise', model_name => $info->get_hmm_name."_ls"});
 	my $lgg_fs = new varDB::SearchResult({file => "$base-gene_fs-genewise.log", search_type => 'genewise', model_name => $info->get_hmm_name."_fs"});
-	
-	#my $np = $lp->get_number;
-	#my $ng = $lg->get_number;
-	#my $np_ls = $lp_ls->get_number;
-	#my $np_fs = $lp_fs->get_number;
-	#my $ng_ls = $lg_ls->get_number;
-	#my $ng_fs = $lg_fs->get_number;
-	#my $ngg_ls = $lgg_ls->get_number;
-	#my $ngg_fs = $lgg_fs->get_number;
 	
 	#my $np = $lp->length;
 	#my $ng = $lg->length;
@@ -136,16 +118,9 @@ while (<IN>) {
 	$lp_ls->merge($lp_fs);
 	$lgg_ls->merge($lgg_fs);
 	$lp_ls->merge($lgg_ls);
-	# check exons.
-	#$lp->check_exons($eexons, $pos, 0);
-	#$lg->check_exons($eexons, $pos, 0);
+
+	# check exons (this should be done in just one file).
 	$lp_ls->check_exons($eexons, $pos, 0);
-	#$lp_fs->check_exons($eexons, $pos, 0);
-	#$lg_ls->check_exons($eexons, $pos, 1);
-	#$lg_fs->check_exons($eexons, $pos, 1);
-	#$lgg_ls->check_exons($eexons, $pos, 0);
-	#$lgg_fs->check_exons($eexons, $pos, 0);
-	
 	$lp_ls->print({file => "$base.txt"});
 	
 	# read sequence files.
@@ -155,7 +130,6 @@ while (<IN>) {
 	
 	# export in nelson's format.
 	$lp_ls->export_nelson({file => "$base-nelson.txt", info => $info, protein => $pro, nucleotide => $nuc, genome => $genome});
-	#$lgg_ls->export_nelson({file => "$base-gene_ls-gw-nelson.txt", info => $info, protein => $pro, nucleotide => $nuc, genome => $genome});
 
 	close NUMBER;
 	
