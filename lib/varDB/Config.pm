@@ -8,7 +8,7 @@ our $VARDB_RELEASE = 1;
 our $DEBUG = 1;
 
 our $VARDB_HOME = "/Volumes/Data/projects/vardb";
-our $VARDB_SEARCH_FILE = "$VARDB_HOME/etc/search_sequences.txt";
+our $VARDB_SEARCH_FILE = "$VARDB_HOME/etc/config_search.txt";
 
 
 our $UNIPROTDB = "$VARDB_HOME/db/uniprot";
