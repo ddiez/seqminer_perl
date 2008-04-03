@@ -24,22 +24,22 @@ sub _initialize {
 	my $param = shift;
 	
 	$self->{file} = $param->{file};
-	$self->{search_type} = $param->{search_type};
-	if ($param->{search_type} eq "hmmer") {
+	$self->{method} = $param->{method};
+	if ($param->{method} eq "hmmer") {
 		$self->_parse_hmmer_file($param->{file});
-	} elsif ($param->{search_type} eq "genewise") {
+	} elsif ($param->{method} eq "genewise") {
 		$self-> _parse_genewise_file($param->{file});
 	} else {
-		die "[SearchResult:_initialize] unknown search_type: $param->{search_type}\n";
+		die "[SearchResult:_initialize] unknown method: $param->{method}\n";
 	}
 }
 
 sub id_by_pos {
-	return shift->{gene_list}->[shift];
+	return shift->{id_list}->[shift];
 }
 
 sub first {
-	return shift->{gene_list}->[0];
+	return shift->{id_list}->[0];
 }
 
 sub best_hit {
@@ -295,7 +295,6 @@ sub _parse_hmmer_file {
 			my @line1 = split;
 			$model = $line1[$#line1-1];
 			$model =~ s/(.+)\.hmm/$1/;
-			print STDERR "$model\n";
 		}
 		next unless /^Scores for complete sequences/;
 		while (<IN>) {
@@ -335,7 +334,6 @@ sub _parse_genewise_file {
 			my @line = split;
 			$model = pop @line;
 			$model =~ s/(.+)\.hmm/$1/;
-			print STDERR "$model\n";
 		}
 		next unless /^#High Score list/;
 		my $skip = <IN>;

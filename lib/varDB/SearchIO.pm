@@ -95,6 +95,11 @@ sub format {
 	return shift->{format};
 }
 
+sub base {
+	my $self = shift;
+	return "$self->{family}-$self->{organism_dir}";
+}
+
 sub debug {
 	my $self = shift;
 	print STDERR <<"TXT";

@@ -4,7 +4,8 @@ use strict;
 use warnings;
 
 use varDB::Config;
-use varDB::SearchIO;
+#use varDB::SearchIO;
+use varDB::SearchParam;
 use varDB::SeqIO;
 use varDB::Genome;
 use varDB::Position;
@@ -12,53 +13,57 @@ use varDB::Position;
 use varDB::SearchResult; # substitute ListIO.
 use Sets;
 
-my $file = shift;
-$file = $VARDB_SEARCH_FILE if !defined $file;
+#my $file = shift;
+#$file = $VARDB_SEARCH_FILE if !defined $file;
 
-print STDERR "reading config file: $file\n";
+#print STDERR "reading config file: $file\n";
 
 # define locations.
-my $OUTDIR = "$VARDB_HOME/families/vardb-$VARDB_RELEASE";
-my $DEBUG = 1;
-if ($DEBUG == 1) {
-	$OUTDIR = "$VARDB_HOME/families/test/last";
-}
-print STDERR "output_dir: $OUTDIR\n";
+#my $OUTDIR = "$VARDB_HOME/families/vardb-$VARDB_RELEASE";
+#if ($DEBUG == 1) {
+#	$OUTDIR = "$VARDB_HOME/families/test/last/analysis";
+#}
+#print STDERR "* output_dir: $OUTDIR\n";
 
-open IN, "$file" or die "$!";
-while (<IN>) {
-	next if /^[#|\n]/;
-	chomp;
-	
-	my $info = new varDB::SearchIO($_);
+my $param = new varDB::SearchParam({file => shift});
+$param->debug;
+
+while (my $info = $param->next_param) {
 	$info->debug;
+#open IN, "$file" or die "$!";
+#while (<IN>) {
+#	next if /^[#|\n]/;
+#	chomp;
 	
-	my $family = $info->get_family;
-	my $organism_dir = $info->get_organism_dir;
-	my $eexons = $info->get_eexons;
+#	my $info = new varDB::SearchIO($_);
+#	$info->debug;
+	
+	my $family = $info->family;
+	my $organism_dir = $info->organism_dir;
+	my $eexons = $info->eexons;
 	my $base = "$family-$organism_dir";
 	
-	my $outdir = "$OUTDIR/".$info->get_super_family;
-	chdir $outdir;
-
-	open NUMBER, ">>number.txt" or die "$!";
+	#my $outdir = "$OUTDIR/".$info->get_super_family;
+	#chdir $outdir;
 	
 	####################################################################
 	## 4. do QUALITY CHECK
 	
 	# read position file.
-	my $pos = new varDB::Position({file => "$GENOMEDB/$organism_dir/position.txt", format => $info->get_format});
+	my $pos = new varDB::Position({file => "$GENOMEDB/$organism_dir/position.txt", format => $info->format});
 	
 	# read list file.
-	#my $lp = new varDB::SearchResult({file => "$base-protein.log", search_type => 'psiblast'});
-	#my $lg = new varDB::SearchResult({file => "$base-gene.log", search_type => 'psiblast'});
-	my $lp_ls = new varDB::SearchResult({file => "$base-protein_ls.log", search_type => 'hmmer'});
-	my $lp_fs = new varDB::SearchResult({file => "$base-protein_fs.log", search_type => 'hmmer'});
-	#my $lg_ls = new varDB::SearchResult({file => "$base-gene_ls.log", search_type => 'hmmer'});
-	#my $lg_fs = new varDB::SearchResult({file => "$base-gene_fs.log", search_type => 'hmmer'});
-	my $lgg_ls = new varDB::SearchResult({file => "$base-gene_ls-genewise.log", search_type => 'genewise'});
-	my $lgg_fs = new varDB::SearchResult({file => "$base-gene_fs-genewise.log", search_type => 'genewise'});
+	$param->chdir($info, 'search');
+	#my $lp = new varDB::SearchResult({file => "$base-protein.log", method => 'psiblast'});
+	#my $lg = new varDB::SearchResult({file => "$base-gene.log", method => 'psiblast'});
+	my $lp_ls = new varDB::SearchResult({file => "$base-protein_ls.log", method => 'hmmer'});
+	my $lp_fs = new varDB::SearchResult({file => "$base-protein_fs.log", method => 'hmmer'});
+	#my $lg_ls = new varDB::SearchResult({file => "$base-gene_ls.log", method => 'hmmer'});
+	#my $lg_fs = new varDB::SearchResult({file => "$base-gene_fs.log", method => 'hmmer'});
+	my $lgg_ls = new varDB::SearchResult({file => "$base-gene_ls-genewise.log", method => 'genewise'});
+	my $lgg_fs = new varDB::SearchResult({file => "$base-gene_fs-genewise.log", method => 'genewise'});
 	
+	$param->chdir($info, 'analysis');
 	#my $np = $lp->length;
 	#my $ng = $lg->length;
 	my $np_ls = $lp_ls->length;
@@ -103,6 +108,7 @@ while (<IN>) {
 	# print number of sequences.
 	#print NUMBER "$np\t$family\t$organism_dir\tprotein\n";
 	#print NUMBER "$ng\t$family\t$organism_dir\tgene\n";
+	open NUMBER, ">>number.txt" or die "$!";
 	print NUMBER "$np_ls\t$family\t$organism_dir\tprotein_ls\n";
 	print NUMBER "$np_fs\t$family\t$organism_dir\tprotein_fs\n";
 	#print NUMBER "$ng_ls\t$family\t$organism_dir\tgene_ls\n";
@@ -113,6 +119,7 @@ while (<IN>) {
 	print NUMBER "$npi\t$family\t$organism_dir\tprotein intersect\n";
 	print NUMBER "$ngu\t$family\t$organism_dir\tgene union\n";
 	print NUMBER "$ngi\t$family\t$organism_dir\tgene intersect\n";
+	close NUMBER;
 	
 	
 	$lp_ls->merge($lp_fs);
@@ -130,10 +137,9 @@ while (<IN>) {
 	
 	# export in nelson's format.
 	$lp_ls->export_nelson({file => "$base-nelson.txt", info => $info, protein => $pro, nucleotide => $nuc, genome => $genome});
-
-	close NUMBER;
 	
-	#system "extract_fasta.pl -f $base-gene.list -i $GENOMEDB/$organism_dir/gene.idx > $base-gene.fa";
-	#system "extract_fasta.pl -f $base-protein.list -i $GENOMEDB/$organism_dir/protein.idx > $base-protein.fa";
+	# TODO: export FASTA file.
+	#$lp_ls->export_fasta({file => "$base-protein.fa", db => $pro});
+	#$lp_ls->export_fasta({file => "$base-nucleotide.fa", db => $nuc});
 }
-close IN;
+#close IN;

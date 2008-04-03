@@ -33,5 +33,6 @@ lib/varDB/Parser/kegg.pm
 lib/varDB/Parser/plasmodb.pm
 lib/varDB/Position.pm
 lib/varDB/SearchIO.pm
+lib/varDB/SearchParam.pm
 lib/varDB/SearchResult.pm
 lib/varDB/SeqIO.pm
