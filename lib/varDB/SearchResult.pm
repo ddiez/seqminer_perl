@@ -24,13 +24,17 @@ sub _initialize {
 	my $param = shift;
 	
 	$self->{file} = $param->{file};
-	$self->{method} = $param->{method};
-	if ($param->{method} eq "hmmer") {
-		$self->_parse_hmmer_file($param->{file});
-	} elsif ($param->{method} eq "genewise") {
-		$self-> _parse_genewise_file($param->{file});
+	if (defined $param->{method}) {
+		$self->{method} = $param->{method};
 	} else {
-		die "[SearchResult:_initialize] unknown method: $param->{method}\n";
+		$self->{method} = _detect_method_type($self->{file});
+	}
+	if ($self->{method} eq "hmmer") {
+		$self->_parse_hmmer_file($self->{file});
+	} elsif ($self->{method} eq "genewise") {
+		$self-> _parse_genewise_file($self->{file});
+	} else {
+		die "[SearchResult:_initialize] unknown method: $self->{method}\n";
 	}
 }
 
@@ -372,6 +376,20 @@ sub _fix_id {
 	my $id = shift;
 	$id =~  s/(.+)-.+/$1/;
 	return $id;
+}
+
+sub _detect_method_type {
+	my $file = shift;
+	open IN, $file or die "[SearchResult:_detect_method_type]: cannot open file $file: $!\n";
+	my $method = <IN>;
+	close IN;
+	if ($method =~ /hmmsearch/) {
+		return "hmmer";
+	} elsif ($method =~ /Wise2/) {
+		return "genewise";
+	} else {
+		die "[SearchResult:_detect_method_type]: non-supported method type: $method\n";
+	}
 }
 
 1;
