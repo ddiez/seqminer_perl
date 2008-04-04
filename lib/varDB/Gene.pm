@@ -29,89 +29,73 @@ sub _initialize {
 	$self->{nexons} = 0;
 }
 
-sub get_id {
-	return shift->{id};
-}
-
-sub set_id {
+sub id {
 	my $self = shift;
-	$self->{id} = shift;
+	$self->{id} = shift if @_;
+	return $self->{id};
 }
 
-sub get_name {
-	return shift->{name};
-}
-
-sub get_description {
-	return shift->{description};
-}
-
-sub set_description {
+sub name {
 	my $self = shift;
-	$self->{description} = shift;
+	$self->{name} = shift if @_;
+	return $self->{name};
 }
 
-sub get_chromosome {
-	return shift->{chromosome};
-}
-
-sub set_chromosome {
+sub description {
 	my $self = shift;
-	$self->{chromosome} = shift;
+	$self->{description} = shift if @_;
+	return $self->{description};
 }
 
-sub get_start {
-	return shift->{start};
-}
-
-sub set_start {
+sub chromosome {
 	my $self = shift;
-	$self->{start} = shift;
+	$self->{chromosome} = shift if @_;
+	return $self->{chromosome};
 }
 
-sub get_end {
-	return shift->{end};
-}
-
-sub set_end {
+sub start {
 	my $self = shift;
-	$self->{end} = shift;
+	$self->{start} = shift if @_;
+	return $self->{start};
 }
 
-sub get_strand {
-	return shift->{strand};
-}
 
-sub set_strand {
+sub end {
 	my $self = shift;
-	$self->{strand} = shift;
+	$self->{end} = shift if @_;
+	return $self->{end};
 }
 
-sub get_nexons {
-	return shift->{nexons};
-}
-
-sub get_exon {
+sub strand {
 	my $self = shift;
-	my $id = shift;
-	return $self->{exons}->{$id};
+	$self->{strand} = shift if @_;
+	return $self->{strand};
 }
 
-sub get_source {
-	return shift->{source};
-}
-
-sub set_source {
+sub nexons {
 	my $self = shift;
-	$self->{source} = shift;
+	#$self->{nexons} = shift if @_;
+	return $self->{nexons};
+}
+
+sub source {
+	my $self = shift;
+	$self->{source} = shift if @_;
+	return $self->{source};
 }
 
 sub add_exon {
 	my $self = shift;
 	my $exon = new varDB::Exon(@_);
 	$self->{nexons}++;
-	$self->{exons}->{$exon->get_id} = $exon;
-	push @{ $self->{exon_list} }, $exon->get_id;
+	$self->{exons}->{$exon->id} = $exon;
+	push @{ $self->{exon_list} }, $exon->id;
+}
+
+sub get_exon {
+	my $self = shift;
+	my $id = shift;
+	return $self->{exons}->{$id};
 }
 
 sub get_exon_list {

@@ -231,13 +231,11 @@ sub export_nelson {
 	$nuc->set_uc;
 	#
 	my $genome = $param->{genome};
-	
+
 	# parse and fix information.
 	my $info = $param->{info};
-	my $organism = $info->{organism};
-	my $strain = $info->{strain};
-	my $family = "$organism.".$info->{family};
-	
+	my $organism = $info->organism;
+
 	open OUT, ">$param->{file}" or die "[SearchResult::export_nelson] cannot open file $param->{file} for writing: $!\n";
 	print OUT "SEQUENCE\t",
 		"family\t",
@@ -246,6 +244,8 @@ sub export_nelson {
 		"chromosome\t",
 		"translation\t",
 		"sequence\t",
+		"start\t",
+		"end\t",
 		"strand\t",
 		"exons\t",
 		"pseudogene\t",
@@ -256,25 +256,23 @@ sub export_nelson {
 		"score\t",
 		"evalue\n"; 
 	foreach my $id (@{ $self->id_list }) {
-		# chromosome?
 		my $gene = $genome->get_gene($id);
-		my $chromosome = "$organism.".$gene->get_chromosome;
-		my $strand = "forward";
-		$strand = "reverse" if $gene->get_strand eq "-";
-		my $nexons = $gene->get_nexons;
 		my $nuc_seq = $nuc->get_seq($id);
 		my $pro_seq = $pro->get_seq($id);
 		$nuc_seq = "" if !defined $nuc_seq;
 		$pro_seq = "" if !defined $pro_seq;
-		print OUT "$id\t",
-			$family, "\t",
+		print OUT
+			"$id\t",
+			$organism.".".$info->family, "\t",
 			$organism, "\t",
-			uc $strain, "\t",
-			"$chromosome\t",
+			uc $info->strain, "\t",
+			$organism.".".$gene->chromosome, "\t",
 			$pro_seq, "\t",
 			$nuc_seq, "\t",
-			"$strand\t",
-			"$nexons\t",
+			$gene->start, "\t",
+			$gene->end, "\t",
+			$gene->strand eq "+" ? "forward" : "reverse", "\t",
+			$gene->nexons, "\t",
 			"\t",
 			"\t",
 			$self->quality($id), "\t",

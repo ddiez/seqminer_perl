@@ -23,49 +23,35 @@ sub _initialize {
 	$self->{strand} = $param->{strand};
 }
 
-sub get_id {
-	return shift->{id};
-}
-
-sub set_id {
+sub id {
 	my $self = shift;
-	$self->{id} = shift;
+	$self->{id} = shift if @_;
+	return $self->{id};
 }
 
-sub get_start {
-	return shift->{start};
-}
-
-sub set_start {
+sub start {
 	my $self = shift;
-	$self->{start} = shift;
+	$self->{start} = shift if @_;
+	return $self->{start};
 }
 
-sub get_end {
-	return shift->{end};
-}
 
-sub set_end {
+sub end {
 	my $self = shift;
-	$self->{end} = shift;
+	$self->{end} = shift if @_;
+	return $self->{end};
 }
 
-sub get_strand {
-	return shift->{strand};
-}
-
-sub set_strand {
+sub strand {
 	my $self = shift;
-	$self->{strand} = shift;
+	$self->{strand} = shift if @_;
+	return $self->{strand};
 }
 
-sub get_parent {
-	return shift->{parent};
-}
-
-sub set_parent {
+sub parent {
 	my $self = shift;
-	$self->{parent} = shift;
+	$self->{parent} = shift if @_;
+	return $self->{parent};
 }
 
 1;
