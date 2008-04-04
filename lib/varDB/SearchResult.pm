@@ -284,6 +284,24 @@ sub export_nelson {
 	close OUT;
 }
 
+sub export_fasta {
+	my $self = shift;
+	my $param = shift;
+	
+	# que sequence db.
+	my $db = $param->{db};
+	open OUT, ">$param->{file}" or die "[SearchResult::export_nelson] cannot open file $param->{file} for writing: $!\n";
+	foreach my $id (@{ $self->id_list }) {
+		my $seq = $db->get_seq($id);
+		if (defined $seq) {
+			$seq =~ s/(.{60})/$1\n/g;
+			print OUT ">$id\n";
+			print OUT "$seq\n";
+		}
+	}
+	close OUT;
+}
+
 sub _parse_hmmer_file {
 	my $self = shift;
 	my $file = shift;

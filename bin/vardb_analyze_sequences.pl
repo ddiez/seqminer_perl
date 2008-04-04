@@ -94,6 +94,6 @@ while (my $info = $param->next_param) {
 	$lp_ls->export_nelson({file => "$base-nelson.txt", info => $info, protein => $pro, nucleotide => $nuc, genome => $genome});
 	
 	# TODO: export FASTA file.
-	#$lp_ls->export_fasta({file => "$base-protein.fa", db => $pro});
-	#$lp_ls->export_fasta({file => "$base-nucleotide.fa", db => $nuc});
+	$lp_ls->export_fasta({file => "$base-protein.fa", db => $pro});
+	$lp_ls->export_fasta({file => "$base-nucleotide.fa", db => $nuc});
 }
