@@ -247,7 +247,7 @@ sub export_nelson {
 		"start\t",
 		"end\t",
 		"strand\t",
-		"exons\t",
+		"numexons\t",
 		"pseudogene\t",
 		"truncated\t",
 		"rating\t",
