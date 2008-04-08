@@ -4,6 +4,8 @@ package varDB::SearchResult;
 use strict;
 use warnings;
 
+use varDB::Organism;
+
 our %QUALITY_SCORE = (
 	0 => 'ONE_STAR',
 	1 => 'TWO_STARS',
@@ -223,7 +225,10 @@ sub print {
 sub export_nelson {
 	my $self = shift;
 	my $param = shift;
-	
+
+	# taxonomi.	
+	my $org = new varDB::Organism;
+
 	# que sequence objects.
 	my $pro = $param->{protein};
 	my $nuc = $param->{nucleotide};
@@ -235,6 +240,14 @@ sub export_nelson {
 	# parse and fix information.
 	my $info = $param->{info};
 	my $organism = $info->organism;
+	my $strain = $info->strain;
+	
+	my $org_id = $organism;
+	$org_id = $organism."_".$strain if $strain ne "-";
+	my $taxon = $org->taxonid($org_id);
+	$organism = $organism. ".".$taxon if $taxon ne "";
+	print STDERR "* org_id: ", $org_id, "\n";
+	print STDERR "* taxon: ", $org->taxonid($org_id), "\n";
 
 	open OUT, ">$param->{file}" or die "[SearchResult::export_nelson] cannot open file $param->{file} for writing: $!\n";
 	print OUT "SEQUENCE\t",
@@ -261,6 +274,7 @@ sub export_nelson {
 		my $pro_seq = $pro->get_seq($id);
 		$nuc_seq = "" if !defined $nuc_seq;
 		$pro_seq = "" if !defined $pro_seq;
+		
 		print OUT
 			"$id\t",
 			$organism.".".$info->family, "\t",

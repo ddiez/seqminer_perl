@@ -27,6 +27,7 @@ lib/varDB/Genome.pm
 lib/varDB/Info.pm
 lib/varDB/ListIO.pm
 lib/varDB/Location.pm
+lib/varDB/Organism.pm
 lib/varDB/Parser.pm
 lib/varDB/Parser/broad.pm
 lib/varDB/Parser/kegg.pm
