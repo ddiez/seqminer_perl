@@ -76,7 +76,7 @@ sub merge {
 	my $self = shift;
 	my $list = shift;
 	foreach my $id (@{ $list->id_list }) {
-		if ($self->has_id($id)) {
+		#if ($self->has_id($id)) {
 			#if ($list->evalue($id) < $self->evalue($id)) {
 			#	$self->score($id, $list->score($id));
 			#	$self->evalue($id, $list->evalue($id));
@@ -87,7 +87,8 @@ sub merge {
 			#	$self->method($id, $list->method($id));
 			#	$self->model($id, $list->model($id));
 			#}
-		} else {
+		#} else {
+		if (! $self->has_id($id)) {
 			$self->add($id);
 			$self->score($id, $list->score($id));
 			$self->evalue($id, $list->evalue($id));
@@ -245,7 +246,7 @@ sub export_nelson {
 	my $org_id = $organism;
 	$org_id = $organism."_".$strain if $strain ne "-";
 	my $taxon = $org->taxonid($org_id);
-	$organism = $organism. ".".$taxon if $taxon ne "";
+	my $org_tax = $organism. ".".$taxon if $taxon ne "";
 	print STDERR "* org_id: ", $org_id, "\n";
 	print STDERR "* taxon: ", $org->taxonid($org_id), "\n";
 
@@ -278,9 +279,9 @@ sub export_nelson {
 		print OUT
 			"$id\t",
 			$organism.".".$info->family, "\t",
-			$organism, "\t",
-			uc $info->strain, "\t",
-			$organism.".".$gene->chromosome, "\t",
+			$org_tax, "\t",
+			$org->strain($org_id), "\t",
+			$org_tax.".".$gene->chromosome, "\t",
 			$pro_seq, "\t",
 			$nuc_seq, "\t",
 			$gene->start, "\t",

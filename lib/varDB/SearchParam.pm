@@ -68,6 +68,7 @@ sub create_dir_structure {
 		mkdir $self->{outdir};
 		mkdir "$self->{outdir}/search";
 		mkdir "$self->{outdir}/analysis";
+		mkdir "$self->{outdir}/nelson";
 	} else {
 		die "directory $self->{outdir} already exists!.\n";
 	}
@@ -77,6 +78,8 @@ sub create_dir_structure {
 	
 	while (my $info = $self->next_param) {
 		chdir "$self->{outdir}/search";
+		mkdir $info->super_family;
+		chdir "$self->{outdir}/analysis";
 		mkdir $info->super_family;
 		chdir "$self->{outdir}/analysis";
 		mkdir $info->super_family;

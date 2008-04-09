@@ -91,9 +91,11 @@ while (my $info = $param->next_param) {
 	my $genome = new varDB::Genome({file => "$GENOMEDB/$organism_dir/genome.gff"});
 	
 	# export in nelson's format.
+	$param->chdir($info, 'nelson');
 	$lp_ls->export_nelson({file => "$base-nelson.txt", info => $info, protein => $pro, nucleotide => $nuc, genome => $genome});
 	
-	# TODO: export FASTA file.
+	# export FASTA file.
+	$param->chdir($info, 'analysis');
 	$lp_ls->export_fasta({file => "$base-protein.fa", db => $pro});
 	$lp_ls->export_fasta({file => "$base-nucleotide.fa", db => $nuc});
 }
