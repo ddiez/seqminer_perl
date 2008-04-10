@@ -262,6 +262,7 @@ sub export_nelson {
 		"end\t",
 		"strand\t",
 		"numexons\t",
+		"splicing\t",
 		"pseudogene\t",
 		"truncated\t",
 		"rating\t",
@@ -276,6 +277,13 @@ sub export_nelson {
 		$nuc_seq = "" if !defined $nuc_seq;
 		$pro_seq = "" if !defined $pro_seq;
 		
+		my @exonloc;
+		foreach my $n (1 .. $gene->nexons) {
+			my $exon = $gene->get_exon($n);
+			push @exonloc, join "..", $exon->start, $exon->end;
+		}
+		my $exonloc = join ",", @exonloc;
+		
 		print OUT
 			"$id\t",
 			$organism.".".$info->family, "\t",
@@ -288,6 +296,7 @@ sub export_nelson {
 			$gene->end, "\t",
 			$gene->strand eq "+" ? "forward" : "reverse", "\t",
 			$gene->nexons, "\t",
+			$exonloc, "\t",
 			"\t",
 			"\t",
 			$self->quality($id), "\t",

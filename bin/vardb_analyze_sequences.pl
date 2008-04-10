@@ -23,7 +23,8 @@ while (my $info = $param->next_param) {
 	my $base = "$family-$organism_dir";
 	
 	# read position file.
-	my $pos = new varDB::Position({file => "$GENOMEDB/$organism_dir/position.txt", format => $info->format});
+	my $pos = new varDB::Position({file => "$GENOMEDB/$organism_dir/position.txt",
+								   format => $info->format});
 	
 	# read list file.
 	$param->chdir($info, 'search');
@@ -76,7 +77,7 @@ while (my $info = $param->next_param) {
 	print NUMBER "$ngi\t$family\t$organism_dir\tgene intersect\n";
 	close NUMBER;
 	
-	
+	# merge different lists.
 	$lp_ls->merge($lp_fs);
 	$lgg_ls->merge($lgg_fs);
 	$lp_ls->merge($lgg_ls);
@@ -92,7 +93,9 @@ while (my $info = $param->next_param) {
 	
 	# export in nelson's format.
 	$param->chdir($info, 'nelson');
-	$lp_ls->export_nelson({file => "$base-nelson.txt", info => $info, protein => $pro, nucleotide => $nuc, genome => $genome});
+	$lp_ls->export_nelson({file => "$base-nelson.txt", info => $info,
+						   protein => $pro, nucleotide => $nuc,
+						   genome => $genome});
 	
 	# export FASTA file.
 	$param->chdir($info, 'analysis');
