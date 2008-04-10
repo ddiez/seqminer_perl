@@ -13,6 +13,7 @@ bin/vardb_plasmodb_format_genome_est.pl
 bin/vardb_plasmodb_format_protein_cds.pl
 bin/vardb_plasmodb_parse_gff.pl
 bin/vardb_run.sh
+bin/vardb_search_pfam.pl
 bin/vardb_search_sequences.pl
 bin/vardb_update_kegg.pl
 bin/vardb_update_kegg2.pl

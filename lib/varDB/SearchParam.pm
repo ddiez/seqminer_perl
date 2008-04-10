@@ -69,6 +69,7 @@ sub create_dir_structure {
 		mkdir "$self->{outdir}/search";
 		mkdir "$self->{outdir}/analysis";
 		mkdir "$self->{outdir}/nelson";
+		mkdir "$self->{outdir}/pfam";
 	} else {
 		die "directory $self->{outdir} already exists!.\n";
 	}
@@ -81,7 +82,9 @@ sub create_dir_structure {
 		mkdir $info->super_family;
 		chdir "$self->{outdir}/analysis";
 		mkdir $info->super_family;
-		chdir "$self->{outdir}/analysis";
+		chdir "$self->{outdir}/nelson";
+		mkdir $info->super_family;
+		chdir "$self->{outdir}/pfam";
 		mkdir $info->super_family;
 	}
 	$self->rewind;
