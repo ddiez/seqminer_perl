@@ -1,6 +1,7 @@
 bin/vardb_align.pl
 bin/vardb_analyze_sequences.pl
 bin/vardb_broad_parse_gff.pl
+bin/vardb_commit_files.pl
 bin/vardb_count_genes.pl
 bin/vardb_count_list.pl
 bin/vardb_formatdb.pl
