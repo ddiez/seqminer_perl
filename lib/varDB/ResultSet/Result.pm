@@ -1,9 +1,9 @@
-package varDB::Search::Result;
+package varDB::ResultSet::Result;
 
 use strict;
 use warnings;
 
-use varDB::Search::Hit;
+use varDB::ResultSet::Hit;
 
 sub new {
 	my $class = shift;
@@ -25,7 +25,7 @@ sub _initialize {
 }
 
 sub length {
-	return shift->{nhsp};
+	return shift->{nhit};
 }
 
 sub name {

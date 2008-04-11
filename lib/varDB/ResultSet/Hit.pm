@@ -1,9 +1,9 @@
-package varDB::Search::Hit;
+package varDB::ResultSet::Hit;
 
 use strict;
 use warnings;
 
-use varDB::Search::Hsp;
+use varDB::ResultSet::Hsp;
 
 sub new {
 	my $class = shift;
@@ -42,7 +42,7 @@ sub score{
 	return $self->{score};
 }
 
-sub evalue {
+sub significance {
 	my $self = shift;
 	$self->{evalue} = shift if @_;
 	return $self->{evalue};

@@ -1,9 +1,7 @@
-package varDB::Search::Hsp;
+package varDB::ResultSet::Hsp;
 
 use strict;
 use warnings;
-
-use Bio::SearchIO;
 
 sub new {
 	my $class = shift;
