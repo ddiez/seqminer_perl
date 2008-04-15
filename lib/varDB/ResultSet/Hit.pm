@@ -52,6 +52,19 @@ sub hsp_list {
 	return @{ shift->{hsp_list} };
 }
 
+{ # other option would be to store n in the class itself.
+	my $n = 0;
+	sub next_hsp {
+		my $self = shift;
+		return $self->{hsp_list}->[$n++];
+	}
+	
+	sub rewind {
+		my $self = shift;
+		$n = 0;
+	}
+}
+
 sub add_hsp {
 	my $self = shift;
 	my $hsp = shift;

@@ -38,6 +38,19 @@ sub hit_list {
 	return @{ shift->{hit_list} };
 }
 
+{ # other option would be to store n in the class itself.
+	my $n = 0;
+	sub next_hit {
+		my $self = shift;
+		return $self->{hit_list}->[$n++];
+	}
+	
+	sub rewind {
+		my $self = shift;
+		$n = 0;
+	}
+}
+
 sub add_hit {
 	my $self = shift;
 	my $hit = shift;

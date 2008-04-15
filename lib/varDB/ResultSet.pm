@@ -53,6 +53,19 @@ sub res_list {
 	return @{ shift->{res_list} };
 }
 
+{ # other option would be to store n in the class itself.
+	my $n = 0;
+	sub next_result {
+		my $self = shift;
+		return $self->{res_list}->[$n++];
+	}
+	
+	sub rewind {
+		my $self = shift;
+		$n = 0;
+	}
+}
+
 sub add_result {
 	my $self = shift;
 	my $res = shift;
