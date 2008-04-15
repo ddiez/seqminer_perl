@@ -13,6 +13,7 @@ sub new {
 	$self->{name} = undef;
 	$self->{nres} = 0;
 	$self->{res_list} = [];
+	$self->{current} = 0;
 	
 	bless $self, $class;
     $self->_initialize(@_) if @_;
@@ -53,17 +54,14 @@ sub res_list {
 	return @{ shift->{res_list} };
 }
 
-{ # other option would be to store n in the class itself.
-	my $n = 0;
-	sub next_result {
-		my $self = shift;
-		return $self->{res_list}->[$n++];
-	}
-	
-	sub rewind {
-		my $self = shift;
-		$n = 0;
-	}
+sub next_result {
+	my $self = shift;
+	return $self->{res_list}->[$self->{current}++];
+}
+
+sub rewind {
+	my $self = shift;
+	$self->{current} = 0;
 }
 
 sub add_result {
