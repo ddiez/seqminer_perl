@@ -36,7 +36,7 @@ sub _initialize {
 	} elsif ($self->{method} eq "genewise") {
 		$self-> _parse_genewise_file($self->{file});
 	} else {
-		die "[SearchResult:_initialize] unknown method: $self->{method}\n";
+		warn "[SearchResult:_initialize] unknown method: $self->{method}\n";
 	}
 }
 
@@ -76,6 +76,39 @@ sub get_result {
 	my $n = shift;
 	return undef if $n > $self->length;
 	return $self->{res_list}->[$n];
+}
+
+sub export_pfam {
+	my $self = shift;
+	my $param = shift;
+	
+	open OUT, ">", $param->{file} or
+	die "[SearchPfam:export_pfam] cannot open file", $param->{file}, "for writing: $!\n";
+	
+	print OUT
+		"SEQUENCE", "\t",
+		"domainnum", "\t",
+		"domains", "\n";
+	while (my $res = $self->next_result) {
+		my %domains;
+		my @domain_list;
+		while (my $hit = $res->next_hit) {
+			while (my $hsp = $hit->next_hsp) {
+				push @{ $domains{$hit->name} }, join "..", $hsp->start, $hsp->end;
+				push @domain_list, $hit->name;
+			}
+		}
+		my @domains;
+		foreach my $domain (@domain_list) {
+			push @domains, join ":", $domain, join ",", @{ $domains{$domain} };
+		}
+		my $domains = join ";", @domains;
+		print OUT
+			$res->name, "\t",
+			$res->length, "\t",
+			$domains, "\n";
+	}
+	close OUT;
 }
 
 sub _parse_hmmer_file {
@@ -188,7 +221,7 @@ sub _detect_method_type {
 	} elsif ($method =~ /Wise2/) {
 		return "genewise";
 	} else {
-		die "[SearchResult:_detect_method_type]: non-supported method type: $method\n";
+		print STDERR "[SearchResult:_detect_method_type]: non-supported method type: $method\n";
 	}
 }
 

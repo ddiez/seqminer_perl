@@ -5,7 +5,8 @@ use warnings;
 
 use varDB::Config;
 use varDB::SearchParam;
-use varDB::SearchPfam;
+use varDB::ResultSet;
+#use varDB::SearchPfam;
 
 my $param = new varDB::SearchParam({file => shift});
 $param->debug;
@@ -16,8 +17,10 @@ while (my $info = $param->next_param) {
 	$param->chdir($info, 'pfam');
 	my $base = $info->family."-".$info->organism_dir;
 
-	my $res1 = new varDB::SearchPfam({file => "$base-protein-pfam_ls.log"});
-	my $res2 = new varDB::SearchPfam({file => "$base-protein-pfam_fs.log"});
-	$res1->export_pfam({file => "foo.log"});
-	exit;
+	my $res1 = new varDB::ResultSet({file => "$base-protein-pfam_ls.log"});
+	my $res2 = new varDB::ResultSet({file => "$base-protein-pfam_fs.log"});
+	
+	$param->chdir($info, 'test');
+	$res1->export_pfam({file => "$base-protein-pfam_ls.log"});
+	$res2->export_pfam({file => "$base-protein-pfam_fs.log"});
 }

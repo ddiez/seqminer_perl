@@ -70,6 +70,7 @@ sub create_dir_structure {
 		mkdir "$self->{outdir}/analysis";
 		mkdir "$self->{outdir}/nelson";
 		mkdir "$self->{outdir}/pfam";
+		mkdir "$self->{outdir}/test";
 	} else {
 		die "directory $self->{outdir} already exists!.\n";
 	}
@@ -85,6 +86,8 @@ sub create_dir_structure {
 		chdir "$self->{outdir}/nelson";
 		mkdir $info->super_family;
 		chdir "$self->{outdir}/pfam";
+		mkdir $info->super_family;
+		chdir "$self->{outdir}/test";
 		mkdir $info->super_family;
 	}
 	$self->rewind;
@@ -104,7 +107,7 @@ sub chdir {
 	my $type = shift;
 	
 	my $res = chdir "$self->{outdir}/$type/".$info->super_family;
-	print STDERR "[SearchParam:chdir] cannot change to dir $self->{outdir}/$type/".$info->super_family if $res == 0;
+	die "[SearchParam:chdir] cannot change to dir $self->{outdir}/$type/".$info->super_family if $res == 0;
 }
 
 sub debug {
