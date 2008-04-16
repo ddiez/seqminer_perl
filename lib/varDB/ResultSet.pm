@@ -13,7 +13,6 @@ sub new {
 	$self->{name} = undef;
 	$self->{nres} = 0;
 	$self->{result_list} = [];
-	#$self->{current} = 0;
 	
 	bless $self, $class;
     $self->_initialize(@_) if @_;
@@ -54,16 +53,6 @@ sub result_list {
 	return @{ shift->{result_list} };
 }
 
-#sub next_result {
-#	my $self = shift;
-#	return $self->{result_list}->[$self->{current}++];
-#}
-#
-#sub rewind {
-#	my $self = shift;
-#	$self->{current} = 0;
-#}
-
 sub add_result {
 	my $self = shift;
 	my $res = shift;
@@ -89,22 +78,8 @@ sub export_pfam {
 		"SEQUENCE", "\t",
 		"domainnum", "\t",
 		"domains", "\n";
-#	while (my $res = $self->next_result) {
 	foreach my $res ($self->result_list) {
 		my $domains_str = $res->get_domains_location_str;
-		#my %domains;
-		#my @domain_list;
-		#while (my $hit = $res->next_hit) {
-		#	while (my $hsp = $hit->next_hsp) {
-		#		push @domain_list, $hit->name if !exists $domains{$hit->name};
-		#		push @{ $domains{$hit->name} }, join "..", $hsp->start, $hsp->end;
-		#	}
-		#}
-		#my @domains;
-		#foreach my $domain (@domain_list) {
-		#	push @domains, join ":", $domain, join ",", @{ $domains{$domain} };
-		#}
-		#my $domains = join ";", @domains;
 		print OUT
 			$res->name, "\t",
 			$res->length, "\t",
