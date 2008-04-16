@@ -14,13 +14,18 @@ while (<IN>) {
 	my $chr = $1 if $id =~ /(supercont\d\.\d+).+/;
 	if ($type eq "start_codon") {
 		$info = parse_gene_info($info);
-		my $gene = new varDB::Genome::Gene($info);
-		$gene->strand($strand);
-		$gene->start($start);
-		$gene->chromosome($chr);
-		$gene->description("");
-		$gene->source("broad");
-		$genome->add_gene($gene);
+		# see if there is already a gene initialized.
+		if (!defined $genome->get_gene_by_id($info->{id}) ) {
+			my $gene = new varDB::Genome::Gene($info);
+			$gene->strand($strand);
+			$gene->start($start);
+			$gene->chromosome($chr);
+			$gene->description("");
+			$gene->source("broad");
+			$genome->add_gene($gene);
+		} else {
+			# do some checks?
+		}
 	} elsif ($type eq "stop_codon") {
 		$info = parse_info($info);
 		my $gene = $genome->get_gene_by_id($info->{id});
