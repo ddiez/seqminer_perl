@@ -12,7 +12,7 @@ sub new {
 	$self->{name} = undef;
 	$self->{nhit} = 0;
 	$self->{hit_list} = [];
-	$self->{current} = 0;
+	#$self->{current} = 0;
 	
 	bless $self, $class;
     $self->_initialize(@_) if @_;
@@ -39,15 +39,15 @@ sub hit_list {
 	return @{ shift->{hit_list} };
 }
 
-sub next_hit {
-	my $self = shift;
-	return $self->{hit_list}->[$self->{current}++];
-}
-
-sub rewind {
-	my $self = shift;
-	$self->{current} = 0;
-}
+#sub next_hit {
+#	my $self = shift;
+#	return $self->{hit_list}->[$self->{current}++];
+#}
+#
+#sub rewind {
+#	my $self = shift;
+#	$self->{current} = 0;
+#}
 
 
 sub add_hit {
@@ -62,6 +62,26 @@ sub get_hit {
 	my $n = shift;
 	return undef if $n > $self->length;
 	return $self->{hit_list}->[$n];
+}
+
+sub get_domains_location_str {
+	my $self = shift;
+	my %domains;
+	my @domain_list;
+	#while (my $hit = $self->next_hit) {
+	foreach my $hit ($self->hit_list) {
+		#while (my $hsp = $hit->next_hsp) {
+		foreach my $hsp ($hit->hsp_list) {
+			push @domain_list, $hit->name if !exists $domains{$hit->name};
+			push @{ $domains{$hit->name} }, join "..", $hsp->start, $hsp->end;
+		}
+	}
+	#$self->rewind;
+	my @domains;
+	foreach my $domain (@domain_list) {
+		push @domains, join ":", $domain, join ",", @{ $domains{$domain} };
+	}
+	return join ";", @domains;
 }
 
 1;

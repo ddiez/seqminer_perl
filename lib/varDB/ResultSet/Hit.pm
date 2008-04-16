@@ -14,7 +14,7 @@ sub new {
 	$self->{evalue} = undef;
 	$self->{nhsp} = 0;
 	$self->{hsp_list} = [];
-	$self->{current} = 0;
+	#$self->{current} = 0;
 	
 	bless $self, $class;
     $self->_initialize(@_) if @_;
@@ -53,15 +53,15 @@ sub hsp_list {
 	return @{ shift->{hsp_list} };
 }
 
-sub next_hsp {
-	my $self = shift;
-	return $self->{hsp_list}->[$self->{current}++];
-}
-
-sub rewind {
-	my $self = shift;
-	$self->{current} = 0;
-}
+#sub next_hsp {
+#	my $self = shift;
+#	return $self->{hsp_list}->[$self->{current}++];
+#}
+#
+#sub rewind {
+#	my $self = shift;
+#	$self->{current} = 0;
+#}
 
 sub add_hsp {
 	my $self = shift;
