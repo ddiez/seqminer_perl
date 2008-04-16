@@ -18,9 +18,7 @@ sub _initialize {
 	my $param = shift;
 	$self->{genes} = {};
 	$self->{gene_list} = [];
-	$self->{gene_list_ids} = [];
 	$self->{ngenes} = 0;
-	$self->{current} = 0;
 	$self->{organism} = "";
 	$self->{strain} = "";
 	$self->read_gff($param) if defined $param->{file};
@@ -34,16 +32,6 @@ organism: $self->{organism}
 ngenes: $self->{ngenes}
 	
 DEBUG
-}
-
-sub next_gene {
-	my $self = shift;
-	return $self->{gene_list}->[$self->{current}++];
-}
-
-sub rewind {
-	my $self = shift;
-	$self->{current} = 0;
 }
 
 sub organism {
@@ -66,17 +54,9 @@ sub length {
 	return shift->{ngenes};
 }
 
-sub get_gene_list {
+sub gene_list {
 	return @{ shift->{gene_list} };
 }
-
-#sub add_gene {
-#	my $self = shift;
-#	my $gene = new varDB::Gene(@_);
-#	$self->{ngenes}++;
-#	$self->{genes}->{$gene->id} = $gene;
-#	push @{ $self->{gene_list} }, $gene->id;
-#}
 
 sub add_gene {
 	my $self = shift;
@@ -85,12 +65,6 @@ sub add_gene {
 	push @{ $self->{gene_list_ids} }, $gene->id;
 	$self->{ngenes}++;
 }
-
-#sub get_gene {
-#	my $self = shift;
-#	my $id = shift;
-#	return $self->{genes}->{$id};
-#}
 
 sub get_gene {
 	my $self = shift;
@@ -101,15 +75,9 @@ sub get_gene {
 sub get_gene_by_id {
 	my $self = shift;
 	my $id = shift;
-	#my $n = 0;
-	#foreach my $gene (@{ $self->{gene_list_ids} }) {
-	#	return $self->get_gene($n) if ($gene eq $id);
-	#	$n++;
-	#}
-	#return undef;
-	while (my $gene = $self->next_gene) {
+	
+	foreach my $gene ($self->gene_list) {
 		if ($gene->id eq $id) {
-			$self->rewind;
 			return $gene;
 		}
 	}
@@ -119,10 +87,7 @@ sub get_gene_by_id {
 sub add_exon {
 	my $self = shift;
 	my $exon = shift;
-	#my $gene = $self->get_gene($exon->parent);
-	print STDERR ">>", $exon->parent, "\n";
 	my $gene = $self->get_gene_by_id($exon->parent);
-	print STDERR ">>>", $gene->id, "\n";
 	$gene->add_exon($exon);
 }
 
@@ -172,8 +137,7 @@ sub read_gff {
 sub print_gff {
 	my $self = shift;
 	
-	$self->rewind;
-	while (my $gene = $self->next_gene) {
+	foreach my $gene ($self->gene_list) {
 		print
 			$gene->id, "\t",
 			$gene->source, "\t",
@@ -185,7 +149,7 @@ sub print_gff {
 			"-\t",
 			$gene->description, "\n";
 		my $nexons = $gene->nexons;
-		while (my $exon = $gene->next_exon) {
+		foreach my $exon ($gene->exon_list) {
 			print 
 				$gene->id, "\t",
 				$gene->source, "\t",
@@ -198,35 +162,6 @@ sub print_gff {
 				"-", "\n";
 		}	
 	}
-	$self->rewind;
 }
-	
-	#foreach my $id (@{ $self->gene_list }) {
-	#	my $gene = $self->get_gene($id);
-	#	print
-	#		"$id\t",
-	#		$gene->source, "\t",
-	#		"gene\t",
-	#		$gene->chromosome, "\t",
-	#		$gene->strand, "\t",
-	#		$gene->start, "\t",
-	#		$gene->end, "\t",
-	#		"-\t",
-	#		$gene->description, "\n";
-	#	my $nexons = $gene->nexons;
-	#	foreach my $n (1 .. $nexons) {
-	#	my $exon = $gene->get_exon($n);
-	#	print 
-	#		"$id\t",
-	#		$gene->source, "\t",
-	#		"exon\t",
-	#		"-\t",
-	#		$exon->strand, "\t",
-	#		$exon->start, "\t",
-	#		$exon->end, "\t",
-	#		"$n\t-\n",
-	#	}
-	#}
-
 
 1;
