@@ -1,6 +1,6 @@
-package varDB::Gene;
+package varDB::Genome::Gene;
 
-use varDB::Exon;
+use varDB::Genome::Exon;
 use strict;
 use warnings;
 
@@ -26,7 +26,19 @@ sub _initialize {
 	$self->{source} = $param->{source};
 	$self->{exons} = {};
 	$self->{exon_list} = [];
+	$self->{exon_list_ids} = [];
 	$self->{nexons} = 0;
+	$self->{current} = 0;
+}
+
+sub next_exon {
+	my $self = shift;
+	return $self->{exon_list}->[$self->{current}++];
+}
+
+sub rewind {
+	my $self = shift;
+	$self->{current} = 0;
 }
 
 sub id {
@@ -84,22 +96,53 @@ sub source {
 	return $self->{source};
 }
 
+sub exon_list {
+	return @{ shift->{exon_list} };
+}
+
+#sub add_exon {
+#	my $self = shift;
+#	my $exon = new varDB::Exon(@_);
+#	$self->{nexons}++;
+#	$self->{exons}->{$exon->id} = $exon;
+#	push @{ $self->{exon_list} }, $exon->id;
+#}
+
 sub add_exon {
 	my $self = shift;
-	my $exon = new varDB::Exon(@_);
+	my $exon = shift;
+	push @{ $self->{exon_list} }, $exon;
+	push @{ $self->{exon_list_ids} }, $exon->id;
 	$self->{nexons}++;
-	$self->{exons}->{$exon->id} = $exon;
-	push @{ $self->{exon_list} }, $exon->id;
 }
+
+#sub get_exon {
+#	my $self = shift;
+#	my $id = shift;
+#	return $self->{exons}->{$id};
+#}
 
 sub get_exon {
 	my $self = shift;
-	my $id = shift;
-	return $self->{exons}->{$id};
+	my $n = shift;
+	return $self->{exon_list}->[$n];
 }
 
-sub get_exon_list {
-	return shift->{exon_list};
+sub get_exon_by_id {
+	my $self = shift;
+	my $id = shift;
+	#my $n = 0;
+	#foreach my $exon (@{ $self->{exon_list_ids} }) {
+	#	return $self->get_exon($n) if ($exon eq $id);
+	#	$n++;
+	#}
+	while (my $exon = $self->next_exon) {
+		if ($exon->id eq $id) {
+			$self->rewind;
+			return $exon;
+		}
+	}
+	return undef;
 }
 
 1;

@@ -94,8 +94,8 @@ sub export_pfam {
 		my @domain_list;
 		while (my $hit = $res->next_hit) {
 			while (my $hsp = $hit->next_hsp) {
+				push @domain_list, $hit->name if !exists $domains{$hit->name};
 				push @{ $domains{$hit->name} }, join "..", $hsp->start, $hsp->end;
-				push @domain_list, $hit->name;
 			}
 		}
 		my @domains;

@@ -1,4 +1,4 @@
-package varDB::Exon;
+package varDB::Genome::Exon;
 
 use strict;
 use warnings;
@@ -21,6 +21,17 @@ sub _initialize {
 	$self->{start} = $param->{start};
 	$self->{end} = $param->{end};
 	$self->{strand} = $param->{strand};
+}
+
+sub copy {
+	my $self = shift;
+	my $exon = new varDB::Genome::Exon;
+	$exon->{id} = $self->{id};
+	$exon->{parent} = $self->{parent};
+	$exon->{start} = $self->{start};
+	$exon->{end} = $self->{end};
+	$exon->{strand} = $self->{strand};
+	return $exon;
 }
 
 sub id {

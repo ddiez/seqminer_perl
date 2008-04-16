@@ -1,6 +1,6 @@
 package varDB::Genome;
 
-use varDB::Gene;
+use varDB::Genome::Gene;
 use strict;
 use warnings;
 
@@ -18,10 +18,32 @@ sub _initialize {
 	my $param = shift;
 	$self->{genes} = {};
 	$self->{gene_list} = [];
+	$self->{gene_list_ids} = [];
 	$self->{ngenes} = 0;
+	$self->{current} = 0;
 	$self->{organism} = "";
 	$self->{strain} = "";
 	$self->read_gff($param) if defined $param->{file};
+}
+
+sub debug {
+	my $self = shift;
+	print STDERR <<"DEBUG";
+
+organism: $self->{organism}
+ngenes: $self->{ngenes}
+	
+DEBUG
+}
+
+sub next_gene {
+	my $self = shift;
+	return $self->{gene_list}->[$self->{current}++];
+}
+
+sub rewind {
+	my $self = shift;
+	$self->{current} = 0;
 }
 
 sub organism {
@@ -40,28 +62,67 @@ sub ngenes {
 	return shift->{ngenes};
 }
 
-sub add_gene {
-	my $self = shift;
-	my $gene = new varDB::Gene(@_);
-	$self->{ngenes}++;
-	$self->{genes}->{$gene->id} = $gene;
-	push @{ $self->{gene_list} }, $gene->id;
+sub length {
+	return shift->{ngenes};
 }
 
 sub get_gene_list {
 	return @{ shift->{gene_list} };
 }
 
+#sub add_gene {
+#	my $self = shift;
+#	my $gene = new varDB::Gene(@_);
+#	$self->{ngenes}++;
+#	$self->{genes}->{$gene->id} = $gene;
+#	push @{ $self->{gene_list} }, $gene->id;
+#}
+
+sub add_gene {
+	my $self = shift;
+	my $gene = shift;
+	push @{ $self->{gene_list} }, $gene;
+	push @{ $self->{gene_list_ids} }, $gene->id;
+	$self->{ngenes}++;
+}
+
+#sub get_gene {
+#	my $self = shift;
+#	my $id = shift;
+#	return $self->{genes}->{$id};
+#}
+
 sub get_gene {
 	my $self = shift;
+	my $n = shift;
+	return $self->{gene_list}->[$n];
+}
+
+sub get_gene_by_id {
+	my $self = shift;
 	my $id = shift;
-	return $self->{genes}->{$id};
+	#my $n = 0;
+	#foreach my $gene (@{ $self->{gene_list_ids} }) {
+	#	return $self->get_gene($n) if ($gene eq $id);
+	#	$n++;
+	#}
+	#return undef;
+	while (my $gene = $self->next_gene) {
+		if ($gene->id eq $id) {
+			$self->rewind;
+			return $gene;
+		}
+	}
+	return undef;
 }
 
 sub add_exon {
 	my $self = shift;
 	my $exon = shift;
-	my $gene = $self->get_gene($exon->parent);
+	#my $gene = $self->get_gene($exon->parent);
+	print STDERR ">>", $exon->parent, "\n";
+	my $gene = $self->get_gene_by_id($exon->parent);
+	print STDERR ">>>", $gene->id, "\n";
 	$gene->add_exon($exon);
 }
 
@@ -75,7 +136,7 @@ sub read_gff {
 		chomp;
 		my ($id, $source, $type, $chromosome, $strand, $start, $end, $foo, $description) = split '\t', $_;
 		if ($type eq "gene") {
-			my $gene = new varDB::Gene;
+			my $gene = new varDB::Genome::Gene;
 			$gene->id($id);
 			$gene->source($source);
 			$gene->chromosome($chromosome);
@@ -87,7 +148,7 @@ sub read_gff {
 			$self->add_gene($gene);
 		} elsif ($type eq "exon") {
 			my $gene = $self->get_gene($id);
-			my $exon = new varDB::Exon;
+			my $exon = new varDB::Genome::Exon;
 			$exon->id($gene->nexons() + 1);
 			$exon->parent($id);
 			$exon->strand($strand);
@@ -111,10 +172,10 @@ sub read_gff {
 sub print_gff {
 	my $self = shift;
 	
-	foreach my $id (@{ $self->gene_list }) {
-		my $gene = $self->get_gene($id);
+	$self->rewind;
+	while (my $gene = $self->next_gene) {
 		print
-			"$id\t",
+			$gene->id, "\t",
 			$gene->source, "\t",
 			"gene\t",
 			$gene->chromosome, "\t",
@@ -124,19 +185,48 @@ sub print_gff {
 			"-\t",
 			$gene->description, "\n";
 		my $nexons = $gene->nexons;
-		foreach my $n (1 .. $nexons) {
-		my $exon = $gene->get_exon($n);
-		print 
-			"$id\t",
-			$gene->source, "\t",
-			"exon\t",
-			"-\t",
-			$exon->strand, "\t",
-			$exon->start, "\t",
-			$exon->end, "\t",
-			"$n\t-\n",
-		}
+		while (my $exon = $gene->next_exon) {
+			print 
+				$gene->id, "\t",
+				$gene->source, "\t",
+				"exon\t",
+				"-", "\t",
+				$exon->strand, "\t",
+				$exon->start, "\t",
+				$exon->end, "\t",
+				$exon->id, "\t",
+				"-", "\n";
+		}	
 	}
+	$self->rewind;
 }
+	
+	#foreach my $id (@{ $self->gene_list }) {
+	#	my $gene = $self->get_gene($id);
+	#	print
+	#		"$id\t",
+	#		$gene->source, "\t",
+	#		"gene\t",
+	#		$gene->chromosome, "\t",
+	#		$gene->strand, "\t",
+	#		$gene->start, "\t",
+	#		$gene->end, "\t",
+	#		"-\t",
+	#		$gene->description, "\n";
+	#	my $nexons = $gene->nexons;
+	#	foreach my $n (1 .. $nexons) {
+	#	my $exon = $gene->get_exon($n);
+	#	print 
+	#		"$id\t",
+	#		$gene->source, "\t",
+	#		"exon\t",
+	#		"-\t",
+	#		$exon->strand, "\t",
+	#		$exon->start, "\t",
+	#		$exon->end, "\t",
+	#		"$n\t-\n",
+	#	}
+	#}
+
 
 1;

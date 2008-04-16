@@ -1,10 +1,11 @@
 #!/usr/bin/env perl
 
-use varDB::Genome;
 use strict;
 use warnings;
 
-my $genome = new varDB::Genome();
+use varDB::Genome;
+
+my $genome = new varDB::Genome;
 my $file = shift;
 open IN, $file or die "ERROR: cannot open file $file: $!\n";
 while (<IN>) {
@@ -13,49 +14,52 @@ while (<IN>) {
 	my $chr = $1 if $id =~ /(supercont\d\.\d+).+/;
 	if ($type eq "start_codon") {
 		$info = parse_gene_info($info);
-		my $gene = new varDB::Gene($info);
-		$gene->set_strand($strand);
-		$gene->set_start($start);
-		$gene->set_chromosome($chr);
-		$gene->set_description("");
-		$gene->set_source("broad");
+		my $gene = new varDB::Genome::Gene($info);
+		$gene->strand($strand);
+		$gene->start($start);
+		$gene->chromosome($chr);
+		$gene->description("");
+		$gene->source("broad");
 		$genome->add_gene($gene);
 	} elsif ($type eq "stop_codon") {
 		$info = parse_info($info);
-		my $gene = $genome->get_gene($info->{id});
-		$gene->set_end($end);
+		my $gene = $genome->get_gene_by_id($info->{id});
+		$gene->end($end);
 	} elsif ($type eq "exon") {
 		$info = parse_exon_info($info);
-		my $gene = $genome->get_gene($info->{parent});
+		my $gene = $genome->get_gene_by_id($info->{parent});
 		if (defined $gene) {
-			$info->{id} = $gene->get_nexons() + 1;
-			my $exon = new varDB::Exon($info);
-			$exon->set_strand($strand);
-			$exon->set_start($start);
-			$exon->set_end($end);
-			$genome->add_exon($exon);
+			$info->{id} = $gene->nexons() + 1;
+			my $exon = new varDB::Genome::Exon($info);
+			$exon->strand($strand);
+			$exon->start($start);
+			$exon->end($end);
+			$gene->add_exon($exon);
+			#$genome->add_exon($exon);
 		} else { # ok try to fix this mess.
-			my $gene = new varDB::Gene;
-			$gene->set_id($info->{parent});
-			$gene->set_strand($strand);
-			$gene->set_start($start);
-			$gene->set_end($end);
-			$gene->set_chromosome($chr);
-			$gene->set_description("");
-			$gene->set_source("broad");
+			my $gene = new varDB::Genome::Gene;
+			$gene->id($info->{parent});
+			$gene->strand($strand);
+			$gene->start($start);
+			$gene->end($end);
+			$gene->chromosome($chr);
+			$gene->description("");
+			$gene->source("broad");
 			$genome->add_gene($gene);
 			
 			$info->{id} = 1;
-			my $exon = new varDB::Exon($info);
-			$exon->set_strand($strand);
-			$exon->set_start($start);
-			$exon->set_end($end);
-			$genome->add_exon($exon);
+			my $exon = new varDB::Genome::Exon($info);
+			$exon->strand($strand);
+			$exon->start($start);
+			$exon->end($end);
+			$gene->add_exon($exon);
+			#$genome->add_exon($exon);
 		}
 	} # skip the rest.
 }
 close IN;
 
+$genome->debug;
 $genome->print_gff;
 
 sub parse_info {
