@@ -7,6 +7,7 @@ use varDB::Genome;
 
 my $genome = new varDB::Genome;
 my $file = shift;
+
 open IN, $file or die "ERROR: cannot open file $file: $!\n";
 while (<IN>) {
 	chomp;

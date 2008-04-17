@@ -1,10 +1,11 @@
 #!/usr/bin/env perl
 
-use varDB::Genome;
 use strict;
 use warnings;
 
-my $genome = new varDB::Genome();
+use varDB::Genome;
+
+my $genome = new varDB::Genome;
 my $file = shift;
 
 open IN, $file or die "ERROR: cannot open file $file: $!\n";
@@ -16,20 +17,20 @@ while (<IN>) {
 	my $chr = $1 if $id =~ /apidb\|(.+)/;
 	if ($type eq "gene") {
 		$info = parse_gene_info($info);
-		my $gene = new varDB::Gene($info);
-		$gene->set_chromosome($chr);
-		$gene->set_strand($strand);
-		$gene->set_start($start);
-		$gene->set_end($end);
-		$gene->set_source("plasmodb");
+		my $gene = new varDB::Genome::Gene($info);
+		$gene->chromosome($chr);
+		$gene->strand($strand);
+		$gene->start($start);
+		$gene->end($end);
+		$gene->source("plasmodb");
 		$genome->add_gene($gene);
 	#	$gene->set_description("") if !defined $gene->get_description;
 	} elsif ($type eq "exon") {
 		$info = parse_exon_info($info);
-		my $exon = new varDB::Exon($info);
-		$exon->set_strand($strand);
-		$exon->set_start($start);
-		$exon->set_end($end);
+		my $exon = new varDB::Genome::Exon($info);
+		$exon->strand($strand);
+		$exon->start($start);
+		$exon->end($end);
 		$genome->add_exon($exon);
 	} # skip other information.
 }
