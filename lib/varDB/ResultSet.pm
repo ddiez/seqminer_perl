@@ -77,13 +77,14 @@ sub export_pfam {
 	print OUT
 		"SEQUENCE", "\t",
 		"domainnum", "\t",
-		"domains", "\n";
+		"domains", "\t",
+		"architecture", "\n";
 	foreach my $res ($self->result_list) {
-		my $domains_str = $res->get_domains_location_str;
 		print OUT
 			$res->name, "\t",
 			$res->length, "\t",
-			$domains_str, "\n";
+			$res->domains_location_str, "\t",
+			$res->architecture, "\n";
 	}
 	close OUT;
 }

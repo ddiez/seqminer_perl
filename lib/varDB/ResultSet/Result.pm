@@ -52,7 +52,7 @@ sub get_hit {
 	return $self->{hit_list}->[$n];
 }
 
-sub get_domains_location_str {
+sub domains_location_str {
 	my $self = shift;
 	my %domains;
 	my @domain_list;
@@ -68,5 +68,23 @@ sub get_domains_location_str {
 	}
 	return join ";", @domains;
 }
+
+sub architecture {
+	my $self = shift;
+	my %tmp;
+	
+	foreach my $hit ($self->hit_list) {
+		foreach my $hsp ($hit->hsp_list) {
+			$tmp{$hsp->start} = $hit->name;
+		}
+	}
+	# now order them by the values.
+	my @tmp;
+	foreach my $key (sort { $a <=> $b } keys %tmp) {
+		push @tmp, $tmp{$key};
+	}
+	return join ";", @tmp;
+}
+
 
 1;
