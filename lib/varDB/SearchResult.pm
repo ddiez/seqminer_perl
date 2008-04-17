@@ -251,27 +251,28 @@ sub export_nelson {
 	print STDERR "* taxon: ", $org->taxonid($org_id), "\n";
 
 	open OUT, ">$param->{file}" or die "[SearchResult::export_nelson] cannot open file $param->{file} for writing: $!\n";
-	print OUT "SEQUENCE\t",
-		"family\t",
-		"genome\t",
-		"strain\t",
-		"chromosome\t",
-		"translation\t",
-		"sequence\t",
-		"start\t",
-		"end\t",
-		"strand\t",
-		"numexons\t",
-		"splicing\t",
-		"pseudogene\t",
-		"truncated\t",
-		"rating\t",
-		"method\t",
-		"model\t",
-		"score\t",
-		"evalue\n"; 
+	print OUT "SEQUENCE", "\t",
+		"family", "\t",
+		"genome", "\t",
+		"strain", "\t",
+		"chromosome", "\t",
+		"translation", "\t",
+		"sequence", "\t",
+		"start", "\t",
+		"end", "\t",
+		"strand", "\t",
+		"numexons", "\t",
+		"splicing", "\t",
+		"pseudogene", "\t",
+		"truncated", "\t",
+		"rating", "\t",
+		"method", "\t",
+		"model", "\t",
+		"score", "\t",
+		"evalue", "\t",
+		"description", "\n"; 
 	foreach my $id (@{ $self->id_list }) {
-		my $gene = $genome->get_gene($id);
+		my $gene = $genome->get_gene_by_id($id);
 		my $nuc_seq = $nuc->get_seq($id);
 		my $pro_seq = $pro->get_seq($id);
 		$nuc_seq = "" if !defined $nuc_seq;
@@ -279,7 +280,7 @@ sub export_nelson {
 		
 		my @exonloc;
 		foreach my $n (1 .. $gene->nexons) {
-			my $exon = $gene->get_exon($n);
+			my $exon = $gene->get_exon_by_id($n);
 			push @exonloc, join "..", $exon->start, $exon->end;
 		}
 		my $exonloc = join ",", @exonloc;
@@ -303,7 +304,8 @@ sub export_nelson {
 			$self->method($id), "\t",
 			$self->model($id), "\t",
 			$self->score($id), "\t",
-			$self->evalue($id), "\n";
+			$self->evalue($id), "\t",
+			$gene->description, "\n";
 	}
 	close OUT;
 }

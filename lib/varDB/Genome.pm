@@ -112,7 +112,7 @@ sub read_gff {
 			$gene->description($description);
 			$self->add_gene($gene);
 		} elsif ($type eq "exon") {
-			my $gene = $self->get_gene($id);
+			my $gene = $self->get_gene_by_id($id);
 			my $exon = new varDB::Genome::Exon;
 			$exon->id($gene->nexons() + 1);
 			$exon->parent($id);
