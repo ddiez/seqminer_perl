@@ -17,46 +17,46 @@ while (my $seq = $in->next_seq) {
 	print STDERR "species: ", $species->species, "\n";
 
 	my $genome = new varDB::Genome;
-	$genome->set_organism($seq->species);
+	$genome->organism($seq->species);
 	
 	my @feat = $seq->get_SeqFeatures; # just top level
     foreach my $feat (@feat) {
 		next if $feat->primary_tag eq "source";
 		if ($feat->primary_tag eq "gene") {
-			my $gene = new varDB::Gene;
-			$gene->set_id($feat->get_tag_values('locus_tag'));
-			$gene->set_source("ncbi");
-			$gene->set_start($feat->start);
-			$gene->set_end($feat->end);
-			$gene->set_strand($feat->strand == 1 ? "+" : "-");
-			$gene->set_chromosome($seq->accession_number);
+			my $gene = new varDB::Genome::Gene;
+			$gene->id($feat->get_tag_values('locus_tag'));
+			$gene->source("ncbi");
+			$gene->start($feat->start);
+			$gene->end($feat->end);
+			$gene->strand($feat->strand == 1 ? "+" : "-");
+			$gene->chromosome($seq->accession_number);
 			if ($feat->has_tag('pseudo') && $feat->has_tag('note')) {
-				$gene->set_description($feat->get_tag_values('note'));
+				$gene->description($feat->get_tag_values('note'));
 			} else {
-				$gene->set_description("");
+				$gene->description("");
 			}
 			$genome->add_gene($gene);
 		} elsif ($feat->primary_tag eq "CDS") {
-			my $gene = $genome->get_gene($feat->get_tag_values('locus_tag'));
-			$gene->set_description($feat->get_tag_values('product'));
+			my $gene = $genome->get_gene_by_id($feat->get_tag_values('locus_tag'));
+			$gene->description($feat->get_tag_values('product'));
 			
-			my $exon = new varDB::Exon;
-			$exon->set_id($gene->get_nexons + 1);
-			$exon->set_parent($gene->get_id);
-			$exon->set_start($feat->start);
-			$exon->set_end($feat->end);
-			$exon->set_strand($feat->strand == 1 ? "+" : "-");
+			my $exon = new varDB::Genome::Exon;
+			$exon->id($gene->nexons + 1);
+			$exon->parent($gene->id);
+			$exon->start($feat->start);
+			$exon->end($feat->end);
+			$exon->strand($feat->strand == 1 ? "+" : "-");
 			$genome->add_exon($exon);
 		} elsif ($feat->primary_tag eq "tRNA") {
-			my $gene = $genome->get_gene($feat->get_tag_values('locus_tag'));
-			$gene->set_description($feat->get_tag_values('product'));
+			my $gene = $genome->get_gene_by_id($feat->get_tag_values('locus_tag'));
+			$gene->description($feat->get_tag_values('product'));
 			
-			my $exon = new varDB::Exon;
-			$exon->set_id($gene->get_nexons + 1);
-			$exon->set_parent($gene->get_id);
-			$exon->set_start($feat->start);
-			$exon->set_end($feat->end);
-			$exon->set_strand($feat->strand == 1 ? "+" : "-");
+			my $exon = new varDB::Genome::Exon;
+			$exon->id($gene->nexons + 1);
+			$exon->parent($gene->id);
+			$exon->start($feat->start);
+			$exon->end($feat->end);
+			$exon->strand($feat->strand == 1 ? "+" : "-");
 			$genome->add_exon($exon);
 		}
     }
