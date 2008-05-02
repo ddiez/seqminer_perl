@@ -67,24 +67,45 @@ sub get_result {
 	return $self->{result_list}->[$n];
 }
 
+sub get_result_by_id {
+	my $self = shift;
+	my $id = shift;
+	foreach my $res ($self->result_list) {
+		if ($res->name eq $id) {
+			return $res;
+		}
+	}
+	return undef;
+}
+
 sub export_pfam {
 	my $self = shift;
 	my $param = shift;
+	
 	
 	open OUT, ">", $param->{file} or
 	die "[SearchPfam:export_pfam] cannot open file", $param->{file}, "for writing: $!\n";
 	
 	print OUT
 		"SEQUENCE", "\t",
-		"domainnum", "\t",
-		"domains", "\t",
-		"architecture", "\n";
+		"ls_domainnum", "\t",
+		"ls_domains", "\t",
+		"ls_architecture", "\t",
+		"fs_domainnum", "\t",
+		"fs_domains", "\t",
+		"fs_architecture", "\n";
 	foreach my $res ($self->result_list) {
+	#foreach my $n (0 .. $self->length) {
+		#my $res = $self->get_result($n);
+		my $res2 = $param->{fs}->get_result_by_id($res->name);
 		print OUT
 			$res->name, "\t",
 			$res->length, "\t",
 			$res->domains_location_str, "\t",
-			$res->architecture, "\n";
+			$res->architecture, "\t",
+			$res2->length, "\t",
+			$res2->domains_location_str, "\t",
+			$res2->architecture, "\n";
 	}
 	close OUT;
 }

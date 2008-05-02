@@ -21,6 +21,7 @@ while (my $info = $param->next_param) {
 	my $res2 = new varDB::ResultSet({file => "$base-protein-pfam_fs.log"});
 	
 	$param->chdir($info, 'test');
-	$res1->export_pfam({file => "$base-protein-pfam_ls.txt"});
-	$res2->export_pfam({file => "$base-protein-pfam_fs.txt"});
+	# workaround to put both results together.
+	$res1->export_pfam({file => "$base-pfam.txt", fs => $res2});
+	#$res2->export_pfam({file => "$base-protein-pfam_fs.txt"});
 }

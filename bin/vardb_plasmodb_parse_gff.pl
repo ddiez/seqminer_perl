@@ -47,6 +47,7 @@ sub parse_info {
 		$info->{lc $1} = $2;
 	}
 	$info->{id} =~ s/apidb\|(.+)/$1/;
+	$info->{description} = _unescape($info->{description}) if exists $info->{description};
 	return $info;
 }
 
@@ -62,3 +63,11 @@ sub parse_exon_info {
 	$info->{id} =~ s/exon_.+-(.+)/$1/;
 	return $info;
 }
+
+# from bioperl.
+sub _unescape {
+	my $v = shift;
+	$v =~ tr/+/ /;
+	$v =~ s/%([0-9a-fA-F]{2})/chr hex($1)/ge;
+	return $v;
+}   
