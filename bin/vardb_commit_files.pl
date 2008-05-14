@@ -13,21 +13,6 @@ while (my $info = $param->next_param) {
 	my $base = $info->family."-".$info->organism_dir;
 	&commit($param, $info, "nelson");
 	&commit($param, $info, "test");
-	#$param->chdir($info, 'nelson');
-	#{
-	#	my $file = $base."-nelson.txt";
-	#	print STDERR "* commiting $file\n";
-	#	my $res = system "cp", $file, $VARDB_COMMIT_DIR."sequences/".$info->super_family;
-	#	die "ERROR [commit]: some error occured commiting files: $!" if $res == -1;
-	#}
-	#
-	#$param->chdir($info, 'test');
-	#{
-	#	my $file = $base."";
-	#	print STDERR "* commiting $file\n";
-	#	my $res = system "cp", $file, $VARDB_COMMIT_DIR."sequences/".$info->super_family;
-	#	die "ERROR [commit]: some error occured commiting files: $!" if $res == -1;
-	#}
 }
 
 sub commit {

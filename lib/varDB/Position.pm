@@ -64,6 +64,8 @@ sub _initialize {
 			push @{$self->{gene}->{$id}->{exon_end}}, $pos_end;
 			$self->{gene}->{$id}->{nexon}++;
 		}
+		close IN;
+	} elsif ($format eq "dummy") {
 	}# add drivers here.
 }
 

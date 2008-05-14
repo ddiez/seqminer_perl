@@ -21,7 +21,9 @@ sub _initialize {
 	$self->{ngenes} = 0;
 	$self->{organism} = "";
 	$self->{strain} = "";
+	print STDERR "* reading genome file ... ";
 	$self->read_gff($param) if defined $param->{file};
+	print STDERR "OK\n";
 }
 
 sub debug {
@@ -162,6 +164,24 @@ sub print_gff {
 				"-", "\n";
 		}	
 	}
+}
+
+sub to_position {
+	my $self = shift;
+	use varDB::Position;
+	my $pos = new varDB::Position({format => "dummy"});
+	print STDERR "* converting to position object ...";
+	foreach my $gene ($self->gene_list) {
+		$pos->{gene}->{$gene->id}->{nexon} = $gene->nexons;
+		foreach my $exon ($gene->exon_list) {
+			push @{$pos->{gene}->{$gene->id}->{type}}, "exon";
+			push @{$pos->{gene}->{$gene->id}->{number}}, $exon->id;
+			push @{$pos->{gene}->{$gene->id}->{exon_start}}, $exon->start;
+			push @{$pos->{gene}->{$gene->id}->{exon_end}}, $exon->end;
+		}
+	}
+	print STDERR "OK\n";
+	return $pos;
 }
 
 1;

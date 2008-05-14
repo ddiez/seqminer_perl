@@ -23,9 +23,11 @@ while (my $info = $param->next_param) {
 	my $base = "$family-$organism_dir";
 	
 	# read position file.
-	my $pos = new varDB::Position({file => "$GENOMEDB/$organism_dir/position.txt",
-								   format => $info->format});
-	
+	#my $pos = new varDB::Position({file => "$GENOMEDB/$organism_dir/position.txt",
+	#							   format => $info->format});
+	my $genome = new varDB::Genome({file => "$GENOMEDB/$organism_dir/genome.gff"});
+	my $pos = $genome->to_position; # temp fix.
+
 	# read list file.
 	$param->chdir($info, 'search');
 	#my $lp = new varDB::SearchResult({file => "$base-protein.log", method => 'psiblast'});
@@ -89,7 +91,6 @@ while (my $info = $param->next_param) {
 	# read sequence files.
 	my $pro = new varDB::SeqIO({file => "$GENOMEDB/$organism_dir/protein.fa"});
 	my $nuc = new varDB::SeqIO({file => "$GENOMEDB/$organism_dir/gene.fa"});
-	my $genome = new varDB::Genome({file => "$GENOMEDB/$organism_dir/genome.gff"});
 	
 	# export in nelson's format.
 	$param->chdir($info, 'nelson');

@@ -6,10 +6,14 @@ use warnings;
 use varDB::Config;
 use varDB::SearchResult;
 use varDB::SearchParam;
+use Getopt::Long;
 
 my $param = new varDB::SearchParam({file => shift});
 $param->debug;
-$param->create_dir_structure;
+
+my %O = ();
+GetOptions(\%O, 'c');
+$param->create_dir_structure if exists $O{c};
 
 while (my $info = $param->next_param) {
 	$info->debug;
