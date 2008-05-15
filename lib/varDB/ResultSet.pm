@@ -30,8 +30,8 @@ sub _initialize {
 		$self->{method} = _detect_method_type($self->{file});
 	}
 
-	if ($self->{method} eq "hmmer") {
-		$self->_parse_hmmer_file($self->{file});
+	if ($self->{method} =~ /hmmsearch|hmmpfam/) {
+		$self->_parse_hmmer_file($self->{file}, $self->{method});
 	} elsif ($self->{method} eq "genewise") {
 		$self-> _parse_genewise_file($self->{file});
 	} else {
@@ -113,6 +113,7 @@ sub export_pfam {
 sub _parse_hmmer_file {
 	my $self = shift;
 	my $file = shift;
+	my $type = shift;
 	my $cutoff = shift;
 	my $model;
 	
@@ -133,8 +134,10 @@ sub _parse_hmmer_file {
 				while (my $hsp = $hit->next_hsp) {
 					my $hsp_ = new varDB::ResultSet::Hsp;
 					$hit_->add_hsp($hsp_);
-					$hsp_->start($hsp->start);
-					$hsp_->end($hsp->end);
+					my $what = 'query';
+					$what = 'hit' if $type eq "hmmsearch";
+					$hsp_->start($hsp->start($what));
+					$hsp_->end($hsp->end($what));
 				}
 			}
 		}
@@ -215,8 +218,8 @@ sub _detect_method_type {
 	open IN, $file or die "[SearchResult:_detect_method_type]: cannot open file $file: $!\n";
 	my $method = <IN>;
 	close IN;
-	if ($method =~ /hmmsearch|hmmpfam/) {
-		return "hmmer";
+	if ($method =~ /(hmmsearch|hmmpfam)/) {
+		return $1;
 	} elsif ($method =~ /Wise2/) {
 		return "genewise";
 	} else {
