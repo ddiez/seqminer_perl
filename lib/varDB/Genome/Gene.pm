@@ -26,6 +26,8 @@ sub _initialize {
 	$self->{source} = $param->{source};
 	$self->{exons} = {};
 	$self->{exon_list} = [];
+	$self->{seq} = $param->{seq};
+	$self->{translation} = $param->{translation};
 	$self->{nexons} = 0;
 }
 
@@ -110,5 +112,20 @@ sub get_exon_by_id {
 	}
 	return undef;
 }
+
+# stores the nucleotide sequence of the gene.
+sub seq {
+	my $self = shift;
+	$self->{seq} = shift if @_;
+	return $self->{seq};
+}
+
+# stores the protein sequence of the gene, in any.
+sub translation {
+	my $self = shift;
+	$self->{translation} = shift if @_;
+	return $self->{translation};
+}
+
 
 1;

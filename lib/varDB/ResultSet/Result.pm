@@ -59,7 +59,9 @@ sub domains_location_str {
 	foreach my $hit ($self->hit_list) {
 		foreach my $hsp ($hit->hsp_list) {
 			push @domain_list, $hit->name if !exists $domains{$hit->name};
-			push @{ $domains{$hit->name} }, join "..", $hsp->start, $hsp->end;
+			#push @{ $domains{$hit->name} }, join "..", $hsp->start, $hsp->end;
+			my $chain = $hsp->start."..".$hsp->end."[".$hit->score."|".$hit->significance."]";
+			push @{ $domains{$hit->name} }, $chain;
 		}
 	}
 	my @domains;

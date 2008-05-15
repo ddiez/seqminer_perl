@@ -1,5 +1,6 @@
 package varDB::Genome;
 
+use varDB::Genome::Chromosome;
 use varDB::Genome::Gene;
 use strict;
 use warnings;
@@ -21,6 +22,8 @@ sub _initialize {
 	$self->{ngenes} = 0;
 	$self->{organism} = "";
 	$self->{strain} = "";
+	$self->{chromosome_list} = [];
+	$self->{nchromosomes} = 0;
 	print STDERR "* reading genome file ... ";
 	$self->read_gff($param) if defined $param->{file};
 	print STDERR "OK\n";
@@ -64,7 +67,7 @@ sub add_gene {
 	my $self = shift;
 	my $gene = shift;
 	push @{ $self->{gene_list} }, $gene;
-	push @{ $self->{gene_list_ids} }, $gene->id;
+	#push @{ $self->{gene_list_ids} }, $gene->id;
 	$self->{ngenes}++;
 }
 
@@ -91,6 +94,36 @@ sub add_exon {
 	my $exon = shift;
 	my $gene = $self->get_gene_by_id($exon->parent);
 	$gene->add_exon($exon);
+}
+
+sub chromosome_list {
+	return @{ shift->{chromosome_list} };
+}
+
+sub add_chromosome {
+	my $self = shift;
+	my $chr = shift;
+	push @{ $self->{chromosome_list} }, $chr;
+	#push @{ $self->{chromosome_list_ids} }, $gene->id;
+	$self->{nchromosomes}++;
+}
+
+sub get_chromosome {
+	my $self = shift;
+	my $n = shift;
+	return $self->{chromosome_list}->[$n];
+}
+
+sub get_chromosome_by_id {
+	my $self = shift;
+	my $id = shift;
+	
+	foreach my $chr ($self->chromosome_list) {
+		if ($chr->id eq $id) {
+			return $chr;
+		}
+	}
+	return undef;
 }
 
 sub read_gff {
@@ -166,6 +199,30 @@ sub print_gff {
 	}
 }
 
+sub print_fasta {
+	my $self = shift;
+	my $type = shift;
+	
+	if ($type eq "genome") {
+		foreach my $chr ($self->chromosome_list) {
+			print ">", 	$chr->id, "\n";
+			print _format_seq($chr->seq), "\n";
+		}
+	} else {
+		foreach my $gene ($self->gene_list) {
+			if ($type eq "nucleotide") {
+				print ">", $gene->id, " description:", $gene->description, "\n";
+				print _format_seq($gene->seq), "\n";
+			} elsif ($type eq "translation" or $type eq "protein") {
+				if (defined $gene->translation) {
+					print ">", $gene->id, " description:", $gene->description, "\n";
+					print _format_seq($gene->translation), "\n";
+				}
+			}
+		}
+	}
+}
+
 sub to_position {
 	my $self = shift;
 	use varDB::Position;
@@ -182,6 +239,12 @@ sub to_position {
 	}
 	print STDERR "OK\n";
 	return $pos;
+}
+
+sub _format_seq {
+	my $seq = shift;
+	$seq =~ s/(.{60})/$1\n/g;
+	return $seq;
 }
 
 1;
