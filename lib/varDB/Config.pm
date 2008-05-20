@@ -11,7 +11,7 @@ our $DEBUG = 1;
 our $VARDB_HOME = "/Volumes/Data/projects/vardb";
 our $VARDB_SEARCH_FILE = "$VARDB_HOME/etc/config_search.txt";
 our $VARDB_ORGANISM_FILE = "$VARDB_HOME/etc/config_organism.txt";
-our $VARDB_COMMIT_DIR = "$VARDB_HOME/svn/website/data/diego/";
+our $VARDB_COMMIT_DIR = "$VARDB_HOME/svn/web/data/diego/";
 
 
 our $UNIPROTDB = "$VARDB_HOME/db/uniprot";

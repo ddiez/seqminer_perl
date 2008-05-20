@@ -206,7 +206,6 @@ sub export_nelson {
 		print OUT
 			"$id\t",
 			$organism.".".$info->family, "\t",
-			#$organism."."."foo_fam", "\t",
 			$org_tax, "\t",
 			$org->strain($org_id), "\t",
 			$org_tax.".".$gene->chromosome, "\t",
