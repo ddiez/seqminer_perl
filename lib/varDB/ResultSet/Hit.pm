@@ -9,11 +9,18 @@ sub new {
 	my $class = shift;
 	
 	my $self = {};
-	$self->{name} = undef;
+	$self->{id} = undef;
 	$self->{score} = undef;
 	$self->{evalue} = undef;
-	$self->{nhsp} = 0;
-	$self->{hsp_list} = [];
+	$self->{start} = undef;
+	$self->{end} = undef;
+	#$self->{nhsp} = 0;
+	#$self->{hsp_list} = [];
+	
+	# useful for merging:
+	$self->{method} = undef;
+	$self->{model} = undef;
+	$self->{cutoff} = 1e-02;
 	
 	bless $self, $class;
     $self->_initialize(@_) if @_;
@@ -30,10 +37,10 @@ sub length {
 	return shift->{nhsp};
 }
 
-sub name {
+sub id {
 	my $self = shift;
-	$self->{name} = shift if @_;
-	return $self->{name};
+	$self->{id} = shift if @_;
+	return $self->{id};
 }
 
 sub score{
@@ -47,6 +54,40 @@ sub significance {
 	$self->{evalue} = shift if @_;
 	return $self->{evalue};
 }
+
+sub start {
+	my $self = shift;
+	$self->{start} = shift if @_;
+	return $self->{start};
+}
+
+sub end {
+	my $self = shift;
+	$self->{end} = shift if @_;
+	return $self->{end};
+}
+
+################ useful for merging
+sub cutoff {
+	my $self = shift;
+	$self->{cutoff} = shift if @_;
+	return $self->{cutoff};
+}
+
+# method used for the search, may be hmmpfam, hmmsearch, genewise.
+sub method {
+	my $self = shift;
+	$self->{method} = shift if @_;
+	return $self->{method};
+}
+
+# model used for the search.
+sub model {
+	my $self = shift;
+	$self->{model} = shift if @_;
+	return $self->{model};
+}
+################ useful for merging
 
 sub hsp_list {
 	return @{ shift->{hsp_list} };

@@ -17,11 +17,9 @@ while (my $info = $param->next_param) {
 	$param->chdir($info, 'pfam');
 	my $base = $info->family."-".$info->organism_dir;
 
-	my $res1 = new varDB::ResultSet({file => "$base-protein-pfam_ls.log"});
-	my $res2 = new varDB::ResultSet({file => "$base-protein-pfam_fs.log"});
-	
+	my $ls = new varDB::ResultSet({file => "$base-protein-pfam_ls.log", id => 'ls'});
+	my $fs = new varDB::ResultSet({file => "$base-protein-pfam_fs.log", id => 'fs'});
+
 	$param->chdir($info, 'test');
-	# workaround to put both results together.
-	$res1->export_pfam({file => "$base-pfam.txt", fs => $res2});
-	#$res2->export_pfam({file => "$base-protein-pfam_fs.txt"});
+	varDB::ResultSet::export_pfam({file => "$base-pfam.txt", fs => $fs, ls => $ls});
 }

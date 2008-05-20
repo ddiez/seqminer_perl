@@ -127,5 +127,27 @@ sub translation {
 	return $self->{translation};
 }
 
+our %QUALITY_SCORE = (
+	0 => 'ONE_STAR',
+	1 => 'TWO_STARS',
+	2 => 'THREE_STARS',
+);
+
+sub quality {
+	my $self = shift;
+	my $eexons = shift;
+	
+	my $nexons = $self->nexons;
+	if ($nexons ==  $eexons) {
+		return $QUALITY_SCORE{2};
+	} else {
+		if ($nexons == 1) {
+			# could be a processed pseudogene.
+			return $QUALITY_SCORE{1};
+		} else {
+			return $QUALITY_SCORE{0};
+		}
+	}
+}
 
 1;

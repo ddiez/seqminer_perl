@@ -54,6 +54,8 @@ sub length {
 	}
 }
 
+our @DIRS = ('search', 'analysis', 'nelson', 'pfam', 'fasta', 'test');
+
 sub create_dir_structure {
 	my $self = shift;
 	
@@ -66,11 +68,9 @@ sub create_dir_structure {
 	# create working directory, die on failure.
 	if (! -d $self->{outdir}) {
 		mkdir $self->{outdir};
-		mkdir "$self->{outdir}/search";
-		mkdir "$self->{outdir}/analysis";
-		mkdir "$self->{outdir}/nelson";
-		mkdir "$self->{outdir}/pfam";
-		mkdir "$self->{outdir}/test";
+		foreach my $dir (@DIRS) {
+			mkdir "$self->{outdir}/$dir";	
+		}
 	} else {
 		die "directory $self->{outdir} already exists!.\n";
 	}
@@ -79,16 +79,10 @@ sub create_dir_structure {
 	system "ln -s $self->{outdir} $VARDB_HOME/families/last";
 	
 	while (my $info = $self->next_param) {
-		chdir "$self->{outdir}/search";
-		mkdir $info->super_family;
-		chdir "$self->{outdir}/analysis";
-		mkdir $info->super_family;
-		chdir "$self->{outdir}/nelson";
-		mkdir $info->super_family;
-		chdir "$self->{outdir}/pfam";
-		mkdir $info->super_family;
-		chdir "$self->{outdir}/test";
-		mkdir $info->super_family;
+		foreach my $dir (@DIRS) {
+			chdir "$self->{outdir}/$dir";
+			mkdir $info->super_family;
+		}
 	}
 	$self->rewind;
 }
