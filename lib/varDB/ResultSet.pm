@@ -5,7 +5,6 @@ package varDB::ResultSet;
 use strict;
 use warnings;
 
-#use varDB::Organism;
 use varDB::ResultSet::Result;
 use Bio::SearchIO;
 

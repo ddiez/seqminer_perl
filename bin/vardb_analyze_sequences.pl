@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use varDB::Config;
-use varDB::SearchParam;
+use varDB::Config::Param;
 use varDB::SeqIO;
 use varDB::Genome;
 use varDB::ResultSet;

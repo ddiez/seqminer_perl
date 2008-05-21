@@ -4,11 +4,10 @@ use strict;
 use warnings;
 
 use varDB::Config;
-use varDB::SearchParam;
+use varDB::Config::Param;
 use varDB::ResultSet;
-#use varDB::SearchPfam;
 
-my $param = new varDB::SearchParam({file => shift});
+my $param = new varDB::Config::Param({file => shift});
 $param->debug;
 
 while (my $info = $param->next_param) {

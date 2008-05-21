@@ -1,10 +1,10 @@
-package varDB::SearchParam;
+package varDB::Config::Param;
 
 use strict;
 use warnings;
 
 use varDB::Config;
-use varDB::SearchIO;
+use varDB::Config::Search;
 
 sub new {
 	my $class = shift;
@@ -27,7 +27,7 @@ sub _initialize {
 		next if /^[#|\n]/;
 		chomp;
 	
-		my $info = new varDB::SearchIO($_);
+		my $info = new varDB::Config::Search($_);
 		push @{ $self->{param_list} }, $info;
 		$self->{nparam}++;
 	}

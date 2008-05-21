@@ -1,7 +1,9 @@
-package varDB::SearchIO;
+package varDB::Config::Search;
 
 use strict;
 use warnings;
+
+use varDB::Config;
 
 sub new {
 	my $class = shift;

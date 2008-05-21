@@ -4,9 +4,9 @@ use strict;
 use warnings;
 
 use varDB::Config;
-use varDB::SearchParam;
+use varDB::Config::Dir;
 
-my $param = new varDB::SearchParam;
+my $param = new varDB::Config::Dir;
 $param->debug;
 while (my $info = $param->next_param) {
 	$info->debug;
