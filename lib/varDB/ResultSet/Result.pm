@@ -120,6 +120,23 @@ sub has_hit {
 	return 0;
 }
 
+sub best_hit {
+	my $self = shift;
+	my $evalue = undef;
+	my $best_hit = undef;
+	foreach my $hit ($self->hit_list) {
+		if (!defined $best_hit) {
+			$evalue = $hit->significance;
+			$best_hit = $hit;
+		}
+		if ($hit->significance <= $evalue) {
+			$evalue = $hit->significance ;
+			$best_hit = $hit;
+		}
+	}
+	return $best_hit;
+}
+
 sub merge {
 	my $self = shift;
 	my $res = shift;

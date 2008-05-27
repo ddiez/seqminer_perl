@@ -4,6 +4,7 @@ bin/vardb_broad_parse_gff.pl
 bin/vardb_commit_files.pl
 bin/vardb_count_genes.pl
 bin/vardb_count_list.pl
+bin/vardb_extract_regulatory_regions.pl
 bin/vardb_formatdb.pl
 bin/vardb_genedb_embl2gff.pl
 bin/vardb_giardiadb_parse.pl
@@ -37,9 +38,12 @@ lib/varDB/Organism.pm
 lib/varDB/Parser.pm
 lib/varDB/Parser/broad.pm
 lib/varDB/Parser/kegg.pm
+lib/varDB/Parser/Nelson.pm
 lib/varDB/Parser/plasmodb.pm
 lib/varDB/ResultSet.pm
 lib/varDB/ResultSet/Hit.pm
 lib/varDB/ResultSet/Hsp.pm
 lib/varDB/ResultSet/Result.pm
 lib/varDB/SeqIO.pm
+lib/varDB/SeqSet.pm
+lib/varDB/SeqSet/Seq.pm

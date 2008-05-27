@@ -10,7 +10,7 @@ use varDB::Genome;
 use varDB::ResultSet;
 use Sets;
 
-my $param = new varDB::SearchParam({file => shift});
+my $param = new varDB::Config::Param({file => shift});
 $param->debug;
 
 while (my $info = $param->next_param) {
@@ -20,9 +20,8 @@ while (my $info = $param->next_param) {
 	my $organism_dir = $info->organism_dir;
 	my $base = "$family-$organism_dir";
 	
-	# compute position file (from genome).
+	# get genome info.
 	my $genome = new varDB::Genome({file => "$GENOMEDB/$organism_dir/genome.gff"});
-	#my $pos = $genome->to_position; # temp fix.
 
 	# read result files.
 	$param->chdir($info, 'search');
@@ -35,11 +34,6 @@ while (my $info = $param->next_param) {
 	my $p_fs = $rs->get_result_by_id('protein_fs');
 	my $g_ls = $rs->get_result_by_id('gene_ls');
 	my $g_fs = $rs->get_result_by_id('gene_fs');
-	
-	#my $p_ls = new varDB::ResultSet({file => "$base-protein_ls.log", id => 'protein_ls'});
-	#my $p_fs = new varDB::ResultSet({file => "$base-protein_fs.log", id => 'protein_fs'});
-	#my $g_ls = new varDB::ResultSet({file => "$base-gene_ls.log", id => 'gene_ls'});
-	#my $g_fs = new varDB::ResultSet({file => "$base-gene_fs.log", id => 'gene_fs'});
 	
 	my $np_ls = $p_ls->length;
 	my $np_fs = $p_fs->length;

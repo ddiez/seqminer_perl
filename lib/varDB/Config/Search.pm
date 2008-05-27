@@ -18,7 +18,7 @@ sub _initialize {
 	my $self = shift;
 	my $param = shift;
 	
-	my ($organism, $strain, $organism_dir, $super_family, $family, $seed, $pssm_eval, $psi_eval, $tbn_eval, $iter, $hmm_acc, $hmm_name, $hmm_eval, $eexons, $format) = split '\t', $param;
+	my ($organism, $strain, $organism_dir, $super_family, $family, $seed, $pssm_eval, $psi_eval, $tbn_eval, $iter, $hmm_acc, $hmm_name, $hmm_eval, $eexons) = split '\t', $param;
 
 	$self->{organism} = $organism;
 	$self->{strain} = $strain;
@@ -34,7 +34,6 @@ sub _initialize {
 	$self->{hmm_name} = $hmm_name;
 	$self->{hmm_eval} = $hmm_eval;
 	$self->{eexons} = $eexons;
-	$self->{format} = $format;
 }
 
 sub organism {
@@ -91,10 +90,6 @@ sub hmm_eval {
 
 sub eexons {
 	return shift->{eexons};
-}
-
-sub format {
-	return shift->{format};
 }
 
 sub base {

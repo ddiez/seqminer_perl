@@ -5,50 +5,74 @@ use Bio::SeqIO;
 use strict;
 use warnings;
 
+unlink "genome.fa" if (-e "genome.fa");
+unlink "genome.gff" if (-e "genome.gff");
 
 my $in = new Bio::SeqIO(-file => shift, -format => 'embl');
+my $out_g = new Bio::SeqIO(-file => '>>genome.fa', -format => 'fasta');
 
+my $n = 0;
 while (my $seq = $in->next_seq) {
+	$n++;
+	print STDERR "* seq $n\n";
+	
 	# in bacterial genomes that would be just one sequence.
-	print STDERR "id: ", $seq->accession_number, "\n";
-	print STDERR "id: ", $seq->display_name, "\n";
 	my $genome = new varDB::Genome;
-
-	my @feat = $seq->get_SeqFeatures(); # just top level
+	my $chr = "-";
+	
+	my @feat = $seq->get_SeqFeatures; # just top level
 	foreach my $feat (@feat) {
 		# try to parse chromosomes.
 		if ($feat->primary_tag eq "source") {
-			if ($feat->has_tag('origid')) {
-				print STDERR $feat->get_tag_values('origid'), "\n";
-				print STDERR $feat->start, "\t", $feat->end, "\n";
+			print STDERR "- found source tag ...\n";
+			# skip if no chromosome.
+			# TODO: what to do with those??
+			if ($feat->has_tag('so_type')) {
+				if (($feat->get_tag_values('so_type'))[0] eq 'chromosome') {
+					print STDERR "- found chromosome tag ...\n";
+					if ($feat->has_tag('systematic_id')) {
+						print STDERR "- found systematic_id ...\n";
+						$chr = ($feat->get_tag_values('systematic_id'))[0];
+						$seq->display_id($chr);
+						print STDERR "* chromosome: $chr\n";
+					}
+				}
+			} else {
+				print STDERR ".. skipped\n";
 			}
 		}
 		
 		if ($feat->primary_tag eq "CDS") {
-			my $gene = new varDB::Gene();
-			$gene->set_id($feat->get_tag_values('systematic_id'));
-			$gene->set_source("genedb");
-			$gene->set_chromosome("-");
-			$gene->set_strand($feat->strand eq "1" ? "+" : "-");
-			$gene->set_start($feat->start);
-			$gene->set_end($feat->end);
-			$gene->set_description($feat->get_tag_values('product'));
+			my $gene = new varDB::Genome::Gene;
+			if ($feat->has_tag('systematic_id')) {
+				$gene->id($feat->get_tag_values('systematic_id'));
+			} else {
+				$gene->id("args");
+			}
+			$gene->source("genedb");
+			$gene->chromosome($chr);
+			$gene->strand($feat->strand eq "1" ? "+" : "-");
+			$gene->start($feat->start);
+			$gene->end($feat->end);
+			$gene->description($feat->get_tag_values('product'));
 			
 			$genome->add_gene($gene);
 			
 			my @loc = $feat->location->each_Location;
 			foreach my $loc (@loc) {
-				my $gene_ = $genome->get_gene($gene->get_id);
-				my $exon = new varDB::Exon;
-				$exon->set_id($gene_->get_nexons + 1);
-				$exon->set_parent($gene_->get_id);
-				$exon->set_strand($gene_->get_strand);
-				$exon->set_start($loc->start);
-				$exon->set_end($loc->end);
+				my $gene_ = $genome->get_gene_by_id($gene->id);
+				my $exon = new varDB::Genome::Exon;
+				$exon->id($gene_->nexons + 1);
+				$exon->parent($gene_->id);
+				$exon->strand($gene_->strand);
+				$exon->start($loc->start);
+				$exon->end($loc->end);
 				
 				$genome->add_exon($exon);
 			}
 		}
 	}
-	$genome->print_gff;
+	
+	$out_g->write_seq($seq);
+	$genome->print_gff({file => '>>genome.gff'});
 }

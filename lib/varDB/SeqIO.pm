@@ -53,4 +53,12 @@ sub set_uc {
 		$self->{seqs}->{$id}->{seq} = uc $self->{seqs}->{$id}->{seq};
 	}
 }
+
+sub subseq {
+	my $self = shift;
+	my $start = shift;
+	my $length = shift;
+	my $strand = shift;
+	substr $self->seq, $start, $length;
+}
 1;

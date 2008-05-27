@@ -24,9 +24,7 @@ sub _initialize {
 	$self->{strain} = "";
 	$self->{chromosome_list} = [];
 	$self->{nchromosomes} = 0;
-	print STDERR "* reading genome file ... ";
 	$self->read_gff($param) if defined $param->{file};
-	print STDERR "OK\n";
 }
 
 sub debug {
@@ -130,6 +128,7 @@ sub read_gff {
 	my $self = shift;
 	my $param = shift;
 	
+	print STDERR "* reading genome file ... ";
 	my $file = $param->{file};
 	open IN, "$file" or die "[Genome:read_gff]: cannot read file $file: $!\n";
 	while (<IN>) {
@@ -158,6 +157,7 @@ sub read_gff {
 		} # nothing else.
 	}
 	close IN;
+	print STDERR "OK\n";
 }
 
 # format:
@@ -171,9 +171,16 @@ sub read_gff {
 # description
 sub print_gff {
 	my $self = shift;
+	my $param = shift;
+	
+	my $fh = *STDOUT;
+	if ($param->{file}) {
+		open OUT, "$param->{file}" or die "cannot open $param->{file} for writing: $!\n";
+		$fh = *OUT;
+	}
 	
 	foreach my $gene ($self->gene_list) {
-		print
+		print $fh
 			$gene->id, "\t",
 			$gene->source, "\t",
 			"gene\t",
@@ -185,7 +192,7 @@ sub print_gff {
 			$gene->description, "\n";
 		my $nexons = $gene->nexons;
 		foreach my $exon ($gene->exon_list) {
-			print 
+			print $fh 
 				$gene->id, "\t",
 				$gene->source, "\t",
 				"exon\t",
@@ -197,6 +204,7 @@ sub print_gff {
 				"-", "\n";
 		}	
 	}
+	close $fh;
 }
 
 sub print_fasta {
@@ -223,23 +231,23 @@ sub print_fasta {
 	}
 }
 
-sub to_position {
-	my $self = shift;
-	use varDB::Position;
-	my $pos = new varDB::Position({format => "dummy"});
-	print STDERR "* converting to position object ...";
-	foreach my $gene ($self->gene_list) {
-		$pos->{gene}->{$gene->id}->{nexon} = $gene->nexons;
-		foreach my $exon ($gene->exon_list) {
-			push @{$pos->{gene}->{$gene->id}->{type}}, "exon";
-			push @{$pos->{gene}->{$gene->id}->{number}}, $exon->id;
-			push @{$pos->{gene}->{$gene->id}->{exon_start}}, $exon->start;
-			push @{$pos->{gene}->{$gene->id}->{exon_end}}, $exon->end;
-		}
-	}
-	print STDERR "OK\n";
-	return $pos;
-}
+#sub to_position {
+#	my $self = shift;
+#	use varDB::Position;
+#	my $pos = new varDB::Position({format => "dummy"});
+#	print STDERR "* converting to position object ...";
+#	foreach my $gene ($self->gene_list) {
+#		$pos->{gene}->{$gene->id}->{nexon} = $gene->nexons;
+#		foreach my $exon ($gene->exon_list) {
+#			push @{$pos->{gene}->{$gene->id}->{type}}, "exon";
+#			push @{$pos->{gene}->{$gene->id}->{number}}, $exon->id;
+#			push @{$pos->{gene}->{$gene->id}->{exon_start}}, $exon->start;
+#			push @{$pos->{gene}->{$gene->id}->{exon_end}}, $exon->end;
+#		}
+#	}
+#	print STDERR "OK\n";
+#	return $pos;
+#}
 
 sub _format_seq {
 	my $seq = shift;

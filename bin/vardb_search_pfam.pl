@@ -4,11 +4,11 @@ use strict;
 use warnings;
 
 use varDB::Config;
-use varDB::SearchParam;
+use varDB::Config::Param;
 
 my $MODEL_DIR = "$HMMDB/$PFAM_VERSION/";
 
-my $param = new varDB::SearchParam({file => shift});
+my $param = new varDB::Config::Param;
 $param->debug;
 
 while (my $info = $param->next_param) {
@@ -17,7 +17,7 @@ while (my $info = $param->next_param) {
 	my $base = $info->family."-".$info->organism_dir;
 	my $outdir = $param->dir($info, "pfam");
 	
-	$param->chdir($info, 'analysis');
+	$param->chdir($info, 'fasta');
 	print STDERR "* searching in Pfam_ls ... ";
 	system "hmmpfam $MODEL_DIR/Pfam_ls_b $base-protein.fa > $outdir/$base-protein-pfam_ls.log";
 	print STDERR "OK\n";
