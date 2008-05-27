@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use varDB::Config;
+use varDB::TaxonSet;
 use varDB::Config::Search;
 
 sub new {
@@ -19,6 +20,8 @@ sub _initialize {
 	my $self = shift;
 	my $param = shift;
 	
+	my $ts = new varDB::TaxonSet;
+	
 	my $file = $VARDB_SEARCH_FILE;
 	$file = $param->{file} if defined $param->{file};
 	$self->{file} = $file;
@@ -28,6 +31,11 @@ sub _initialize {
 		chomp;
 	
 		my $info = new varDB::Config::Search($_);
+		print STDERR "* taxonid: ", $info->taxonid, "\n";
+		my $taxon = $ts->get_taxon_by_id($info->taxonid);
+		$info->organism($taxon->organism);
+		$info->strain($taxon->strain);
+		$info->organism_dir($taxon->organism_dir);
 		push @{ $self->{param_list} }, $info;
 		$self->{nparam}++;
 	}

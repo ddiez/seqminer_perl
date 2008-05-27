@@ -27,8 +27,8 @@ while (my $info = $param->next_param) {
 	$param->chdir($info, 'search');
 	my $rs = new varDB::ResultSet({file => "$base-protein_ls.log", id => 'protein_ls'});
 	$rs->add({file => "$base-protein_fs.log", id => 'protein_fs'});
-	$rs->add({file => "$base-gene_ls-genewise.log", id => 'gene_ls'});
-	$rs->add({file => "$base-gene_fs-genewise.log", id => 'gene_fs'});
+	$rs->add({file => "$base-gene_ls.log", id => 'gene_ls'});
+	$rs->add({file => "$base-gene_fs.log", id => 'gene_fs'});
 	
 	my $p_ls = $rs->get_result_by_id('protein_ls');
 	my $p_fs = $rs->get_result_by_id('protein_fs');

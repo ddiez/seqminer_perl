@@ -18,11 +18,9 @@ sub _initialize {
 	my $self = shift;
 	my $param = shift;
 	
-	my ($organism, $strain, $organism_dir, $super_family, $family, $seed, $pssm_eval, $psi_eval, $tbn_eval, $iter, $hmm_acc, $hmm_name, $hmm_eval, $eexons) = split '\t', $param;
+	my ($taxonid, $super_family, $family, $seed, $pssm_eval, $psi_eval, $tbn_eval, $iter, $hmm_acc, $hmm_name, $hmm_eval, $eexons) = split '\t', $param;
 
-	$self->{organism} = $organism;
-	$self->{strain} = $strain;
-	$self->{organism_dir} = $organism_dir;
+	$self->{taxonid} = $taxonid;
 	$self->{super_family} = $super_family;
 	$self->{family} = $family;
 	$self->{seed} = $seed;
@@ -36,16 +34,26 @@ sub _initialize {
 	$self->{eexons} = $eexons;
 }
 
+sub taxonid {
+	return shift->{taxonid};
+}
+
 sub organism {
-	return shift->{organism};
+	my $self = shift;
+	$self->{organism} = shift if @_;
+	return $self->{organism};
 }
 
 sub strain {
-	return shift->{strain};
+	my $self = shift;
+	$self->{strain} = shift if @_;
+	return $self->{strain};
 }
 
 sub organism_dir {
-	return shift->{organism_dir};
+	my $self = shift;
+	$self->{organism_dir} = shift if @_;
+	return $self->{organism_dir};
 }
 
 sub super_family {

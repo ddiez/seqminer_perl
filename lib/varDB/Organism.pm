@@ -25,14 +25,14 @@ sub _initialize {
 	while (<IN>) {
 		next if /^[#|\n]/;
 		chomp;
-		my ($organism, $strain, $strain_view, $taxonid) = split '\t', $_;
-		my $id = $organism;
-		$id = $organism."_".$strain_view if $strain_view ne "";
+		my ($taxonid, $organism, $strain) = split '\t', $_;
+		my $id = $organism."_".$strain;
+		#$id = $organism."_".$strain_view if $strain_view ne "";
 		#$id =~ s/(.).+?(\..+)/$1$2/;
-		$self->{$id}->{organism} = $organism;
-		$self->{$id}->{strain} = $strain;
-		$self->{$id}->{strain_view} = $strain_view;
-		$self->{$id}->{taxonid} = $taxonid;
+		$self->{$taxonid}->{organism} = $organism;
+		$self->{$taxonid}->{strain} = $strain;
+		#$self->{$id}->{strain_view} = $strain_view;
+		#$self->{$taxonid}->{taxonid} = $taxonid;
 		push @{ $self->{organism_list} }, $id;
 	}
 	close IN;
@@ -52,12 +52,12 @@ sub strain {
 	return $self->{$id}->{strain};
 }
 
-sub strain_view {
-	my $self = shift;
-	my $id = shift;
-	$self->{$id}->{strain_view} = shift if @_;
-	return $self->{$id}->{strain_view};
-}
+#sub strain_view {
+#	my $self = shift;
+#	my $id = shift;
+#	$self->{$id}->{strain_view} = shift if @_;
+#	return $self->{$id}->{strain_view};
+#}
 
 sub taxonid {
 	my $self = shift;

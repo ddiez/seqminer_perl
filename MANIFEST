@@ -47,3 +47,5 @@ lib/varDB/ResultSet/Result.pm
 lib/varDB/SeqIO.pm
 lib/varDB/SeqSet.pm
 lib/varDB/SeqSet/Seq.pm
+lib/varDB/TaxonSet.pm
+lib/varDB/TaxonSet/Taxon.pm
