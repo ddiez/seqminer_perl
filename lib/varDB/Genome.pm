@@ -245,24 +245,6 @@ sub print_fasta {
 	}
 }
 
-#sub to_position {
-#	my $self = shift;
-#	use varDB::Position;
-#	my $pos = new varDB::Position({format => "dummy"});
-#	print STDERR "* converting to position object ...";
-#	foreach my $gene ($self->gene_list) {
-#		$pos->{gene}->{$gene->id}->{nexon} = $gene->nexons;
-#		foreach my $exon ($gene->exon_list) {
-#			push @{$pos->{gene}->{$gene->id}->{type}}, "exon";
-#			push @{$pos->{gene}->{$gene->id}->{number}}, $exon->id;
-#			push @{$pos->{gene}->{$gene->id}->{exon_start}}, $exon->start;
-#			push @{$pos->{gene}->{$gene->id}->{exon_end}}, $exon->end;
-#		}
-#	}
-#	print STDERR "OK\n";
-#	return $pos;
-#}
-
 sub _format_seq {
 	my $seq = shift;
 	$seq =~ s/(.{60})/$1\n/g;

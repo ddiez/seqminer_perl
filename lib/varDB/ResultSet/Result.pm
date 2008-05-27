@@ -12,7 +12,7 @@ use strict;
 use warnings;
 
 use varDB::ResultSet::Hit;
-use varDB::Organism;
+use varDB::TaxonSet;
 
 sub new {
 	my $class = shift;
@@ -151,7 +151,7 @@ sub export_nelson {
 	my $self = shift;
 	my $param = shift;
 	
-	my $org = new varDB::Organism;
+	my $ts = new varDB::TaxonSet;
 	
 	my $pro = $param->{protein};
 	my $nuc = $param->{nucleotide};
@@ -162,19 +162,20 @@ sub export_nelson {
 
 	# parse and fix information.
 	my $info = $param->{info};
+	my $taxon = $ts->get_taxon_by_id($info->taxonid);
 	my $organism = $info->organism;
 	my $strain = $info->strain;
 	my $eexons = $info->eexons;
 		
 	my $org_id = $organism;
-	$org_id = $organism."_".$strain if $strain ne "-";
-	my $taxon = $org->taxonid($org_id);
-	my $org_tax = $organism. ".".$taxon if $taxon ne "";
+	#$org_id = $organism."_".$strain if $strain ne "-";
+	#my $taxon = $org->taxonid($org_id);
+	my $org_tax = $organism. ".".$taxon->id;
 
-	print STDERR "* org_id: ", $org_id, "\n";
-	print STDERR "* taxon: ", $org->taxonid($org_id), "\n";
+	print STDERR "* org_id: $org_id\n";
+	print STDERR "* taxon: $org_tax\n";
 
-	open OUT, ">$param->{file}" or die "[SearchResult::export_nelson] cannot open file $param->{file} for writing: $!\n";
+	open OUT, ">$param->{file}" or die "[ResultSet::Result::export_nelson] cannot open file $param->{file} for writing: $!\n";
 	print OUT "SEQUENCE", "\t",
 		"family", "\t",
 		"genome", "\t",
@@ -212,11 +213,6 @@ sub export_nelson {
 		}
 		my $exonloc = join ",", @exonloc;
 		
-		#my @hmmloc;
-		#foreach my $hsp ($hit->hsp_list) {
-		#	push @hmmloc, join "..", $hsp->start, $hsp->end;
-		#}
-		#my $hmmloc = join ",", @hmmloc;
 		my $hmmloc = "";
 		$hmmloc = join ",", join "..", $hit->start, $hit->end if defined $hit->start and defined $hit->end;
 		
@@ -224,7 +220,7 @@ sub export_nelson {
 			"$id\t",
 			$organism.".".$info->family, "\t",
 			$org_tax, "\t",
-			$org->strain($org_id), "\t",
+			$taxon->strain, "\t",
 			$org_tax.".".$gene->chromosome, "\t",
 			$pro_seq, "\t",
 			$nuc_seq, "\t",

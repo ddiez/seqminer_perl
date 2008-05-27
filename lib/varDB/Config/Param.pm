@@ -31,7 +31,7 @@ sub _initialize {
 		chomp;
 	
 		my $info = new varDB::Config::Search($_);
-		print STDERR "* taxonid: ", $info->taxonid, "\n";
+		#print STDERR "* taxonid: ", $info->taxonid, "\n";
 		my $taxon = $ts->get_taxon_by_id($info->taxonid);
 		$info->organism($taxon->organism);
 		$info->strain($taxon->strain);

@@ -26,7 +26,7 @@ sub commit {
 	my $file = "";
 	my $dir = "";
 	if ($type eq "nelson") {
-		$file = $base."-nelson.txt";
+		$file = $base.".txt";
 		$dir = "sequences/";
 	} elsif ($type eq "test") {
 		$file = $base."-pfam.txt";

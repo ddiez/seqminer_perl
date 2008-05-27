@@ -79,7 +79,7 @@ while (my $info = $param->next_param) {
 	
 	# export in nelson's format.
 	$param->chdir($info, 'nelson');
-	$p_ls->export_nelson({file => "$base-nelson.txt", info => $info,
+	$p_ls->export_nelson({file => "$base.txt", info => $info,
 						   protein => $pro, nucleotide => $nuc,
 						   genome => $genome});
 	
