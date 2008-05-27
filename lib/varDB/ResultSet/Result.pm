@@ -233,7 +233,7 @@ sub export_nelson {
 			$gene->strand eq "+" ? "forward" : "reverse", "\t",
 			$gene->nexons, "\t",
 			$exonloc, "\t",
-			"\t",
+			$gene->pseudogene ? "TRUE" : "FALSE", "\t",
 			"\t",
 			$gene->quality($eexons), "\t",
 			$hit->method, "\t",
