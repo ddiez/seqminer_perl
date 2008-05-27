@@ -42,6 +42,9 @@ while (my $seq = $in->next_seq) {
 			$gene->seq($seq->subseq($gene->start, $gene->end));
 			$gene->strand($feat->strand == 1 ? "+" : "-");
 			$gene->chromosome($seq->accession_number);
+			if ($feat->has_tag('pseudo')) {
+				$gene->pseudogene(1);
+			}
 			if ($feat->has_tag('pseudo') && $feat->has_tag('note')) {
 				$gene->description($feat->get_tag_values('note'));
 			} else {

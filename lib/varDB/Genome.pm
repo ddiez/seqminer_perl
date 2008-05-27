@@ -143,7 +143,9 @@ sub read_gff {
 			$gene->start($start);
 			$gene->end($end);
 #			$description = "" if !defined $description;
-			$gene->description($description);
+			my $desc = _parse_description($description);
+			$gene->description($desc->{'description'});
+			$gene->pseudogene($desc->{'pseudogene'});
 			$self->add_gene($gene);
 		} elsif ($type eq "exon") {
 			my $gene = $self->get_gene_by_id($id);
@@ -158,6 +160,17 @@ sub read_gff {
 	}
 	close IN;
 	print STDERR "OK\n";
+}
+
+sub _parse_description {
+	my $desc = shift;
+	my @fields = split ';', $desc;
+	my %desc;
+	foreach my $field (@fields) {
+		my @tmp = split '=', $field;
+		$desc{$tmp[0]} = $tmp[1];
+	}
+	return \%desc;
 }
 
 # format:
@@ -180,6 +193,7 @@ sub print_gff {
 	}
 	
 	foreach my $gene ($self->gene_list) {
+		my $desc = $gene->get_gff_desc;
 		print $fh
 			$gene->id, "\t",
 			$gene->source, "\t",
@@ -189,7 +203,7 @@ sub print_gff {
 			$gene->start, "\t",
 			$gene->end, "\t",
 			"-\t",
-			$gene->description, "\n";
+			$desc, "\n";
 		my $nexons = $gene->nexons;
 		foreach my $exon ($gene->exon_list) {
 			print $fh 

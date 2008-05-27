@@ -19,6 +19,7 @@ sub _initialize {
 	$self->{id} = $param->{id};
 	$self->{name} = $param->{name};
 	$self->{description} = $param->{description};
+	$self->{pseudogene} = 0;
 	$self->{chromosome} = $param->{chromosome};
 	$self->{start} = $param->{start};
 	$self->{end} = $param->{end};
@@ -43,10 +44,22 @@ sub name {
 	return $self->{name};
 }
 
+sub pseudogene {
+	my $self = shift;
+	# TODO: check valid values.
+	$self->{pseudogene} = shift if @_;
+	return $self->{pseudogene};
+}
+
 sub description {
 	my $self = shift;
 	$self->{description} = shift if @_;
 	return $self->{description};
+}
+
+sub get_gff_desc {
+	my $self = shift;
+	return "description=".$self->description.";pseudogene=".$self->pseudogene.";";
 }
 
 sub chromosome {
