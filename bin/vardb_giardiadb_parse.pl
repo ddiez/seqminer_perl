@@ -5,7 +5,14 @@ use warnings;
 use Getopt::Long;
 
 my %O = ();
-GetOptions(\%O, 't:s', 'i:s', 's:s');
+GetOptions(\%O, 't:s', 'i:s', 'g');
+
+my $help = <<"HELP";
+    vardb_giardiadb_parse.pl -i <file> -t <type> -g
+HELP
+
+die $help if !exists $O{i};
+
 if ($O{t} eq "gff") {
 	use varDB::GFF;
 	use varDB::Genome;
@@ -47,7 +54,7 @@ if ($O{t} eq "gff") {
 	my $in = new Bio::SeqIO(-file => $O{i});
 	my $out = new Bio::SeqIO(-fh => \*STDOUT, -format => 'fasta');
 	while (my $seq = $in->next_seq) {
-		if (exists $O{s} and $O{s} eq "genome") {
+		if (exists $O{s}) {
 			my $id = $1 if $seq->display_id =~ /.+\|(.+)/;
 			my ($foo, $org, $version, $len) = split /\s*\|\s/, $seq->description;
 			$org =~ s/organism=//g;
