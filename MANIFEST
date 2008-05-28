@@ -4,6 +4,7 @@ bin/vardb_broad_parse_gff.pl
 bin/vardb_commit_files.pl
 bin/vardb_count_genes.pl
 bin/vardb_count_list.pl
+bin/vardb_eupathdb_parse.pl
 bin/vardb_extract_regulatory_regions.pl
 bin/vardb_formatdb.pl
 bin/vardb_genedb_embl2gff.pl
@@ -34,7 +35,6 @@ lib/varDB/Genome/Exon.pm
 lib/varDB/Genome/Gene.pm
 lib/varDB/GFF.pm
 lib/varDB/Location.pm
-lib/varDB/Organism.pm
 lib/varDB/Parser.pm
 lib/varDB/Parser/broad.pm
 lib/varDB/Parser/kegg.pm

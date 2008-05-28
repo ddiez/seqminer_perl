@@ -31,4 +31,22 @@ sub seq {
 	return $self->{seq};
 }
 
+sub start {
+	my $self = shift;
+	$self->{start} = shift if @_;
+	return $self->{start};
+}
+
+sub end {
+	my $self = shift;
+	$self->{end} = shift if @_;
+	return $self->{end};
+}
+
+sub description {
+	my $self = shift;
+	$self->{description} = shift if @_;
+	return $self->{description};
+}
+
 1;

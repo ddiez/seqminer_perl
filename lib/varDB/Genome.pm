@@ -188,7 +188,7 @@ sub print_gff {
 	
 	my $fh = *STDOUT;
 	if ($param->{file}) {
-		open OUT, "$param->{file}" or die "cannot open $param->{file} for writing: $!\n";
+		open OUT, ">$param->{file}" or die "cannot open $param->{file} for writing: $!\n";
 		$fh = *OUT;
 	}
 	
@@ -223,22 +223,30 @@ sub print_gff {
 
 sub print_fasta {
 	my $self = shift;
-	my $type = shift;
+	my $param = shift;
+	
+	my $fh = *STDOUT;
+	if ($param->{file}) {
+		open OUT, ">$param->{file}" or die "cannot open $param->{file} for writing: $!\n";
+		$fh = *OUT;
+	}
+	
+	my $type = $param->{type};
 	
 	if ($type eq "genome") {
 		foreach my $chr ($self->chromosome_list) {
-			print ">", 	$chr->id, "\n";
-			print _format_seq($chr->seq), "\n";
+			print $fh ">", 	$chr->id, "\n";
+			print $fh _format_seq($chr->seq), "\n";
 		}
 	} else {
 		foreach my $gene ($self->gene_list) {
 			if ($type eq "nucleotide") {
-				print ">", $gene->id, " description:", $gene->description, "\n";
-				print _format_seq($gene->seq), "\n";
+				print $fh ">", $gene->id, " description:", $gene->description, "\n";
+				print $fh _format_seq($gene->seq), "\n";
 			} elsif ($type eq "translation" or $type eq "protein") {
 				if (defined $gene->translation) {
-					print ">", $gene->id, " description:", $gene->description, "\n";
-					print _format_seq($gene->translation), "\n";
+					print $fh ">", $gene->id, " description:", $gene->description, "\n";
+					print $fh _format_seq($gene->translation), "\n";
 				}
 			}
 		}
