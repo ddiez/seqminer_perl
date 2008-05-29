@@ -240,15 +240,15 @@ sub print_fasta {
 		}
 	} else {
 		foreach my $gene ($self->gene_list) {
+			my $seq;
 			if ($type eq "nucleotide") {
-				print $fh ">", $gene->id, " description:", $gene->description, "\n";
-				print $fh _format_seq($gene->seq), "\n";
+				$seq = $gene->seq;
 			} elsif ($type eq "translation" or $type eq "protein") {
-				if (defined $gene->translation) {
-					print $fh ">", $gene->id, " description:", $gene->description, "\n";
-					print $fh _format_seq($gene->translation), "\n";
-				}
+				$seq = $gene->translation;
 			}
+			print $fh ">", $gene->id, " ", $gene->description, "\n";
+			print $fh _format_seq($seq);
+			print $fh "\n" if CORE::length $seq %% 60 != 0;
 		}
 	}
 }
