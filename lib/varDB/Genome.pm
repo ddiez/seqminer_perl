@@ -236,7 +236,7 @@ sub print_fasta {
 	if ($type eq "genome") {
 		foreach my $chr ($self->chromosome_list) {
 			print $fh ">", 	$chr->id, "\n";
-			print $fh _format_seq($chr->seq), "\n";
+			print $fh _format_seq($chr->seq);
 		}
 	} else {
 		foreach my $gene ($self->gene_list) {
