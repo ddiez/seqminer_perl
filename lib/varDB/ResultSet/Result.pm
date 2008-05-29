@@ -174,8 +174,6 @@ sub export_nelson {
 	my $eexons = $info->eexons;
 		
 	my $org_id = $organism;
-	#$org_id = $organism."_".$strain if $strain ne "-";
-	#my $taxon = $org->taxonid($org_id);
 	my $org_tax = $organism. ".".$taxon->id;
 
 	print STDERR "* org_id: $org_id\n";
@@ -202,8 +200,22 @@ sub export_nelson {
 		"evalue", "\t",
 		"hmmloc", "\t",
 		"description", "\n";
+		
+	my %hit_unique;
+	my @hit_unique;
 	foreach my $hit ($self->hit_list) {
 		my $id = $hit->id;
+		push @hit_unique, $id if ! exists $hit_unique{$id};
+		push @{ $hit_unique{$id} }, $hit;
+	}
+	
+	foreach my $id (@hit_unique) {
+		my @hit = @{ $hit_unique{$id} };
+		### TODO: fix this !!!!
+		#!!!!!!!!!!!!!!!!!!!!!!
+		my $hit = $hit[0];
+		#!!!!!!!!!!!!!!!!!!!!!!
+		
 		my $gene = $genome->get_gene_by_id($id);
 		
 		my $nuc_seq = $nuc->get_seq($id);
@@ -219,7 +231,11 @@ sub export_nelson {
 		my $exonloc = join ",", @exonloc;
 		
 		my $hmmloc = "";
-		$hmmloc = join ",", join "..", $hit->start, $hit->end if defined $hit->start and defined $hit->end;
+		my @hmmloc;
+		foreach my $hit_ (@hit) {
+			push @hmmloc, join "..", $hit_->start, $hit_->end if defined $hit_->start and defined $hit_->end;
+		}
+		$hmmloc = join ",", @hmmloc;
 		
 		print $fh
 			"$id\t",
@@ -235,7 +251,7 @@ sub export_nelson {
 			$gene->nexons, "\t",
 			$exonloc, "\t",
 			$gene->pseudogene ? "TRUE" : "FALSE", "\t",
-			"\t",
+			"FALSE", "\t",
 			$gene->quality($eexons), "\t",
 			$hit->method, "\t",
 			$hit->model, "\t",
