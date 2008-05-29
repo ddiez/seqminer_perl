@@ -136,12 +136,13 @@ sub _parse_hmmer_file {
 				$hit_->method($res_->method);
 				$hit_->cutoff($res_->cutoff);
 				while (my $hsp = $hit->next_hsp) {
-					#my $hsp_ = new varDB::ResultSet::Hsp;
-					#$hit_->add_hsp($hsp_);
+					my $hsp_ = new varDB::ResultSet::Hsp;
+					$hit_->add_hsp($hsp_);
 					my $what = 'query';
 					$what = 'hit' if $param->{method} eq "hmmsearch";
-					#$hsp_->start($hsp->start($what));
-					#$hsp_->end($hsp->end($what));
+					$hsp_->start($hsp->start($what));
+					$hsp_->end($hsp->end($what));
+					#!!! TODO: check this !!!
 					$hit_->start($hsp->start($what));
 					$hit_->end($hsp->end($what));
 				}
@@ -225,12 +226,13 @@ sub _parse_genewise_file {
 				#print STDERR "* prot_0: ", ($pos_0-1)/3, "\n";
 				#print STDERR "* prot_1: ", ($pos_1-1)/3, "\n";
 				#print STDERR "--\n";
-				#my $hsp_ = new varDB::ResultSet::Hsp;
+				my $hsp_ = new varDB::ResultSet::Hsp;
 				my $hit_ = $res_->get_hit_by_id($id);
 				if (defined $hit_) {
-					#$hit_->add_hsp($hsp_);
-					#$hsp_->start($prot_0);
-					#$hsp_->end($prot_1);
+					$hit_->add_hsp($hsp_);
+					$hsp_->start($prot_0);
+					$hsp_->end($prot_1);
+					#!!! TODO: check this !!!
 					$hit_->start($pos_0);
 					$hit_->end($pos_1);
 				}

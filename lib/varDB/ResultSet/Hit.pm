@@ -14,8 +14,8 @@ sub new {
 	$self->{evalue} = undef;
 	$self->{start} = undef;
 	$self->{end} = undef;
-	#$self->{nhsp} = 0;
-	#$self->{hsp_list} = [];
+	$self->{nhsp} = 0;
+	$self->{hsp_list} = [];
 	
 	# useful for merging:
 	$self->{method} = undef;
@@ -105,6 +105,17 @@ sub get_hsp {
 	my $n = shift;
 	return undef if $n > $self->length;
 	return $self->{hsp_list}->[$n];
+}
+
+sub get_hsp_by_id {
+	my $self = shift;
+	my $id = shift;
+	foreach my $hsp ($self->hsp_list) {
+		if ($hsp->id eq $id) {
+			return $hsp;
+		}
+	}
+	return undef;
 }
 
 1;
