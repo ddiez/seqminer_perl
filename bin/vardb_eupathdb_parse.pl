@@ -74,7 +74,11 @@ foreach my $seq (@seq) {
 	if ($id =~ /cds_/) {
 		$id =~ s/.+cds_(.+)-.+/$1/;
 		my $gene = $genome->get_gene_by_id($id);
-		$gene->translation($seq->seq) if $gene->pseudogene == 0;
+		if ($gene->pseudogene == 0) {
+			my $seq = $seq->seq;
+			$seq =~ s/\*$//; # remove stop codon at the end if any.
+			$gene->translation($seq);
+		}
 	} else {
 		$id =~ s/.+\|(.+)/$1/;
 		print STDERR "* searching chromosome $id\n";
@@ -88,7 +92,9 @@ foreach my $seq (@seq) {
 foreach my $gene ($genome->gene_list) {
 	my $chr_id = $gene->chromosome;
 	my $chr = $SEQ{$chr_id};
-	$gene->seq($chr->subseq($gene->start, $gene->end));
+	$chr = $chr->trunc($gene->start, $gene->end);
+	$chr = $chr->revcom if ($gene->strand eq "-");
+	$gene->seq($chr->seq);
 }
 
 # output files.
