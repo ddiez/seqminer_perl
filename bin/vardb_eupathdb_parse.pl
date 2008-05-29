@@ -45,7 +45,7 @@ while (my $feat = $in->next_feature) {
 		$id =~ s/.+exon_(.+)-(.+)/$1/;
 		my $exon_id = $2;
 		my $gene = $genome->get_gene_by_id($id);
-		if (defined $gene) {
+		if (defined $gene and $gene->pseudogene == 0) {
 			my $exon = new varDB::Genome::Exon;
 			$exon->id($exon_id);
 			$gene->add_exon($exon);
@@ -74,7 +74,7 @@ foreach my $seq (@seq) {
 	if ($id =~ /cds_/) {
 		$id =~ s/.+cds_(.+)-.+/$1/;
 		my $gene = $genome->get_gene_by_id($id);
-		$gene->translation($seq->seq);
+		$gene->translation($seq->seq) if $gene->pseudogene == 0;
 	} else {
 		$id =~ s/.+\|(.+)/$1/;
 		print STDERR "* searching chromosome $id\n";

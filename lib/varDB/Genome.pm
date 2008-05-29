@@ -256,8 +256,9 @@ sub print_fasta {
 
 sub _format_seq {
 	my $seq = shift;
+	my $seqn = CORE::length $seq;
 	$seq =~ s/(.{60})/$1\n/g;
-	$seq .= "\n" if CORE::length($seq) % 60 != 0;
+	$seq .= "\n" if $seqn % 60 != 0;
 	return $seq;
 }
 
