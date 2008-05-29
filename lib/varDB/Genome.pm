@@ -246,9 +246,10 @@ sub print_fasta {
 			} elsif ($type eq "translation" or $type eq "protein") {
 				$seq = $gene->translation;
 			}
-			print $fh ">", $gene->id, " ", $gene->description, "\n";
-			print $fh _format_seq($seq);
-			print $fh "\n" if CORE::length $seq %% 60 != 0;
+			if (defined $seq) {
+				print $fh ">", $gene->id, " ", $gene->description, "\n";
+				print $fh _format_seq($seq);
+			}
 		}
 	}
 }
@@ -256,6 +257,7 @@ sub print_fasta {
 sub _format_seq {
 	my $seq = shift;
 	$seq =~ s/(.{60})/$1\n/g;
+	$seq .= "\n" if CORE::length($seq) % 60 != 0;
 	return $seq;
 }
 

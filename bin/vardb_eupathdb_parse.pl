@@ -35,6 +35,7 @@ while (my $feat = $in->next_feature) {
 		$gene->chromosome($chr);
 		$gene->source(lc $feat->source_tag);
 		$gene->description($feat->get_tag_values("description"));
+		$gene->pseudogene(1) if $gene->description =~ /pseudogene/;
 		$gene->start($feat->start);
 		$gene->end($feat->end);
 		$gene->strand($feat->strand == 1 ? "+" : "-");
@@ -78,7 +79,7 @@ foreach my $seq (@seq) {
 		$id =~ s/.+\|(.+)/$1/;
 		print STDERR "* searching chromosome $id\n";
 		my $chr = $genome->get_chromosome_by_id($id);
-		$chr->seq(lc $seq->seq);
+		$chr->seq($seq->seq);
 		$SEQ{$id} = $seq;
 	}
 }

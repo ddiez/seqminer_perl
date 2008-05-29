@@ -151,6 +151,12 @@ sub export_nelson {
 	my $self = shift;
 	my $param = shift;
 	
+	my $fh = *STDOUT;
+	if ($param->{file}) {
+		open OUT, ">$param->{file}" or die "[ResultSet::Result::export_nelson] cannot open file $param->{file} for writing: $!\n";
+		$fh = *OUT;
+	}
+	
 	my $ts = new varDB::TaxonSet;
 	
 	my $pro = $param->{protein};
@@ -175,8 +181,7 @@ sub export_nelson {
 	print STDERR "* org_id: $org_id\n";
 	print STDERR "* taxon: $org_tax\n";
 
-	open OUT, ">$param->{file}" or die "[ResultSet::Result::export_nelson] cannot open file $param->{file} for writing: $!\n";
-	print OUT "SEQUENCE", "\t",
+	print $fh "SEQUENCE", "\t",
 		"family", "\t",
 		"genome", "\t",
 		"strain", "\t",
@@ -216,7 +221,7 @@ sub export_nelson {
 		my $hmmloc = "";
 		$hmmloc = join ",", join "..", $hit->start, $hit->end if defined $hit->start and defined $hit->end;
 		
-		print OUT
+		print $fh
 			"$id\t",
 			$organism.".".$info->family, "\t",
 			$org_tax, "\t",
@@ -239,24 +244,48 @@ sub export_nelson {
 			$hmmloc, "\t",
 			$gene->description, "\n";
 	}
-	close OUT;
 }
 
 sub export_fasta {
 	my $self = shift;
 	my $param = shift;
 	
+	my $fh = *STDOUT;
+	if ($param->{file}) {
+		open OUT, ">$param->{file}" or die "[ResultSet::Result::export_nelson] cannot open file $param->{file} for writing: $!\n";
+		$fh = *OUT;
+	}
+	
 	my $db = $param->{db};
-	open OUT, ">$param->{file}" or die "[SearchResult::export_nelson] cannot open file $param->{file} for writing: $!\n";
 	foreach my $hit ($self->hit_list) {
 		my $seq = $db->get_seq($hit->id);
 		if (defined $seq) {
-			$seq =~ s/(.{60})/$1\n/g;
-			print OUT ">".$hit->id."\n";
-			print OUT "$seq\n";
+			print $fh ">", $hit->id, "\n";
+			print $fh _format_seq($seq);
 		}
 	}
-	close OUT;
+}
+
+sub _format_seq {
+	my $seq = shift;
+	$seq =~ s/(.{60})/$1\n/g;
+	$seq .= "\n" if CORE::length($seq) % 60 != 0;
+	return $seq;
+}
+
+sub export_tab {
+	my $self = shift;
+	my $param = shift;
+	
+	my $fh = *STDOUT;
+	if ($param->{file}) {
+		open OUT, ">$param->{file}" or die "cannot open $param->{file} for writing: $!\n";
+		$fh = *OUT;
+	}
+	
+	foreach my $hit ($self->hit_list) {
+		print $fh $hit->id, "\t", $hit->score, "\t", $hit->significance, "\n";
+	}
 }
 
 ##########
