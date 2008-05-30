@@ -1,6 +1,6 @@
 bin/vardb_align.pl
 bin/vardb_analyze_sequences.pl
-bin/vardb_broad_parse_gff.pl
+bin/vardb_broad_parse.pl
 bin/vardb_commit_files.pl
 bin/vardb_count_genes.pl
 bin/vardb_count_list.pl
@@ -16,6 +16,7 @@ bin/vardb_parse_pfam.pl
 bin/vardb_plasmodb_format_genome_est.pl
 bin/vardb_plasmodb_format_protein_cds.pl
 bin/vardb_plasmodb_parse_gff.pl
+bin/vardb_process_directory.sh
 bin/vardb_run.sh
 bin/vardb_search_pfam.pl
 bin/vardb_search_sequences.pl

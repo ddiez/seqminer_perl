@@ -142,9 +142,8 @@ sub read_gff {
 			$gene->strand($strand);
 			$gene->start($start);
 			$gene->end($end);
-#			$description = "" if !defined $description;
 			my $desc = _parse_description($description);
-			$gene->description($desc->{'description'});
+			$gene->description(defined $desc->{'description'} ? $desc->{'description'} : "");
 			$gene->pseudogene($desc->{'pseudogene'});
 			$self->add_gene($gene);
 		} elsif ($type eq "exon") {
