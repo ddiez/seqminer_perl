@@ -65,4 +65,4 @@ while (my $feat = $in->next_feature) {
 	}
 }
 
-$genome->print_gff;
+$genome->print_gff({file => 'genome.gff'});
