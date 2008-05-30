@@ -1,5 +1,18 @@
 #!/usr/bin/env perl
-
+#
+#  This is the main script for parsing data comming from the Broad Institute.
+#  This consists on sequence data from different projects like Plasmodium
+#  falciparum HB3 and DD2 strains. This parser is meant to be used
+#  with the GTF and FASTA file formats. There is no single file at this point
+#  that could be used to retrieve all the information. Therefore the script
+#  must be run several times to obtain all the desired files. For example:
+#   - vardb_broad_parse.pl -i transcripts.gtf
+#   - vardb_broad_parse.pl -i supercontigs.fasta -t fasta -o genome.fa
+#   - vardb_broad_parse.pl -i proteins.fasta -t fasta -o protein.fa
+#   - vardb_broad_parse.pl -i genes.fasta -t fasta -o gene.fa
+#
+#  to get respectively genome.gff, genome.fa, gene.fa and protein.fa
+#
 use strict;
 use warnings;
 
@@ -10,18 +23,34 @@ my %O = ();
 GetOptions(\%O, 'i:s', 't:s', 'o:s');
 
 my $help = <<"HELP";
+
+#!! WARNING !!
+#  This is the main script for parsing data comming from the Broad Institute.
+#  This consists on sequence data from different projects like Plasmodium
+#  falciparum HB3 and DD2 strains. This parser is meant to be used
+#  with the GTF and FASTA file formats. There is no single file at this point
+#  that could be used to retrieve all the information. Therefore the script
+#  must be run several times to obtain all the desired files. For example:
+#   - vardb_broad_parse.pl -i transcripts.gtf
+#   - vardb_broad_parse.pl -i supercontigs.fasta -t fasta -o genome.fa
+#   - vardb_broad_parse.pl -i proteins.fasta -t fasta -o protein.fa
+#   - vardb_broad_parse.pl -i genes.fasta -t fasta -o gene.fa
+#
+#  to get respectively genome.gff, genome.fa, gene.fa and protein.fa
+#!! WARNING !!
+
     vardb_broad_parse.pl -i <file> -t <type> -o <file>
 	
 	-i   input file, either fasta or gtf.
 	-t   type of output (gff/fasta) [default: gff]
 	-o   output file [default for gff: genome.gff/  mandatory for fasta]
+
 HELP
 
 die $help if ! exists $O{i};
 
 my $type = 'gff';
 $type = $O{t} if defined $O{t};
-
 
 if ($type eq 'gff') {
 	use Bio::Tools::GFF;

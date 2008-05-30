@@ -1,5 +1,14 @@
 #!/usr/bin/env perl
-
+#
+#  This is the main script for parsing data comming from EupathDB, formel
+#  known as ApiDB. This consists on sequence data from different projects
+#  like PlasmoDB, ToxoDB, GiardiaDB, etc. This parser is meant to be used
+#  with the EupathDB GFF file formats. These are GFF3 compliant files and
+#  therefore, contain sequence features and sequence data. This script
+#  generates 4 files, genome.gff, genome.fa, gene.fa and protein.fa formated
+#  for use in the varDB project.
+#
+#
 use strict;
 use warnings;
 use Bio::Tools::GFF;
@@ -12,7 +21,19 @@ my %O = ();
 GetOptions(\%O, 'i:s');
 
 my $help = <<"HELP";
+
+#!! WARNING !!
+#  This is the main script for parsing data comming from EupathDB, formel
+#  known as ApiDB. This consists on sequence data from different projects
+#  like PlasmoDB, ToxoDB, GiardiaDB, etc. This parser is meant to be used
+#  with the EupathDB GFF file formats. These are GFF3 compliant files and
+#  therefore, contain sequence features and sequence data. This script
+#  generates 4 files, genome.gff, genome.fa, gene.fa and protein.fa formated
+#  for use in the varDB project.
+#!! WARNING !!
+
     vardb_eupathdb_parse.pl -i <file>
+
 HELP
 
 die $help if !exists $O{i};

@@ -2,13 +2,34 @@
 
 use strict;
 use warnings;
-
+#
+#  This is the main script for parsing data comming from NCBI. This parser is
+#  meant to be used with the Genbank file formats. This script generates 4
+#  files: genome.gff, genome.fa, gene.fa and protein.fa formated for use in
+#  the varDB project.
+#
+#
 use varDB::Genome;
 use Bio::SeqIO;
 use Getopt::Long;
 
 my %O;
 GetOptions(\%O, 'i:s', 'd:s');
+
+my $help = <<"HELP";
+
+#!! WARNING !!
+#  This is the main script for parsing data comming from NCBI. This parser is
+#  meant to be used with the Genbank file formats. This script generates 4
+#  files: genome.gff, genome.fa, gene.fa and protein.fa formated for use in
+#  the varDB project.
+#!! WARNING !!
+
+    vardb_ncbi_parse.pl -i <file>
+
+HELP
+
+die $help if !exists $O{i};
 
 my $outdir = ".";
 $outdir = $O{d} if defined $O{d};
