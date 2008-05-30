@@ -51,8 +51,8 @@ while (my $info = $param->next_param) {
 	#
 	# 1.4 do genewisedb for search with hmm in nucleotide database.
 	print STDERR "* searching nucleotide database (genewisedb) ... ";
-	system "genewisedb -quiet -hmmer $ls.hmm $GENOMEDB/$organism_dir/gene.fa > $base-gene\_ls.log";
-	system "genewisedb -quiet -hmmer $fs.hmm $GENOMEDB/$organism_dir/gene.fa > $base-gene\_fs.log";
+	system "genewisedb -quiet -aln 500 -hmmer $ls.hmm $GENOMEDB/$organism_dir/gene.fa > $base-gene\_ls.log";
+	system "genewisedb -quiet -aln 500 -hmmer $fs.hmm $GENOMEDB/$organism_dir/gene.fa > $base-gene\_fs.log";
 	print STDERR "OK\n";
 	
 	###########################################################
