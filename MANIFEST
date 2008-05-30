@@ -11,12 +11,14 @@ bin/vardb_genedb_embl2gff.pl
 bin/vardb_giardiadb_parse.pl
 bin/vardb_kegg_ent2gff.pl
 bin/vardb_ncbi_gb_parse.pl
+bin/vardb_ncbi_parse.pl
 bin/vardb_ncbi_parse_gff.pl
 bin/vardb_parse_pfam.pl
 bin/vardb_plasmodb_format_genome_est.pl
 bin/vardb_plasmodb_format_protein_cds.pl
 bin/vardb_plasmodb_parse_gff.pl
 bin/vardb_process_directory.sh
+bin/vardb_process_ncbi_genomes.sh
 bin/vardb_run.sh
 bin/vardb_search_pfam.pl
 bin/vardb_search_sequences.pl
