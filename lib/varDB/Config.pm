@@ -3,7 +3,7 @@ package varDB::Config;
 our @ISA = qw/Exporter/;
 our @EXPORT = qw/$VARDB_RELEASE $VARDB_HOME $VARDB_SEARCH_FILE 
 	$VARDB_ORGANISM_FILE $UNIPROTDB $PDBDB $HMMDB $GENOMEDB $PFAM_VERSION
-	$DEBUG $VARDB_COMMIT_DIR/;
+	$DEBUG $VARDB_COMMIT_DIR $HMMERPARAM $WISEPARAM/;
 
 our $VARDB_RELEASE = 1;
 our $DEBUG = 1;
@@ -19,5 +19,14 @@ our $PDBDB = "$VARDB_HOME/db/pdb";
 our $HMMDB = "$VARDB_HOME/db/pfam";
 our $PFAM_VERSION = "pfam-22";
 our $GENOMEDB = "$VARDB_HOME/db/genomes";
+
+my $OPTIMIZE = 1;
+if ($OPTIMIZE) {
+	our $HMMERPARAM = "--cpu 2";
+	our $WISEPARAM = "-pthread -pthr_no 1";
+} else {
+	our $HMMERPARAM = "--cpu 1";
+	our $WISEPARAM = "-serial";
+}
 
 1;

@@ -41,8 +41,8 @@ while (my $info = $param->next_param) {
 
 	# search in protein genome.
 	print STDERR "* searching protein database (hmmer) ... ";
-	system "hmmsearch $ls.hmm $GENOMEDB/$organism_dir/protein.fa > $base-protein\_ls.log";
-	system "hmmsearch $fs.hmm $GENOMEDB/$organism_dir/protein.fa > $base-protein\_fs.log";
+	system "hmmsearch $HMMERPARAM $ls.hmm $GENOMEDB/$organism_dir/protein.fa > $base-protein\_ls.log";
+	system "hmmsearch $HMMERPARAM $fs.hmm $GENOMEDB/$organism_dir/protein.fa > $base-protein\_fs.log";
 	print STDERR "OK\n";
 	
 	# TODO:
@@ -51,8 +51,8 @@ while (my $info = $param->next_param) {
 	#
 	# 1.4 do genewisedb for search with hmm in nucleotide database.
 	print STDERR "* searching nucleotide database (genewisedb) ... ";
-	system "genewisedb -quiet -aln 500 -hmmer $ls.hmm $GENOMEDB/$organism_dir/gene.fa > $base-gene\_ls.log";
-	system "genewisedb -quiet -aln 500 -hmmer $fs.hmm $GENOMEDB/$organism_dir/gene.fa > $base-gene\_fs.log";
+	system "genewisedb -quiet -aln 500 $WISEPARAM -pthread -pthr_no 2 -hmmer $ls.hmm $GENOMEDB/$organism_dir/gene.fa > $base-gene\_ls.log";
+	system "genewisedb -quiet -aln 500 $WISEPARAM -hmmer $fs.hmm $GENOMEDB/$organism_dir/gene.fa > $base-gene\_fs.log";
 	print STDERR "OK\n";
 	
 	###########################################################
