@@ -20,6 +20,11 @@ my $genome = new varDB::Genome;
 
 my $in = new Bio::Tools::GFF(-file => $O{i}, -gff_version => 2);
 while (my $feat = $in->next_feature) {
+	# !!! NOTE !!! #
+	# this implementation doesn't use the start/stop codons.
+	# that could be used to detect pseudogenes, i.e. an exon that doesn't
+	# have start codon associated isn't a pseudogene?
+	# but maybe better let the broad institute guys improve the information.
 	if ($feat->primary_tag eq 'exon') {
 		my $id = ($feat->get_tag_values("gene_id"))[0];
 		my $gene = $genome->get_gene_by_id($id);
