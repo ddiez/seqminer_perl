@@ -78,7 +78,7 @@ while (my $info = $param->next_param) {
 	my $nuc = new varDB::SeqSet({file => "$GENOMEDB/$organism_dir/gene.fa"});
 	
 	# export in nelson's format.
-	$param->chdir($info, 'nelson');
+	$param->chdir($info, 'sequences');
 	$p_ls->export_nelson({file => "$base.txt", info => $info,
 						   protein => $pro, nucleotide => $nuc,
 						   genome => $genome});

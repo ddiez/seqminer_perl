@@ -19,6 +19,6 @@ while (my $info = $param->next_param) {
 	my $ls = new varDB::ResultSet({file => "$base-protein-pfam_ls.log", id => 'ls'});
 	my $fs = new varDB::ResultSet({file => "$base-protein-pfam_fs.log", id => 'fs'});
 
-	$param->chdir($info, 'test');
+	$param->chdir($info, 'domains');
 	varDB::ResultSet::export_pfam({file => "$base-pfam.txt", fs => $fs, ls => $ls});
 }
