@@ -20,8 +20,10 @@ while (my $info = $param->next_param) {
 	$param->chdir($info, 'fasta');
 	print STDERR "* searching in Pfam_ls ... ";
 	system "hmmpfam $HMMERPARAM $MODEL_DIR/Pfam_ls_b $base-protein.fa > $outdir/$base-protein-pfam_ls.log";
+	#system "hmmpfam $MODEL_DIR/Pfam_ls_b $base-protein.fa > $outdir/$base-protein-pfam_ls.log";
 	print STDERR "OK\n";
 	print STDERR "* searcing in Pfam_fs ... ";
 	system "hmmpfam $HMMERPARAM $MODEL_DIR/Pfam_fs_b $base-protein.fa > $outdir/$base-protein-pfam_fs.log";
+	#system "hmmpfam $MODEL_DIR/Pfam_fs_b $base-protein.fa > $outdir/$base-protein-pfam_fs.log";
 	print STDERR "OK\n";
 }

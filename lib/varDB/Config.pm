@@ -23,7 +23,7 @@ our $GENOMEDB = "$VARDB_HOME/db/genomes";
 my $OPTIMIZE = 1;
 if ($OPTIMIZE) {
 	our $HMMERPARAM = "--cpu 2";
-	our $WISEPARAM = "-pthread -pthr_no 1";
+	our $WISEPARAM = "-pthread -pthr_no 2";
 } else {
 	our $HMMERPARAM = "--cpu 1";
 	our $WISEPARAM = "-serial";
