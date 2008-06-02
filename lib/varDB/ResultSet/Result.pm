@@ -161,8 +161,8 @@ sub export_nelson {
 	
 	my $pro = $param->{protein};
 	my $nuc = $param->{nucleotide};
-	$pro->set_uc;
-	$nuc->set_uc;
+	#$pro->set_uc;
+	#$nuc->set_uc;
 	#
 	my $genome = $param->{genome};
 
@@ -218,10 +218,10 @@ sub export_nelson {
 		
 		my $gene = $genome->get_gene_by_id($id);
 		
-		my $nuc_seq = $nuc->get_seq($id);
-		my $pro_seq = $pro->get_seq($id);
-		$nuc_seq = "" if !defined $nuc_seq;
-		$pro_seq = "" if !defined $pro_seq;
+		my $nuc_seq = $nuc->get_seq_by_id($id);
+		my $pro_seq = $pro->get_seq_by_id($id);
+		defined $nuc_seq ? $nuc_seq = $nuc_seq->seq : $nuc_seq = "";
+		defined $pro_seq ? $pro_seq = $pro_seq->seq : $pro_seq = "";
 		
 		my @exonloc;
 		foreach my $n (1 .. $gene->nexons) {
@@ -274,10 +274,10 @@ sub export_fasta {
 	
 	my $db = $param->{db};
 	foreach my $hit ($self->hit_list) {
-		my $seq = $db->get_seq($hit->id);
+		my $seq = $db->get_seq_by_id($hit->id);
 		if (defined $seq) {
-			print $fh ">", $hit->id, "\n";
-			print $fh _format_seq($seq);
+			print $fh ">", $seq->id, "\n";
+			print $fh _format_seq($seq->seq);
 		}
 	}
 }
