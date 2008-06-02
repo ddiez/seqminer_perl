@@ -4,6 +4,7 @@ bin/vardb_broad_parse.pl
 bin/vardb_commit_files.pl
 bin/vardb_count_genes.pl
 bin/vardb_count_list.pl
+bin/vardb_create_local_dir.pl
 bin/vardb_eupathdb_parse.pl
 bin/vardb_extract_regulatory_regions.pl
 bin/vardb_formatdb.pl
@@ -47,7 +48,6 @@ lib/varDB/ResultSet.pm
 lib/varDB/ResultSet/Hit.pm
 lib/varDB/ResultSet/Hsp.pm
 lib/varDB/ResultSet/Result.pm
-lib/varDB/SeqIO.pm
 lib/varDB/SeqSet.pm
 lib/varDB/SeqSet/Seq.pm
 lib/varDB/TaxonSet.pm

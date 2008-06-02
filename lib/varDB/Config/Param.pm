@@ -62,7 +62,7 @@ sub length {
 	}
 }
 
-our @DIRS = ('search', 'analysis', 'nelson', 'pfam', 'fasta', 'test');
+our @DIRS = ('search', 'analysis', 'sequences', 'pfam', 'fasta', 'domains');
 
 sub create_dir_structure {
 	my $self = shift;
@@ -89,6 +89,18 @@ sub create_dir_structure {
 	while (my $info = $self->next_param) {
 		foreach my $dir (@DIRS) {
 			chdir "$self->{outdir}/$dir";
+			mkdir $info->super_family;
+		}
+	}
+	$self->rewind;
+}
+
+# this one works in the cwd.
+sub create_local_dir_structure {
+	my $self = shift;
+	
+	while (my $info = $self->next_param) {
+		foreach my $dir (@DIRS) {
 			mkdir $info->super_family;
 		}
 	}

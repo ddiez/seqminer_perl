@@ -5,12 +5,12 @@ use warnings;
 
 use varDB::Config;
 use varDB::Config::Param;
-use varDB::SeqIO;
+use varDB::SeqSet;
 use varDB::Genome;
 use varDB::ResultSet;
 use Sets;
 
-my $param = new varDB::Config::Param({file => shift});
+my $param = new varDB::Config::Param;
 $param->debug;
 
 while (my $info = $param->next_param) {
@@ -74,8 +74,8 @@ while (my $info = $param->next_param) {
 	$p_ls->merge($g_ls);
 	
 	# read sequence files.
-	my $pro = new varDB::SeqIO({file => "$GENOMEDB/$organism_dir/protein.fa"});
-	my $nuc = new varDB::SeqIO({file => "$GENOMEDB/$organism_dir/gene.fa"});
+	my $pro = new varDB::SeqSet({file => "$GENOMEDB/$organism_dir/protein.fa"});
+	my $nuc = new varDB::SeqSet({file => "$GENOMEDB/$organism_dir/gene.fa"});
 	
 	# export in nelson's format.
 	$param->chdir($info, 'nelson');
