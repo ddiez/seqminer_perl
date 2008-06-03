@@ -19,10 +19,12 @@ sub _initialize {
 	my $param = shift;
 	$self->{genes} = {};
 	$self->{gene_list} = [];
+	$self->{genes} = {};
 	$self->{ngenes} = 0;
 	$self->{organism} = "";
 	$self->{strain} = "";
 	$self->{chromosome_list} = [];
+	$self->{chrs} = {};
 	$self->{nchromosomes} = 0;
 	$self->read_gff($param) if defined $param->{file};
 }
@@ -65,7 +67,7 @@ sub add_gene {
 	my $self = shift;
 	my $gene = shift;
 	push @{ $self->{gene_list} }, $gene;
-	#push @{ $self->{gene_list_ids} }, $gene->id;
+	$self->{genes}->{$gene->id} = $gene;
 	$self->{ngenes}++;
 }
 
@@ -78,11 +80,8 @@ sub get_gene {
 sub get_gene_by_id {
 	my $self = shift;
 	my $id = shift;
-	
-	foreach my $gene ($self->gene_list) {
-		if ($gene->id eq $id) {
-			return $gene;
-		}
+	if (exists $self->{genes}->{$id}) {
+		return $self->{genes}->{$id};
 	}
 	return undef;
 }
@@ -102,7 +101,7 @@ sub add_chromosome {
 	my $self = shift;
 	my $chr = shift;
 	push @{ $self->{chromosome_list} }, $chr;
-	#push @{ $self->{chromosome_list_ids} }, $gene->id;
+	$self->{chrs}->{$chr->id} = $chr;
 	$self->{nchromosomes}++;
 }
 
@@ -115,11 +114,8 @@ sub get_chromosome {
 sub get_chromosome_by_id {
 	my $self = shift;
 	my $id = shift;
-	
-	foreach my $chr ($self->chromosome_list) {
-		if ($chr->id eq $id) {
-			return $chr;
-		}
+	if (exists $self->{chrs}->{$id}) {
+		return $self->{chrs}->{$id};
 	}
 	return undef;
 }

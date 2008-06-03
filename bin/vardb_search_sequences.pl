@@ -59,11 +59,18 @@ while (my $info = $param->next_param) {
 	## 2. do psi-blast find best protein hits and get pssm.
 	# get seed from hmmer search.
 	
-	# the best seed would be the best hit in the Pfam_ls search.
+	# the best seed would be the best hit in the Pfam_ls search, but if
+	# there is nothing there, then the next one will be tested.
 	# TODO: check that it is indeed a suitable seed (e-value/score).
 	# if no suitable seed found, use the one provided in the config file.
-	my $rs = new varDB::ResultSet({file => "$base-protein\_ls.log", method => 'hmmer'});
-	my $bh = $rs->get_result_by_pos(0)->best_hit;
+	my @search_type = ("protein\_ls", "protein\_fs", "gene\_ls", "gene\_fs");
+	my $bh = undef;
+	foreach my $search_type (@search_type) {
+		my $rs = new varDB::ResultSet({file => "$base-$search_type.log"});
+		$bh = $rs->get_result_by_pos(0)->best_hit;
+		last if defined $bh
+	}
+
 	if (defined $bh) {
 		my $seed = $bh->id;
 	

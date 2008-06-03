@@ -106,6 +106,7 @@ sub add_exon {
 	my $self = shift;
 	my $exon = shift;
 	push @{ $self->{exon_list} }, $exon;
+	$self->{exons}->{$exon->id} = $exon;
 	$self->{nexons}++;
 }
 
@@ -118,10 +119,8 @@ sub get_exon {
 sub get_exon_by_id {
 	my $self = shift;
 	my $id = shift;
-	foreach my $exon ($self->exon_list) {
-		if ($exon->id eq $id) {
-			return $exon;
-		}
+	if (exists $self->{exons}->{$id}) {
+		return $self->{exons}->{$id};
 	}
 	return undef;
 }
