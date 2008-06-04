@@ -1,16 +1,20 @@
 package varDB::Config::Search;
+#@ISA = ("varDB::ItemSet::Item");
 
 use strict;
 use warnings;
 
 use varDB::Config;
+#use varDB::ItemSet::Item;
 
 sub new {
 	my $class = shift;
 	
+	#my $self = $class->SUPER::new;
 	my $self = {};
 	bless $self, $class;
-    $self->_initialize(@_);
+	$self->_initialize(@_);
+	
     return $self;
 }
 
@@ -32,6 +36,12 @@ sub _initialize {
 	$self->{hmm_name} = $hmm_name;
 	$self->{hmm_eval} = $hmm_eval;
 	$self->{eexons} = $eexons;
+}
+
+sub id {
+	my $self = shift;
+	$self->{id} = shift if @_;
+	return $self->{id};
 }
 
 sub taxonid {
