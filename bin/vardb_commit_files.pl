@@ -11,8 +11,8 @@ $param->debug;
 while (my $info = $param->next_param) {
 	$info->debug;
 	my $base = $info->family."-".$info->organism_dir;
-	&commit($param, $info, "nelson");
-	&commit($param, $info, "test");
+	&commit($param, $info, "sequences");
+	&commit($param, $info, "domains");
 }
 
 sub commit {
@@ -25,10 +25,10 @@ sub commit {
 	
 	my $file = "";
 	my $dir = "";
-	if ($type eq "nelson") {
+	if ($type eq "sequences") {
 		$file = $base.".txt";
 		$dir = "sequences/";
-	} elsif ($type eq "test") {
+	} elsif ($type eq "domains") {
 		$file = $base."-pfam.txt";
 		$dir = "pfam/";
 	}
