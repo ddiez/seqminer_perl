@@ -9,6 +9,7 @@ bin/vardb_create_local_dir.pl
 bin/vardb_eupathdb_parse.pl
 bin/vardb_extract_regulatory_regions.pl
 bin/vardb_formatdb.pl
+bin/vardb_gbset_parse.pl
 bin/vardb_genedb_embl2gff.pl
 bin/vardb_giardiadb_parse.pl
 bin/vardb_kegg_ent2gff.pl
