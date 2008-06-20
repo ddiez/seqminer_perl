@@ -115,8 +115,8 @@ while (my $seq = $in->next_seq) {
 	}
 	
 	if ($quality_checked) {
-		$seq->species->genus =~ /^(.)/;
-		my $orgb = lc $1.".".$seq->species->species;
+		my $orgb = lc $seq->species->binomial;
+		$orgb =~ s/\s/\./;
 		
 		# check if there is a fh available.
 		if (! exists $FH{$family}) {
@@ -147,6 +147,7 @@ close SKIP;
 
 sub create_fh {
 	my ($family, $organism, $set) = @_;
+	$organism =~ s/(.).+(\..+)/$1$2/;
 	open FH, ">$family-$organism\_$set.txt" or die "cannot open file $!\n";
 	print FH "SEQUENCE\tfamily\tgenome\tisolate\tisolation_source\tcountry\tpubmed\ttranslation\tsequence\tdescription\n";
 	return *FH;
