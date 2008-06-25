@@ -12,6 +12,7 @@ use strict;
 use warnings;
 use Bio::SeqIO;
 use Getopt::Long;
+use varDB::Config::Param;
 
 my %O;
 GetOptions(\%O, 'i:s', 'd:s');
@@ -37,10 +38,10 @@ die $help if !exists $O{i};
 my $setname = $O{i};
 $setname =~ s/\.gb$//;
 
-open SKIP, ">>skip.log";
 my $date = localtime;
+open SKIP, ">>skip".&varDB::Config::Param::_get_random_dir()."log";
 print SKIP "## Running time: $date ##\n";
-print SKIP "* setname: $setname\n";
+print SKIP "* set name: $setname\n";
 
 my $in = new Bio::SeqIO(-file => $O{i}, -format => 'genbank');
 
@@ -53,7 +54,9 @@ my %TRUSTED_ANNOTATIONS = (
 	"DBLalpha" => "var",
 	"rif" => "rifin_stevor",
 	"rifin" => "rifin_stevor",
-	"stevor" => "rifin_stevor"
+	"stevor" => "rifin_stevor",
+	"major surface glycoprotein" => "msg",
+	"msg" => "msg",
 );
 # store file handlers.
 my %FH = ();
