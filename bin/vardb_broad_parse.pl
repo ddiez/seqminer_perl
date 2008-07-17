@@ -20,7 +20,7 @@ use Getopt::Long;
 use varDB::Genome;
 
 my %O = ();
-GetOptions(\%O, 'i:s', 't:s', 'o:s');
+GetOptions(\%O, 'i:s', 't:s', 'o:s', 'd:s');
 
 my $help = <<"HELP";
 
@@ -31,7 +31,7 @@ my $help = <<"HELP";
 #  with the GTF and FASTA file formats. There is no single file at this point
 #  that could be used to retrieve all the information. Therefore the script
 #  must be run several times to obtain all the desired files. For example:
-#   - vardb_broad_parse.pl -i transcripts.gtf
+#   - vardb_broad_parse.pl -i transcripts.gtf -d pfam2gene.txt
 #   - vardb_broad_parse.pl -i supercontigs.fasta -t fasta -o genome.fa
 #   - vardb_broad_parse.pl -i proteins.fasta -t fasta -o protein.fa
 #   - vardb_broad_parse.pl -i genes.fasta -t fasta -o gene.fa
@@ -42,8 +42,9 @@ my $help = <<"HELP";
     vardb_broad_parse.pl -i <file> -t <type> -o <file>
 	
 	-i   input file, either fasta or gtf.
+	-d   description's file, used when input file is gtf.
 	-t   type of output (gff/fasta) [default: gff]
-	-o   output file [default for gff: genome.gff/  mandatory for fasta]
+	-o   output file [default for gff: genome.gff] (mandatory for fasta)
 
 HELP
 
@@ -53,7 +54,19 @@ my $type = 'gff';
 $type = $O{t} if defined $O{t};
 
 if ($type eq 'gff') {
+	die $help if ! exists $O{d};
+	
+	my %desc;
+	open DESC, "$O{d}" or die "$!\n";
+	while (<DESC>) {
+		my ($desc, $id) = split '\t', $_;
+		$desc{$id} = $desc if ! exists $desc{$id};
+	}
+	close DESC;
+	
+	
 	use Bio::Tools::GFF;
+	
 	my $in = new Bio::Tools::GFF(-file => $O{i}, -gff_version => 2);
 	my $genome = new varDB::Genome;
 	while (my $feat = $in->next_feature) {
@@ -80,7 +93,7 @@ if ($type eq 'gff') {
 				# there is no description yet.
 				#$gene->description($feat->get_tag_values("description"));
 				#$gene->pseudogene(1) if $gene->description =~ /pseudogene/;
-				$gene->description("");
+				$gene->description(exists $desc{$id} ? $desc{$id} : "");
 				$gene->strand($feat->strand == 1 ? "+" : "-");
 				$gene->start($feat->start);
 				$gene->end($feat->end);

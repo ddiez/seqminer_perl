@@ -57,8 +57,6 @@ lib/varDB/ResultSet.pm
 lib/varDB/ResultSet/Hit.pm
 lib/varDB/ResultSet/Hsp.pm
 lib/varDB/ResultSet/Result.pm
-lib/varDB/Seq.pm
-lib/varDB/SeqFull.pm
 lib/varDB/SeqSet.pm
 lib/varDB/SeqSet/Seq.pm
 lib/varDB/TaxonSet.pm
