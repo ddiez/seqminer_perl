@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 #
+# STATUS: stable
+#
 #  This is the main script for parsing data comming from the Broad Institute.
 #  This consists on sequence data from different projects like Plasmodium
 #  falciparum HB3 and DD2 strains. This parser is meant to be used

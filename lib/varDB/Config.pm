@@ -11,6 +11,7 @@ our $DEBUG = 1;
 our $VARDB_HOME = "/Volumes/Data/projects/vardb";
 our $VARDB_SEARCH_FILE = "$VARDB_HOME/etc/search.txt";
 our $VARDB_ORGANISM_FILE = "$VARDB_HOME/etc/organisms.txt";
+our $VARDB_TAXONSET_FILE = "$VARDB_HOME/etc/taxonset.txt";
 our $VARDB_COMMIT_DIR = "$VARDB_HOME/web/data/diego/";
 our $VARDB_SEARCH_DIR = "$VARDB_HOME/families/vardb-$VARDB_RELEASE";
 $VARDB_SEARCH_DIR = "$VARDB_HOME/families/last" if $DEBUG == 1;
