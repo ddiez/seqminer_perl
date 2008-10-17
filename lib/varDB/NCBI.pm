@@ -27,7 +27,7 @@ sub _initialize {
 	while (<IN>) {
 		next if /^#/;
 		chomp;
-		my ($taxon_name, $taxid) = split '\t', $_;
+		my ($taxid, $taxon_name, $strain, $ortholog, $family, $type) = split '\t', $_;
 		$self->{taxon}->{$taxid} = $taxon_name;
 		push @{$self->{taxon_list}}, $taxid;
 		$self->{length}++;

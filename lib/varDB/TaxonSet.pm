@@ -20,18 +20,24 @@ sub new {
 sub _initialize {
 	my $self = shift;
 	my $param = shift;
-	
-	open IN, "$VARDB_ORGANISM_FILE" or die "$!";
+
+	open IN, "$VARDB_TAXON_FILE" or die "$!";
 	while (<IN>) {
-		next if /^[#|\n]/;
+		next if /^[#|\n|taxon_name]/;
 		chomp;
-		my ($taxonid, $genus, $spp, $strain) = split '\t', $_;
-		my $taxon = new varDB::TaxonSet::Taxon;
-		$taxon->id($taxonid);
-		$taxon->genus($genus);
-		$taxon->species($spp);
-		$taxon->strain($strain);
-		$self->add_taxon($taxon);
+		my ($id, $taxon_name, $strain, $ortholog, $family, $search_type) = split '\t', $_;
+		my $taxon = $self->get_taxon_by_id($id);
+		if (! defined $taxon) {
+			$taxon = new varDB::TaxonSet::Taxon;
+			$taxon->id($id);
+			my ($genus, $spp) = ($1, $2) if $taxon_name =~ /(.+)\.(.+)/;
+			$taxon->genus($genus);
+			$taxon->species($spp);
+			$taxon->strain($strain) if $strain ne "";
+			$taxon->search_type($search_type);
+			$self->add_taxon($taxon);
+		}
+		$taxon->add_family($family, $ortholog);
 	}
 	close IN;
 }

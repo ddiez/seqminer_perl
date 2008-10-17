@@ -30,7 +30,7 @@ foo <- read.table("$dir/$file", skip = 1)
 foo <- foo[order(foo[,2], decreasing = TRUE), ]
 pdf(file = "$dir/$file.pdf", width = 5, height = 5)
 barplot(foo[,2], names = foo[,1], las = 2, cex.names = 0.8, col = "gray15")
-title("$title")
+title(paste("$title", sum(foo[,2]), sep = "/"))
 dev.off()
 	
 RSCRIPT

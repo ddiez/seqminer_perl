@@ -18,6 +18,7 @@ sub _initialize {
 	$self->{genus} = undef;
 	$self->{species} = undef
 	$self->{strain} = undef;
+	$self->{search_type} = undef;
 }
 
 sub id {
@@ -34,7 +35,9 @@ sub binomial {
 
 sub organism {
 	my $self = shift;
-	return $self->genus.".".$self->species;
+	my $org = $self->genus.".".$self->species;
+	$org .= "_".$self->strain if defined $self->strain;
+	return $org;
 }
 
 sub organism_dir {
@@ -65,6 +68,49 @@ sub strain {
 	my $self = shift;
 	$self->{strain} = shift if @_;
 	return $self->{strain};
+}
+
+sub search_type {
+	my $self = shift;
+	$self->{search_type} = shift if @_;
+	return $self->{search_type};
+}
+
+sub get_family_by_pos {
+	my $self = shift;
+	my $n = shift;
+	return $self->{family_list}->[$n];
+}
+
+sub get_family_by_id {
+	my $self = shift;
+	my $id = shift;
+	foreach my $family ($self->family_list) {
+		return $family if $family->id eq $id;
+	}
+	return undef;
+}
+
+sub get_taxon_by_id {
+	my $self = shift;
+	my $id = shift;
+	foreach my $taxon ($self->taxon_list) {
+		return $taxon if $taxon->id eq $id;
+	}
+	return undef;
+}
+
+sub family_list {
+	return @{ shift->{family_list}};
+}
+
+sub add_family {
+	my $self = shift;
+	use varDB::Family;
+	my $family = new varDB::Family;
+	$family->name(shift);
+	$family->ortholog(shift);
+	push @{$self->{family_list}}, $family;
 }
 
 1;
