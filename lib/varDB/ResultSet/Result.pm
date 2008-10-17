@@ -321,16 +321,49 @@ sub architecture {
 	foreach my $hit ($self->hit_list) {
 		#foreach my $hsp ($self->hsp_list) {
 			#$tmp{$hsp->start} = $self->id;
-			$tmp{$hit->start} = $hit->id;
+			push @{$tmp{$hit->start}}, $hit->id if _check_domain($hit->id);
 		#}
 	}
 	# now order them by the values.
 	my @tmp;
 	foreach my $key (sort { $a <=> $b } keys %tmp) {
-		push @tmp, $tmp{$key};
+		push @tmp, join "-", @{$tmp{$key}};
 	}
 	return join ";", @tmp;
 }
+
+sub _check_domain {
+	my $id = shift;
+	
+	my @baned_domains = ("Miro", "MMR_HSR1", "GTP_EFTU", "Arf", "ATP_bind_1");
+	foreach my $domain (@baned_domains) {
+		return 0 if $id eq $domain;
+	}
+	return 1;
+}
+
+sub num_dif_domains {
+	my $self = shift;
+	my %tmp;
+	
+	foreach my $hit ($self->hit_list) {
+		#foreach my $hsp ($self->hsp_list) {
+			#$tmp{$hsp->start} = $self->id;
+			my $id = $hit->id;
+			$id = "Ras" if !_check_domain($id);
+			$tmp{$id}++; # if _check_domain($hit->id);
+		#}
+	}
+	# now order them by the values.
+	my @tmp;
+	foreach my $key (keys %tmp) {
+		push @tmp, "$key#$tmp{$key}";
+		#push @tmp, join "-", @{$tmp{$key}};
+	}
+	return join ";", @tmp;
+}
+
+
 # this computes the nicely formated list of domains,domain location, score and
 # evalue.
 sub domains_location_str {

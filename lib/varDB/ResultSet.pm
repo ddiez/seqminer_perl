@@ -301,4 +301,32 @@ sub export_pfam {
 	close OUT;
 }
 
+sub export_pfam_simple {
+	my $param = shift;
+	
+	open OUT, ">", $param->{file} or
+	die "[SearchPfam:export_pfam] cannot open file", $param->{file}, "for writing: $!\n";
+		
+	my $result = $param->{result};
+	die "undefined result object!\n" if !defined $result;
+	
+	print OUT
+		"SEQUENCE", "\t",
+		"domainnum", "\t",
+		"domains", "\t",
+		"architecture", "\t",
+		"domain_count", "\n";
+	foreach my $res ($result->result_list) {
+		my $id = $res->id;
+		
+		print OUT
+			$id, "\t",
+			$res->length, "\t",
+			$res->domains_location_str, "\t",
+			$res->architecture, "\t",
+			$res->num_dif_domains, "\n";
+	}
+	close OUT;
+}
+
 1;
