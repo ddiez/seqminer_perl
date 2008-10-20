@@ -113,4 +113,34 @@ sub add_family {
 	push @{$self->{family_list}}, $family;
 }
 
+sub search {
+	my $self = shift;
+	
+	if ($self->{search_type} eq "genbank") {
+		$self->_search_isolate;
+	} else {
+		$self->_search_genome;
+	}
+}
+
+sub _search_isolate {
+	my $self = shift;
+	
+	foreach my $family ($self->family_list) {
+		my $search = new varDB::Search("isolate");
+		$search->family($family);
+		$search->execute;
+	}
+}
+
+sub _search_genome {
+	my $self = shift;
+	
+	foreach my $family ($self->family_list) {
+		my $search = new varDB::Search("genome");
+		$search->family($family);
+		$search->execute;
+	}
+}
+
 1;
