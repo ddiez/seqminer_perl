@@ -3,6 +3,8 @@ package varDB::Search;
 use strict;
 use warnings;
 
+use varDB::Config;
+
 sub new {
 	my $class = shift;
 	
@@ -16,6 +18,18 @@ sub _initialize {
 	my $self = shift;
 	
 	$self->{type} = shift;
+	
+	my $basedir = "$VARDB_HOME/families/vardb-$VARDB_RELEASE/";
+	$basedir = "$VARDB_HOME/families/last/" if $DEBUG == 1;
+	if ($self->{type} eq "isolate") {
+		$basedir .= "isolate";
+	} else {
+		$basedir .= "genome";
+	}
+	$self->{basedir} = $basedir;
+	
+	$self->{family} = undef;
+	$self->{taxon} = undef;
 }
 
 sub family {
@@ -24,34 +38,85 @@ sub family {
 	return $self->{family};
 }
 
+sub type {
+	my $self = shift;
+	#$self->{type} = shift if @_;
+	return $self->{type};
+}
+
+sub taxon {
+	my $self = shift;
+	$self->{taxon} = shift if @_;
+	return $self->{taxon};
+}
+
 sub execute {
 	my $self = shift;
 	
-	if ($self->type eq "isolate") {
-		$self->_search_isolate;
+	my $res = undef;
+	if ($self->{type} eq "isolate") {
+		$res = $self->_search_isolate;
 	} else {
-		$self->_search_genome;
+		$res = $self->_search_genome;
 	}
+	return $res;
 }
 
 sub _search_isolate {
+	my $self = shift;
 	
+	$self->debug;
+	if ($self->chdir('search', 1) == 0) {
+		return 0;
+	}
+	
+	return 1;
+	
+	my $base = $self->taxon->name;
+	my $db = "$VARDB_HOME/db/isolate/$base/core";
+	my $pssm_file = "$PSIBLASTDB/pssm/".$self->family->ortholog.".chk";
+	my $seed_file = "$PSIBLASTDB/seed/".$self->family->ortholog.".seed";
+	my $evalue = 1e-02;
+	
+	# run PSI-Blast.
+	system "blastall -p psitblastn -d $db -i $seed_file -R $pssm_file -b 100000 > $base.psitblastn";
+	system "blast_parse.pl -i $base.psitblastn -e $evalue > $base.sel.list";
+	
+	# run searches.
+	#&_run_search("$dir/isolate", "core.fa");
+	#&_run_search("$dir/isolate", "est.fa");
+	
+	# select sequences from original dataset.
+	#&_select("$dir/isolate", "core.sel.list");
+	
+	# paper distribution.
+	#&_paper_dist("$dir/isolate", "core.sel.gb", $taxon, "vsp");
 }
 
 sub _search_genome {
 	my $self = shift;
-
-	$info->debug;
-	$param->chdir($info, 'search');
+	
+	$self->debug;
+	if ($self->chdir('search', 1) == 0) {
+		return 0;
+	}
 	
 	my $family = $self->family->name;
-	my $organism_dir = $info->organism_dir;
-	my $base = "$family-$organism_dir";
-	my $hmm_name = $info->hmm_name;
-	my $iter = $info->iter;
-	my $pssm_eval = $info->pssm_eval;
+	#my $organism_dir = $info->organism_dir;
+	#my $base = "$family-$organism_dir";
+	#my $hmm_name = $info->hmm_name;
+	#my $iter = $info->iter;
+	#my $pssm_eval = $info->pssm_eval;
 	
-	$base = $info->base;
+	#$base = $info->base;
+	
+	my $dir = $self->taxon->dir;
+	my $hmm_name = "foo_hmm";
+	my $iter = $PSSM_ITER;
+	my $pssm_eval = $PSSM_EVALUE;
+	my $base = $self->family->name."-".$self->taxon->dir;
+	
+	return 1;
 	###################################################
 	## 1. do hmm based search.
 
@@ -66,8 +131,8 @@ sub _search_genome {
 
 	# search in protein sequences.
 	print STDERR "* searching protein database (hmmer) ... ";
-	system "hmmsearch $HMMERPARAM $ls.hmm $GENOMEDB/$organism_dir/protein.fa > $base-protein\_ls.log";
-	system "hmmsearch $HMMERPARAM $fs.hmm $GENOMEDB/$organism_dir/protein.fa > $base-protein\_fs.log";
+	system "hmmsearch $HMMERPARAM $ls.hmm $GENOMEDB/$dir/protein.fa > $base-protein\_ls.log";
+	system "hmmsearch $HMMERPARAM $fs.hmm $GENOMEDB/$dir/protein.fa > $base-protein\_fs.log";
 	print STDERR "OK\n";
 	
 	# search in nucleotide sequences.
@@ -121,8 +186,8 @@ sub _search_genome {
 	# it, but keep in mind that it is an experimental feature.
 	#
 	print STDERR "* searching nucleotide database (genewisedb) ... ";
-	system "genewisedb $WISEPARAM -hmmer $ls.hmm $GENOMEDB/$organism_dir/gene.fa > $base-gene\_ls.log";
-	system "genewisedb $WISEPARAM -hmmer $fs.hmm $GENOMEDB/$organism_dir/gene.fa > $base-gene\_fs.log";
+	system "genewisedb $WISEPARAM -hmmer $ls.hmm $GENOMEDB/$dir/gene.fa > $base-gene\_ls.log";
+	system "genewisedb $WISEPARAM -hmmer $fs.hmm $GENOMEDB/$dir/gene.fa > $base-gene\_fs.log";
 	print STDERR "OK\n";
 	
 	###########################################################
@@ -143,23 +208,66 @@ sub _search_genome {
 	if (defined $bh) {
 		my $seed = $bh->id;
 	
-		my $seedfile = "$family-$organism_dir.seed";
-		system "extract_fasta.pl -d $seed -i $GENOMEDB/$organism_dir/protein.idx > $seedfile";
+		my $seedfile = "$family-$dir.seed";
+		system "extract_fasta.pl -d $seed -i $GENOMEDB/$dir/protein.idx > $seedfile";
 		
 		# search in protein database with psi-blast and generate pssm file.
 		print STDERR "* searching protein database (psi-blast) ... ";
-		system "blastpgp -d $GENOMEDB/$organism_dir/protein -i $seedfile -s T -j $iter -h $pssm_eval -C $base.chk -F T -b 10000  > $base.blastpgp";
+		system "blastpgp -d $GENOMEDB/$dir/protein -i $seedfile -s T -j $iter -h $pssm_eval -C $base.chk -F T -b 10000  > $base.blastpgp";
 		print STDERR "OK\n";
 		# write psi-blast report.
 		system "psiblast_report.pl -i $base.blastpgp -e $pssm_eval > $base-cycles.txt";
 	
 		# search in nucleotide database with psitblastn.
 		print STDERR "* searching nucleotide database (psitblastn) ... ";
-		system "blastall -p psitblastn -d $GENOMEDB/$organism_dir/gene -i $seedfile -R $base.chk -b 10000 > $base.psitblastn";
+		system "blastall -p psitblastn -d $GENOMEDB/$dir/gene -i $seedfile -R $base.chk -b 10000 > $base.psitblastn";
 		print STDERR "OK\n";
 	} else {
 		print STDERR "* no best hit found - skipping psi-blast search.\n";
 	}
+}
+
+sub chdir {
+	my $self = shift;
+	my $dir = shift;
+	my $force = shift;
+	
+	my $outdir = "$self->{basedir}/$dir/".$self->family->ortholog;
+	
+	if (defined $force and $force == 1) {
+		if (! -d $outdir) {
+			my $res = mkdir $outdir;
+			return $res if $res == 0;
+		}
+	}
+	
+	my $res = chdir $outdir;
+	return $res;
+}
+
+sub debug {
+	my $self = shift;
+	
+	#print STDERR "* config_file: $self->{file}\n";
+	print STDERR "# SEARCH INFO\n";
+	print STDERR "* taxon: [", $self->taxon->id, "] ", $self->taxon->name, "\n";
+	print STDERR "* family: ", $self->family->name, "\n";
+	print STDERR "* type: ", $self->type, "\n";
+	print STDERR "* base_dir: $self->{basedir}\n";
+	print STDERR "\n";
+}
+
+sub _get_random_dir {
+	my @time = localtime time;
+	$time[5] += 1900;
+	$time[4] ++;
+	$time[4] = sprintf("%02d", $time[4]);
+	$time[3] = sprintf("%02d", $time[3]);
+	$time[2] = sprintf("%02d", $time[2]);
+	$time[1] = sprintf("%02d", $time[1]);
+	$time[0] = sprintf("%02d", $time[0]);
+	
+	return "$time[5]$time[4]$time[3].$time[2]$time[1]$time[0]";
 }
 
 1;

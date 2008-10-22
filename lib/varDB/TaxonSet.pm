@@ -23,7 +23,7 @@ sub _initialize {
 
 	open IN, "$VARDB_TAXON_FILE" or die "$!";
 	while (<IN>) {
-		next if /^[#|\n|taxon_name]/;
+		next if /^[#|\n|taxon_id]/;
 		chomp;
 		my ($id, $taxon_name, $strain, $ortholog, $family, $search_type) = split '\t', $_;
 		my $taxon = $self->get_taxon_by_id($id);
@@ -37,7 +37,7 @@ sub _initialize {
 			$taxon->search_type($search_type);
 			$self->add_taxon($taxon);
 		}
-		$taxon->add_family($family, $ortholog);
+		$taxon->add_family($family, $ortholog, $id);
 	}
 	close IN;
 }

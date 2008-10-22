@@ -34,5 +34,4 @@ sub ortholog {
 	return $self->{ortholog};
 }
 
-
 1;

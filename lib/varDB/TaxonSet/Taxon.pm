@@ -27,6 +27,15 @@ sub id {
 	return $self->{taxonid};
 }
 
+sub name {
+	my $self = shift;
+	if (defined $self->strain) {
+		return $self->genus.".".$self->species."_".$self->strain;
+	} else {
+		return $self->genus.".".$self->species;
+	}
+}
+
 sub binomial {
 	my $self = shift;
 	$self->genus =~ /^(.{1})/;
@@ -40,9 +49,13 @@ sub organism {
 	return $org;
 }
 
-sub organism_dir {
+sub dir {
 	my $self = shift;
-	return $self->binomial."_".$self->strain;
+	if ($self->strain ne "") {
+		return $self->binomial."_".$self->strain;
+	} else {
+		return $self->binomial;
+	}
 }
 
 sub key {
@@ -110,13 +123,15 @@ sub add_family {
 	my $family = new varDB::Family;
 	$family->name(shift);
 	$family->ortholog(shift);
+	$family->hmm(shift);
+	#$family->taxonid(shift);
 	push @{$self->{family_list}}, $family;
 }
 
 sub search {
 	my $self = shift;
 	
-	if ($self->{search_type} eq "genbank") {
+	if ($self->{search_type} eq "isolate") {
 		$self->_search_isolate;
 	} else {
 		$self->_search_genome;
@@ -125,21 +140,29 @@ sub search {
 
 sub _search_isolate {
 	my $self = shift;
+	use varDB::Search;
 	
 	foreach my $family ($self->family_list) {
-		my $search = new varDB::Search("isolate");
+		my $search = new varDB::Search($self->search_type);
 		$search->family($family);
-		$search->execute;
+		$search->taxon($self);
+		if ($search->execute == 0) {
+			print STDERR "[ERROR] isolate search failed for family: ", $family->name, "\n";
+		}
 	}
 }
 
 sub _search_genome {
 	my $self = shift;
+	use varDB::Search;
 	
 	foreach my $family ($self->family_list) {
-		my $search = new varDB::Search("genome");
+		my $search = new varDB::Search($self->search_type);
 		$search->family($family);
-		$search->execute;
+		$search->taxon($self);
+		if ($search->execute == 0) {
+			print STDERR "[ERROR] genome search failed for family: ", $family->name, "\n";
+		}
 	}
 }
 
