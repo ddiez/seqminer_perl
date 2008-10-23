@@ -252,6 +252,7 @@ sub debug {
 	print STDERR "# SEARCH INFO\n";
 	print STDERR "* taxon: [", $self->taxon->id, "] ", $self->taxon->name, "\n";
 	print STDERR "* family: ", $self->family->name, "\n";
+	print STDERR "* hmm: ", $self->family->hmm, "\n";
 	print STDERR "* type: ", $self->type, "\n";
 	print STDERR "* base_dir: $self->{basedir}\n";
 	print STDERR "\n";

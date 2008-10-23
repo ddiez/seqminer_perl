@@ -265,16 +265,16 @@ sub _format {
 }
 
 sub _run_search {
-	my $dir = shift;
-	my $file = shift;
+	#my $dir = shift;
+	#my $file = shift;
 	
-	print STDERR "search: $file\n";
-	chdir $dir;
+	#print STDERR "search: $file\n";
+	#chdir $dir;
 	
-	my $base = $file;
-	$base =~ s/.fa//;
+	#my $base = $file;
+	#$base =~ s/.fa//;
 	
-	my $evalue = 0.01;
+	#my $evalue = 0.01;
 	
 	# where PSSM and seed are located.
 	#my $pssm_file = "$PSIBLASTDB/pssm/var.chk";
@@ -286,12 +286,12 @@ sub _run_search {
 	#my $pssm_file = "$PSIBLASTDB/pssm/vir.chk";
 	#my $seed_file = "$PSIBLASTDB/seed/vir.seed";
 	
-	my $pssm_file = "$PSIBLASTDB/pssm/vsp.chk";
-	my $seed_file = "$PSIBLASTDB/seed/vsp.seed";
+	#my $pssm_file = "$PSIBLASTDB/pssm/vsp.chk";
+	#my $seed_file = "$PSIBLASTDB/seed/vsp.seed";
 	
 	# run PSI-Blast.
-	system "blastall -p psitblastn -d $base -i $seed_file -R $pssm_file -b 100000 > $base.psitblastn";
-	system "blast_parse.pl -i $base.psitblastn -e $evalue > $base.sel.list";
+	#system "blastall -p psitblastn -d $base -i $seed_file -R $pssm_file -b 100000 > $base.psitblastn";
+	#system "blast_parse.pl -i $base.psitblastn -e $evalue > $base.sel.list";
 }
 
 sub _select {

@@ -3,6 +3,9 @@ package varDB::NCBI::Paper;
 use strict;
 use warnings;
 use varDB::Config;
+use varDB::ItemSet::Item;
+use vars qw( @ISA );
+@ISA = ("varDB::ItemSet::Item");
 
 sub new {
 	my $class = shift;
@@ -16,37 +19,15 @@ sub new {
 
 sub _initialize {
 	my $self = shift;
-	
-	open IN, "$VARDB_PAPER_FILE" or die "$!";
-	while (<IN>) {
-		next if /^[#|\n|taxon_id]/;
-		chomp;
-		my ($taxon_id, $ortholog, $family, $id) = split '\t', $_;
-		push @{ $self->{$taxon_id}->{$ortholog}->{$family} }, $id;
-	}
-	close IN;
-}
-
-# scan all papers in a Paper object.
-sub scan_all {
-	my $self = shift;
-	foreach my $taxon (keys %{$self}) {
-		foreach my $ortholog (keys %{ $self->{$taxon} }) {
-			foreach my $family (keys %{ $self->{$taxon}->{$ortholog} }) {
-				foreach my $id (@{ $self->{$taxon}->{$ortholog}->{$family} }) {
-					$self->scan($id);
-				}
-			}
-		}
-	}
 }
 
 # scan a given paper for nucleotide sequences.
 sub scan {
 	my $self = shift;
-	my $id = shift;
 	my $db = shift;
 	
+	my $id = $self->id;
+
 	use Bio::DB::EUtilities;
 	
 	my $factory = new Bio::DB::EUtilities(
@@ -75,8 +56,8 @@ sub get_seqs {
 	my $self = shift;
 	my $ids = shift;
 	my $db = shift;
-	my $file = shift;
 	
+	my $file = $self->id."-$db.gb";
 	unlink $file;
 	my @id = @{ $ids };
 	
@@ -103,6 +84,16 @@ sub get_seqs {
 	print STDERR "| OK\n";
 }
 
+sub add_ortholog {
+	my $self = shift;
+	
+	push @{ $self->{ortholog_list} }, shift;
+}
+
+sub ortholog_list {
+	return @{ shift->{ortholog_list} };
+}
+
 sub _subset {
 	my $ids = shift;
 	my $s = shift;
@@ -115,6 +106,14 @@ sub _subset {
 	} else {
 		return @id[$s .. ($s+$m-1)];
 	}
+}
+
+sub filter {
+	my $self = shift;
+	my $id = $self->id;
+	
+	my @ortholog = @{ $self->{ortholog_list} }; # this is for the filters.
+	print STDERR "* orthologs: ", scalar @ortholog, "\n";
 }
 
 1;

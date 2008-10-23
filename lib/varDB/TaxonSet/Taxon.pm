@@ -2,6 +2,9 @@ package varDB::TaxonSet::Taxon;
 
 use strict;
 use warnings;
+use varDB::ItemSet::Item;
+use vars qw( @ISA );
+@ISA = ("varDB::ItemSet::Item");
 
 sub new {
 	my $class = shift;
@@ -14,17 +17,11 @@ sub new {
 
 sub _initialize {
 	my $self = shift;
-	$self->{taxonid} = undef;
+
 	$self->{genus} = undef;
 	$self->{species} = undef
 	$self->{strain} = undef;
 	$self->{search_type} = undef;
-}
-
-sub id {
-	my $self = shift;
-	$self->{taxonid} = shift if @_;
-	return $self->{taxonid};
 }
 
 sub name {
@@ -51,7 +48,7 @@ sub organism {
 
 sub dir {
 	my $self = shift;
-	if ($self->strain ne "") {
+	if (defined $self->strain) {
 		return $self->binomial."_".$self->strain;
 	} else {
 		return $self->binomial;
@@ -113,8 +110,10 @@ sub get_taxon_by_id {
 	return undef;
 }
 
-sub family_list {
-	return @{ shift->{family_list}};
+sub family {
+	my $self = shift;
+	$self->{family} = shift if @_;
+	return $self->{family};
 }
 
 sub add_family {

@@ -5,13 +5,18 @@ use warnings;
 
 use varDB::Config;
 use varDB::TaxonSet::Taxon;
+use varDB::FamilySet;
+use varDB::Family;
+use varDB::Ortholog;
+use varDB::ItemSet;
+use vars qw( @ISA );
+@ISA = ("varDB::ItemSet");
 
 sub new {
 	my $class = shift;
 	
 	my $self = {};
-	$self->{taxon_list} = [];
-	$self->{ntaxons} = 0;
+	$self->{family} = undef;
 	bless $self, $class;
     $self->_initialize(@_);
     return $self;
@@ -21,11 +26,13 @@ sub _initialize {
 	my $self = shift;
 	my $param = shift;
 
+	my $os = new varDB::Ortholog;
+
 	open IN, "$VARDB_TAXON_FILE" or die "$!";
 	while (<IN>) {
 		next if /^[#|\n|taxon_id]/;
 		chomp;
-		my ($id, $taxon_name, $strain, $ortholog, $family, $search_type) = split '\t', $_;
+		my ($id, $taxon_name, $strain, $ortholog, $family_id, $search_type) = split '\t', $_;
 		my $taxon = $self->get_taxon_by_id($id);
 		if (! defined $taxon) {
 			$taxon = new varDB::TaxonSet::Taxon;
@@ -35,41 +42,29 @@ sub _initialize {
 			$taxon->species($spp);
 			$taxon->strain($strain) if $strain ne "";
 			$taxon->search_type($search_type);
-			$self->add_taxon($taxon);
+			my $fs = new varDB::FamilySet;
+			$taxon->family($fs);
+			$self->add($taxon);
 		}
-		$taxon->add_family($family, $ortholog, $id);
+		my $fs = $taxon->family;
+		my $family = new varDB::Family;
+		$family->id($family_id);
+		$family->hmm($os->hmm($ortholog));
+		$fs->add($family);
 	}
 	close IN;
 }
 
-sub length {
-	return shift->{ntaxons};
-}
-
 sub taxon_list {
-	my $self = shift;
-	return @{ $self->{taxon_list} };
-}
-
-sub add_taxon {
-	my $self = shift;
-	push @{ $self->{taxon_list} }, shift;
-	$self->{ntaxons}++;
+	return shift->SUPER::item_list;
 }
 
 sub get_taxon_by_pos {
-	my $self = shift;
-	my $n = shift;
-	return $self->{taxon_list}->[$n];
+	return shift->SUPER::get_item_by_pos(@_);
 }
 
 sub get_taxon_by_id {
-	my $self = shift;
-	my $id = shift;
-	foreach my $taxon ($self->taxon_list) {
-		return $taxon if $taxon->id eq $id;
-	}
-	return undef;
+	return shift->SUPER::get_item_by_id(@_);
 }
 
 1;
