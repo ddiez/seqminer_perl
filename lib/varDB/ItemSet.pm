@@ -8,7 +8,7 @@ sub new {
 
 	my $self = {};
 	$self->{item_list} = [];
-	$self->{nitems} = 0;
+	$self->{nitems} = undef;
 	
 	bless $self, $class;
 	$self->_initialize(@_);
@@ -18,6 +18,8 @@ sub new {
 sub _initialize {
 	my $self = shift;
 	my $param = shift;
+	
+	$self->{nitems} = 0;
 }
 
 sub length {
@@ -48,8 +50,9 @@ sub get_item_by_pos {
 }
 
 sub item_list {
-	my $self = shift;	
+	my $self = shift;
 	return @{ $self->{item_list} };
+	return undef;
 }
 
 { # other option would be to store n in the class itself.

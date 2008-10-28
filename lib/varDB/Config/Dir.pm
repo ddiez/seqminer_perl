@@ -37,7 +37,7 @@ sub create_dir_structure {
 	system "ln -s $self->{outdir} $VARDB_HOME/families/last";
 	
 	# reads a file containing that info.
-	my $og = new varDB::Config::Orthologues;
+	my $og = new varDB::OrthologueSet;
 	foreach my $dir (@DIRS) {
 		chdir "$self->{outdir}/$dir";
 		foreach my $o ($og->og_list) {

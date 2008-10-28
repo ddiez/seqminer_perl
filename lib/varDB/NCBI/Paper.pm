@@ -19,13 +19,20 @@ sub new {
 
 sub _initialize {
 	my $self = shift;
+	
+	my $basedir = "$VARDB_MINING_DIR/vardb-$VARDB_RELEASE/";
+	$basedir = "$VARDB_MINING_DIR/last/" if $DEBUG == 1;
+	$basedir .= "paper";
+	$self->{basedir} = $basedir;
 }
 
 # scan a given paper for nucleotide sequences.
 sub scan {
 	my $self = shift;
-	my $db = shift;
+	my $db = $self->database;
 	
+	$self->debug;
+	return 1;
 	my $id = $self->id;
 
 	use Bio::DB::EUtilities;
@@ -55,7 +62,8 @@ sub scan {
 sub get_seqs {
 	my $self = shift;
 	my $ids = shift;
-	my $db = shift;
+
+	my $db = $self->database;
 	
 	my $file = $self->id."-$db.gb";
 	unlink $file;
@@ -84,14 +92,31 @@ sub get_seqs {
 	print STDERR "| OK\n";
 }
 
-sub add_ortholog {
+sub ortholog {
 	my $self = shift;
-	
-	push @{ $self->{ortholog_list} }, shift;
+	$self->{ortholog} = shift if @_;
+	return $self->{ortholog};
 }
 
-sub ortholog_list {
-	return @{ shift->{ortholog_list} };
+sub database {
+	my $self = shift;
+	$self->{database} = shift if @_;
+	return $self->{database};
+}
+
+sub debug {
+	my $self = shift;
+	
+	print STDERR "# SCAN INFO\n";
+	print STDERR "* paper: [", $self->id, "]\n";
+	print STDERR "* database: ", $self->database, "\n";
+	foreach my $ortholog ($self->ortholog->item_list) {
+		print STDERR "* ortholog: ", $ortholog->id, "\n";
+		print STDERR "* hmm: ", $ortholog->hmm, "\n";
+		print STDERR "+\n"
+	}
+	print STDERR "* base_dir: $self->{basedir}\n";
+	print STDERR "\n";
 }
 
 sub _subset {
@@ -112,8 +137,8 @@ sub filter {
 	my $self = shift;
 	my $id = $self->id;
 	
-	my @ortholog = @{ $self->{ortholog_list} }; # this is for the filters.
-	print STDERR "* orthologs: ", scalar @ortholog, "\n";
+	my @ortholog = $self->ortholog->item_list; # this is for the filters.
+	#print STDERR "* orthologs: ", scalar @ortholog, "\n";
 }
 
 1;

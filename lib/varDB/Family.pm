@@ -33,9 +33,10 @@ sub ortholog {
 }
 
 sub hmm {
-	my $self = shift;
-	$self->{hmm} = shift if @_;
-	return $self->{hmm};
+	#my $self = shift;
+	#$self->{hmm} = shift if @_;
+	#return $self->{hmm};
+	return shift->ortholog->hmm;
 }
 
 1;

@@ -2,6 +2,8 @@ package varDB::TaxonSet::Taxon;
 
 use strict;
 use warnings;
+use varDB::FamilySet;
+#use varDB::SearchSet;
 use varDB::ItemSet::Item;
 use vars qw( @ISA );
 @ISA = ("varDB::ItemSet::Item");
@@ -21,7 +23,8 @@ sub _initialize {
 	$self->{genus} = undef;
 	$self->{species} = undef
 	$self->{strain} = undef;
-	$self->{search_type} = undef;
+	$self->{family} = new varDB::FamilySet;
+	$self->{type} = undef;
 }
 
 sub name {
@@ -80,89 +83,16 @@ sub strain {
 	return $self->{strain};
 }
 
-sub search_type {
+sub type {
 	my $self = shift;
-	$self->{search_type} = shift if @_;
-	return $self->{search_type};
-}
-
-sub get_family_by_pos {
-	my $self = shift;
-	my $n = shift;
-	return $self->{family_list}->[$n];
-}
-
-sub get_family_by_id {
-	my $self = shift;
-	my $id = shift;
-	foreach my $family ($self->family_list) {
-		return $family if $family->id eq $id;
-	}
-	return undef;
-}
-
-sub get_taxon_by_id {
-	my $self = shift;
-	my $id = shift;
-	foreach my $taxon ($self->taxon_list) {
-		return $taxon if $taxon->id eq $id;
-	}
-	return undef;
+	$self->{type} = shift if @_;
+	return $self->{type};
 }
 
 sub family {
-	my $self = shift;
-	$self->{family} = shift if @_;
-	return $self->{family};
-}
-
-sub add_family {
-	my $self = shift;
-	use varDB::Family;
-	my $family = new varDB::Family;
-	$family->name(shift);
-	$family->ortholog(shift);
-	$family->hmm(shift);
-	#$family->taxonid(shift);
-	push @{$self->{family_list}}, $family;
-}
-
-sub search {
-	my $self = shift;
-	
-	if ($self->{search_type} eq "isolate") {
-		$self->_search_isolate;
-	} else {
-		$self->_search_genome;
-	}
-}
-
-sub _search_isolate {
-	my $self = shift;
-	use varDB::Search;
-	
-	foreach my $family ($self->family_list) {
-		my $search = new varDB::Search($self->search_type);
-		$search->family($family);
-		$search->taxon($self);
-		if ($search->execute == 0) {
-			print STDERR "[ERROR] isolate search failed for family: ", $family->name, "\n";
-		}
-	}
-}
-
-sub _search_genome {
-	my $self = shift;
-	use varDB::Search;
-	
-	foreach my $family ($self->family_list) {
-		my $search = new varDB::Search($self->search_type);
-		$search->family($family);
-		$search->taxon($self);
-		if ($search->execute == 0) {
-			print STDERR "[ERROR] genome search failed for family: ", $family->name, "\n";
-		}
-	}
+	#my $self = shift;
+	#$self->{family}->add(@_) if @_;
+	return shift->{family};
 }
 
 1;

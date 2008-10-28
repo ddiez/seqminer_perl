@@ -67,10 +67,10 @@ our @DIRS = ('search', 'analysis', 'sequences', 'pfam', 'fasta', 'domains');
 sub create_dir_structure {
 	my $self = shift;
 	
-	$self->{outdir} = "$VARDB_HOME/families/vardb-$VARDB_RELEASE";
+	$self->{outdir} = "$VARDB_MINING_DIR/vardb-$VARDB_RELEASE";
 	if ($DEBUG == 1) {
 		my $randir = &_get_random_dir;
-		$self->{outdir} = "$VARDB_HOME/families/$randir";
+		$self->{outdir} = "$VARDB_MINING_DIR/$randir";
 	}
 	
 	# create working directory, die on failure.
@@ -83,8 +83,9 @@ sub create_dir_structure {
 		die "directory $self->{outdir} already exists!.\n";
 	}
 	
-	unlink "$VARDB_HOME/families/last";
-	system "ln -s $self->{outdir} $VARDB_HOME/families/last";
+	chdir $VARDB_MINING_DIR;
+	unlink "last";
+	system "ln -s $self->{outdir} last";
 	
 	while (my $info = $self->next_param) {
 		foreach my $dir (@DIRS) {

@@ -157,24 +157,27 @@ sub export_nelson {
 		$fh = *OUT;
 	}
 	
-	my $ts = new varDB::TaxonSet;
+	#my $ts = new varDB::TaxonSet;
 	
 	my $pro = $param->{protein};
 	my $nuc = $param->{nucleotide};
 	my $genome = $param->{genome};
 
 	# parse and fix information.
-	my $info = $param->{info};
-	my $taxon = $ts->get_taxon_by_id($info->taxonid);
-	my $organism = $info->organism;
-	my $strain = $info->strain;
-	my $eexons = $info->eexons;
+	my $search = $param->{search};
+	my $taxon = $search->taxon;
+	my $organism = $taxon->organism;
+	my $strain = $taxon->strain;
+	#my $eexons = $search->family->eexons;
+	my $eexons = 3;
 		
 	my $org_id = $organism;
 	my $org_tax = $organism. ".".$taxon->id;
 
 	print STDERR "* org_id: $org_id\n";
 	print STDERR "* taxon: $org_tax\n";
+	
+	system "echo \"hello\" > foo.txt";
 
 	print $fh "SEQUENCE", "\t",
 		"family", "\t",
@@ -244,7 +247,7 @@ sub export_nelson {
 		
 		print $fh
 			"$id\t",
-			$organism.".".$info->family, "\t",
+			$organism.".".$search->family->id, "\t",
 			$org_tax, "\t",
 			$taxon->strain, "\t",
 			$org_tax.".".$gene->chromosome, "\t",
@@ -259,7 +262,7 @@ sub export_nelson {
 			"FALSE", "\t",
 			$gene->quality($eexons), "\t",
 			$hit->method, "\t",
-			$hit->model, "\t",
+			$search->family->hmm, "\t",
 			$hit->score, "\t",
 			$hit->significance, "\t",
 			$hmmloc, "\t",
