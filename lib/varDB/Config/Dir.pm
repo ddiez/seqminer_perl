@@ -3,6 +3,7 @@ package varDB::Config::Dir;
 use strict;
 use warnings;
 use varDB::Config;
+use varDB::OrthologSet;
 
 my @DIRS = ('search', 'analysis', 'sequences', 'pfam', 'fasta', 'domains');
 
@@ -37,7 +38,7 @@ sub create_dir_structure {
 	system "ln -s $self->{outdir} $VARDB_HOME/families/last";
 	
 	# reads a file containing that info.
-	my $og = new varDB::OrthologueSet;
+	my $og = new varDB::OrthologSet;
 	foreach my $dir (@DIRS) {
 		chdir "$self->{outdir}/$dir";
 		foreach my $o ($og->og_list) {

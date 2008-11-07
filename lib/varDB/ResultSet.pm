@@ -36,7 +36,9 @@ sub add {
 		if ($method =~ /hmmsearch|hmmpfam/) {
 			$self->_parse_hmmer_file($param);
 		} elsif ($method eq "genewise") {
-			$self-> _parse_genewise_file($param);
+			$self->_parse_genewise_file($param);
+		} elsif ($method eq "psitblastn") {
+			$self->_parse_psitblastn_file($param);
 		} else {
 			warn "[SearchResult:_initialize] unknown method: $method\n";
 		}
@@ -99,6 +101,78 @@ sub get_result_by_id {
 		}
 	}
 	return undef;
+}
+
+sub _parse_psitblastn_file {
+	my $self = shift;
+	my $param = shift;
+	
+	my $in = new Bio::SearchIO(-format => "blast", -file => $param->{file});
+	while (my $res = $in->next_result) {
+		my $res_ = new varDB::ResultSet::Result;
+		$self->add_result($res_);
+		
+		$res_->id($param->{id});
+		$res_->model("foo");
+		$res_->method($param->{method});
+		$res_->cutoff($param->{cutoff}) if defined $param->{cutoff};
+		
+		while (my $hit = $res->next_hit) {
+			if ($hit->significance <= $res_->cutoff) {
+				my $hit_ = new varDB::ResultSet::Hit;
+				$res_->add_hit($hit_);
+				$hit_->id($hit->name);
+				$hit_->score($hit->score);
+				$hit_->significance($hit->significance);
+				# useful for merging.
+				$hit_->model($res_->model);
+				$hit_->method($res_->method);
+				$hit_->cutoff($res_->cutoff);
+				while (my $hsp = $hit->next_hsp) {
+					my $hsp_ = new varDB::ResultSet::Hsp;
+					$hit_->add_hsp($hsp_);
+					#my $what = 'query';
+					#$what = 'hit' if $param->{method} eq "hmmsearch";
+					my $what = 'hit';
+					$hsp_->start($hsp->start($what));
+					$hsp_->end($hsp->end($what));
+					#!!! TODO: check this !!!
+					$hit_->start($hsp->start($what));
+					$hit_->end($hsp->end($what));
+				}
+			}
+		}
+		
+		#my $n = $res->num_iterations;
+		#
+		#if (! defined $r) {
+		#	$r = $n;
+		#} else {
+		#	if ($r > $n) {
+		#		die "ERROR: (-r $r) not so many iterations, just $n!\n";
+		#	}
+		#}
+		#my $iter = $res->iteration($r);
+		#
+		#print STDERR "database: ", $res->database_name, "\n" if $O{v};
+		#print STDERR "iterations: $n\n" if $O{v};
+		#print STDERR "iteration: $r\n" if $O{v};
+		#
+		#	
+		#while (my $hit = $iter->next_hit) {
+		#	my $hits = $hit->significance;
+		#	$hits =~ s/,$//; # FIX blast parse error in Bioperl.
+		#	if (!$ecut and $scut) {
+		#		print $hit->name, "\t", $hit->raw_score, "\t", $hits, "\n" if $hit->raw_score >= $scut;
+		#	} elsif (!$scut and $ecut) {
+		#		print $hit->name, "\t", $hit->raw_score, "\t", $hits, "\n" if $hits <= $ecut;
+		#	} elsif ($ecut and $scut) {
+		#		print $hit->name, "\t", $hit->raw_score, "\t", $hits, "\n" if $hit->raw_score >= $scut and $hits <= $ecut;
+		#	} else {
+		#		print $hit->name, "\t", $hit->raw_score, "\t", $hits, "\n";
+		#	}
+		#}
+	}
 }
 
 sub _parse_hmmer_file {
@@ -259,6 +333,8 @@ sub _detect_method_type {
 		return $1;
 	} elsif ($method =~ /Wise2/) {
 		return "genewise";
+	} elsif ($method =~ /PSITBLASTN/) {
+		return "psitblastn";
 	} else {
 		print STDERR "[SearchResult:_detect_method_type]: non-supported method type: $method\n";
 	}

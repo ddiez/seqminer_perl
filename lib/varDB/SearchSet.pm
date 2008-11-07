@@ -25,7 +25,9 @@ sub _initialize {
 	my $ts = new varDB::TaxonSet;
 	
 	foreach my $taxon ($ts->item_list) {
+		#print STDERR "+ ", $taxon->id, "\n";
 		foreach my $family ($taxon->family->item_list) {
+			#print STDERR "  - ", $family->id, "\n";
 			my $search = new varDB::SearchSet::Search($taxon, $family);
 			$search->id($search->taxon->id.".".$search->family->ortholog->id.".".$search->family->id);
 			$self->add($search);

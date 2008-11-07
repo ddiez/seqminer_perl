@@ -32,7 +32,7 @@ sub _initialize {
 	while (<IN>) {
 		next if /^[#|\n|taxon_id]/;
 		chomp;
-		my ($id, $taxon_name, $strain, $ortholog, $family_id, $type) = split '\t', $_;
+		my ($id, $taxon_name, $strain, $ortholog, $family_id, $type, $source) = split '\t', $_;
 		my $taxon = $self->get_item_by_id($id);
 		if (! defined $taxon) {
 			$taxon = new varDB::TaxonSet::Taxon;
@@ -42,6 +42,7 @@ sub _initialize {
 			$taxon->species($spp);
 			$taxon->strain($strain) if $strain ne "";
 			$taxon->type($type);
+			$taxon->source($source);
 			$self->add($taxon);
 		}
 		my $family = new varDB::Family;

@@ -3,7 +3,7 @@ package varDB::TaxonSet::Taxon;
 use strict;
 use warnings;
 use varDB::FamilySet;
-#use varDB::SearchSet;
+use varDB::Config;
 use varDB::ItemSet::Item;
 use vars qw( @ISA );
 @ISA = ("varDB::ItemSet::Item");
@@ -25,6 +25,7 @@ sub _initialize {
 	$self->{strain} = undef;
 	$self->{family} = new varDB::FamilySet;
 	$self->{type} = undef;
+	$self->{source} = undef;
 }
 
 sub name {
@@ -89,10 +90,289 @@ sub type {
 	return $self->{type};
 }
 
+sub source {
+	my $self = shift;
+	$self->{source} = shift if @_;
+	return $self->{source};
+}
+
 sub family {
-	#my $self = shift;
-	#$self->{family}->add(@_) if @_;
 	return shift->{family};
+}
+
+sub download {
+	my $self = shift;
+	
+	$self->type eq "isolate" && do { $self->_download_isolate(@_); };
+	$self->type eq "genome" && do { $self->_download_genome(@_); };
+}
+
+sub _download_isolate {
+	my $self = shift;
+	my $db = shift;
+	
+	my $id = _fix_taxid($self->id);	
+	my $outdir = "$VARDB_HOME/db/".$self->type."/".$self->organism;
+	my $file = $TARGET_DB{$db}.".ori.gb";
+	
+	print STDERR "# DOWNLOAD\n";
+	print STDERR "* db: $db\n";
+	print STDERR "* file: $file\n";
+	print STDERR "* outdir: $outdir\n\n";
+	
+	if (! -d $outdir) {
+		mkdir $outdir;
+	}
+	chdir $outdir;
+	unlink $file;
+	
+	use Bio::DB::EUtilities;
+
+	print STDERR "* downloading [$db]: $id\n";
+	my $factory = new Bio::DB::EUtilities (
+		-eutil => 'esearch',
+		-term  => $id,
+		-db => $db,
+		-usehistory => 'y',
+		-verbose => -1
+	);
+	
+	my $count = $factory->get_count;
+	print STDERR "* count: $count\n";
+	if ($count > 0) {
+		my $hist = $factory->next_History || die 'No history data returned';
+		$factory->set_parameters(
+			-eutil => 'efetch',
+			-rettype => 'genbank',
+			-history => $hist
+		);
+		
+		my ($retmax, $retstart) = (500, 0);
+		my $retry = 0;
+		RETRIEVE_SEQS:
+		while ($retstart < $count) {
+			$factory->set_parameters(-retmax => $retmax,
+									-retstart => $retstart);
+			eval{
+				my $ret = $retstart + $retmax;
+				$ret = $count if $ret > $count;
+				printf STDERR "\r* progress: %.1f%s [%i]",
+					100 * $ret/$count, "%", $ret;
+				$factory->get_Response(-file => ">>$file");
+			};
+			if ($@) {
+				die "Server error: $@.  Try again later" if $retry == 5;
+				print STDERR "Server error, redo #$retry\n";
+				$retry++ && redo RETRIEVE_SEQS;
+			}
+			$retstart += $retmax;
+		}
+		print STDERR "\n\n";
+		
+		&_seq_filter($outdir, $TARGET_DB{$db});
+		&_seq_format($outdir, $TARGET_DB{$db});
+		print STDERR "\n";
+	} else {
+		print STDERR "** NO SEQUENCES FOUND **\n\n";
+	}
+}
+
+sub _seq_filter {
+	my $dir = shift;
+	my $file = shift;
+	
+	my $filter = 0;
+	
+	my %FILTER = ();
+	open IN, "$VARDB_FILTER_FILE" or die "$!";
+	while (<IN>) {
+		next if /^#/;
+		chomp;
+		my ($source, $pubmed, $title, $keywords) = split '\t', $_;
+		push @{ $FILTER{'SOURCE'} }, $source if defined $source;
+		push @{ $FILTER{'PUBMED'} }, $pubmed if defined $pubmed;
+		push @{ $FILTER{'TITLE'} }, $title if defined $title;
+		push @{ $FILTER{'KEYWORDS'} }, $keywords if defined $keywords;
+	}
+	close IN;
+	
+	# TODO: move project files to another place.
+	print STDERR "* filtering ... ";
+	open OUT1, ">$dir/$file.project.gb" or die "$!";
+	open OUT2, ">$dir/$file.gb" or die "$!";
+	open IN, "$dir/$file.ori.gb" or die "$!";
+	while (<IN>) {
+		if (/^LOCUS/) {
+			$a .= $_;
+			while (<IN>) {
+				$a .= $_;
+				$filter = 1 if /^PROJECT/;
+				if (/\s+?TITLE\s+(.+)/) {
+					$filter = 1 if _check_title($1, $FILTER{'TITLE'});
+				}
+				if (/\s+?PUBMED\s+(.+)/) {
+					$filter = 1 if _check_pubmed($1, $FILTER{'PUBMED'});
+				}
+				if (/^\/\//) {
+					# check project.
+					if ($filter == 1) {
+						# print.
+						print OUT1 $a;
+					} else {
+						# print.
+						print OUT2 $a;
+					}
+					# reset.
+					$filter = 0;
+					$a = "";
+					last;
+				}
+			}
+		}
+	}
+	close IN;
+	close OUT1;
+	close OUT2;
+	print STDERR "OK\n";
+}
+
+sub _check_title {
+	my $line = shift;
+	my @title = @{ (shift) };
+	return 0 if $line eq "Direct Submission";
+	#print STDERR "begin check\n";
+	#print STDERR "checking: #$line#\n";
+	#print STDERR "and: @title\n";
+	foreach my $title (@title) {
+		return 1 if $title eq $line;
+	}
+	return 0;
+}
+
+sub _check_pubmed {
+	my $line = shift;
+	my @pubmed = @{ (shift) };
+	foreach my $pubmed (@pubmed) {
+		my @refs = split ";", $pubmed;
+		foreach my $ref (@refs) {
+			return 1 if $ref eq $line;
+		}
+	}
+	return 0;
+}
+
+sub _seq_format {
+	my $dir = shift;
+	my $basename = shift;
+	
+	
+	my $infile = "$basename.gb";
+	#print STDERR "format: $infile\n";
+		
+	my $outfile = "$basename.fa";
+	
+	use Bio::SeqIO;
+	
+	my $in = new Bio::SeqIO(-file => "$infile", -format => 'genbank');
+	my $out = new Bio::SeqIO(-file => ">$outfile", -format => 'fasta');
+
+	print STDERR "* formatting ... ";
+	open OUT, ">$basename.skip" or die "$!";
+	while (my $seq = $in->next_seq) {
+		if (defined $seq->seq) {
+			$out->write_seq($seq);
+		} else {
+			print OUT $seq->display_id, "\n";
+		}
+	}
+	close OUT;
+	
+	system "formatdb -i $outfile -n $basename -p F";
+	print STDERR "OK\n";
+}
+
+sub _fix_taxid {
+	return "txid".(shift)."[Organism:exp]";
+}
+
+sub _download_genome {
+	my $self = shift;
+	
+	$self->source eq "plasmodb" && do
+	{
+		$self->_download_eupathdb;
+	};
+	
+	$self->source eq "giardiadb" && do
+	{
+		$self->_download_eupathdb;
+	};
+}
+
+my %EUPATHDB_RELEASE = (
+	plasmodb  => "5.5",
+	giardiadb => "1.1",
+);
+
+my %EUPATHDB_MIRRORS = (
+	plasmodb  => "http://www.plasmodb.org/common/downloads/release-",
+	giardiadb => "http://giardiadb.org/common/downloads/release-",
+);
+
+
+sub _download_eupathdb {
+	my $self = shift;
+	
+	my $release = $EUPATHDB_RELEASE{$self->source};
+	my $org = $self->binomial;
+	$org =~ s/\.//;
+	$org =~ s/(.)/\u$1/;
+	print STDERR "* short name: $org\n";
+	my $source = $self->source;
+	$source =~ s/(.)(.+)db/\u$1$2DB/;
+	my $file = "$org\_$source-$release.gff";
+	#my $url = "http://www.plasmodb.org/common/downloads/release-$release/$org/$file";
+	my $url = $EUPATHDB_MIRRORS{$self->source}."$release/$org/$file";
+	print STDERR "* url: $url\n";
+	
+	use LWP::UserAgent;
+	my $ua = new LWP::UserAgent;
+	$ua->agent("varDB");
+	
+	print STDERR "* downloading $file ... ";
+    my $req = new HTTP::Request(GET => $url);
+    my $res = $ua->request($req);
+    if ($res->is_success) {
+		print STDERR "OK\n";
+		my $dir = "$VARDB_HOME/db/eupathdb/".$self->binomial."_".$self->strain;
+		print STDERR "* outdir: $dir\n";
+        print STDERR "* writting $org file ... ";
+		chdir $dir;
+        open OUT, ">$file";
+        print OUT $res->content;
+        close OUT;
+		print STDERR "OK\n\n";
+		
+		# processing;
+		my $outdir = "$VARDB_HOME/db/genomes/".$self->binomial."_".$self->strain;
+		chdir "$outdir";
+		system "vardb_eupathdb_parse.pl -i $dir/$file";
+		system "vardb_process_directory.sh";
+		print STDERR "\n";
+    } else {
+		print STDERR "ERROR\n";
+        print STDERR $res->status_line, "\n\n";
+    }
+}
+
+sub debug {
+	my $self = shift;
+	print STDERR "* taxon: ", $self->id, "\n";
+	print STDERR "* genus: ", $self->genus, "\n";
+	print STDERR "* species: ", $self->species, "\n";
+	print STDERR "* strain: ", $self->strain, "\n";
+	print STDERR "* type: ", $self->type, "\n";
+	print STDERR "* source: ", $self->source, "\n\n";
 }
 
 1;

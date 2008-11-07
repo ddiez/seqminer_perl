@@ -18,7 +18,7 @@ use varDB::Genome;
 use varDB::SeqSet;
 
 my %O = ();
-GetOptions(\%O, 'i:s');
+GetOptions(\%O, 'i:s', 'o:s');
 
 my $help = <<"HELP";
 
@@ -36,14 +36,17 @@ my $help = <<"HELP";
 
 HELP
 
-die $help if !exists $O{i};
+die $help if ! exists $O{i};
+my $outdir = ".";
+$outdir = $O{o} if exists $O{o};
+print STDERR "* outdir: $outdir\n";
 
 my $genome = new varDB::Genome;
 
 my $in = new Bio::Tools::GFF(-file => $O{i}, -gff_version => 3);
-my $prot_out = new Bio::SeqIO(-file => '>protein.fa', -format => 'fasta');
-my $nuc_out = new Bio::SeqIO(-file => '>gene.fa', -format => 'fasta');
-my $gen_out = new Bio::SeqIO(-file => '>genome.fa', -format => 'fasta');
+my $prot_out = new Bio::SeqIO(-file => ">$outdir/protein.fa", -format => 'fasta');
+my $nuc_out = new Bio::SeqIO(-file => ">$outdir/gene.fa", -format => 'fasta');
+my $gen_out = new Bio::SeqIO(-file => ">$outdir/genome.fa", -format => 'fasta');
 
 while (my $feat = $in->next_feature) {
 	if ($feat->primary_tag eq "gene") {

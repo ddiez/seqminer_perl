@@ -1,0 +1,24 @@
+- trying eclipse svn client.
+--This line, and those below, will be ignored--
+
+_M   .
+M    lib/varDB/Config.pm
+M    lib/varDB/TaxonSet.pm
+M    lib/varDB/SearchSet/Search.pm
+A    lib/varDB/Download.pm
+M    lib/varDB/ResultSet/Result.pm
+M    lib/varDB/SearchSet.pm
+M    lib/varDB/Config/Dir.pm
+M    lib/varDB/ResultSet.pm
+M    lib/varDB/TaxonSet/Taxon.pm
+D    bin/vardb_giardiadb_parse.pl
+D    bin/vardb_plasmodb_format_protein_cds.pl
+A    bin/vardb_search.pl
+A    bin/vardb_promoter.pl
+A    bin/vardb_download.pl
+A    bin/vardb_seq_entropy.pl
+D    bin/vardb_plasmodb_parse_gff.pl
+A    bin/vardb_create_dir_structure.pl
+M    bin/vardb_eupathdb_parse.pl
+A    bin/vardb_plot_genome.pl
+D    bin/vardb_plasmodb_format_genome_est.pl

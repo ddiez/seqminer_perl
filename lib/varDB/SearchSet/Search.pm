@@ -68,7 +68,9 @@ sub search {
 	
 	my $res = undef;
 	if ($self->{type} eq "isolate") {
-		$res = $self->_search_isolate;
+		foreach my $db (values %TARGET_DB) {
+			$res = $self->_search_isolate($db);
+		}
 	} else {
 		$res = $self->_search_genome;
 	}
@@ -77,42 +79,44 @@ sub search {
 
 sub _search_isolate {
 	my $self = shift;
+	my $tdb = shift;
 	
 	$self->debug;
 	if ($self->chdir('search') == 0) {
 		return 0;
 	}
 	
-	return 1;
+	my $base = $self->family->name."-".$self->taxon->dir;
+	my $db = "$VARDB_HOME/db/isolate/".$self->taxon->name."/$tdb";
 	
-	my $base = $self->taxon->name;
-	my $db = "$VARDB_HOME/db/isolate/$base/core";
-	my $pssm_file = "$VARDB_HOME/db/models/pssm/".$self->family->ortholog->id.".chk";
-	my $seed_file = "$VARDB_HOME/db/models/seed/".$self->family->ortholog->id.".seed";
-	my $evalue = 1e-02;
-	
-	print STDERR "+ db: $base\n";
-	print STDERR "+ pssm: $pssm_file\n";
-	print STDERR "+ seed: $seed_file\n";
-	print STDERR "+ eval: $evalue\n";
-	
-	# run PSI-Blast.
-	system "blastall -p psitblastn -d $db -i $seed_file -R $pssm_file -b 100000 > $base.psitblastn";
-	system "blast_parse.pl -i $base.psitblastn -e $evalue > $base.sel.list";
-	
-	# run searches.
-	#&_run_search("$dir/isolate", "core.fa");
-	#&_run_search("$dir/isolate", "est.fa");
-	
-	# select sequences from original dataset.
-	#&_select("$dir/isolate", "core.sel.list");
-	
-	# paper distribution.
-	#&_paper_dist("$dir/isolate", "core.sel.gb", $taxon, "vsp");
+	if (-e "$db.gb") {
+		my $pssm_file = "$VARDB_HOME/db/models/pssm/".$self->family->ortholog->id.".chk";
+		my $seed_file = "$VARDB_HOME/db/models/seed/".$self->family->ortholog->id.".seed";
+		my $evalue = 1e-02;
+		
+		print STDERR "+ db: $tdb\n";
+		print STDERR "+ pssm: $pssm_file\n";
+		print STDERR "+ seed: $seed_file\n";
+		print STDERR "+ eval: $evalue\n\n";
+		
+		# run PSI-Blast.
+		system "blastall -p psitblastn -d $db -i $seed_file -R $pssm_file -b 100000 > $base-$tdb.log";
+		#system "blast_parse.pl -i $base.psitblastn -e $evalue > $base.list";
+		
+		# select sequences from original dataset.
+		#&_select("$dir/isolate", "core.sel.list");
+		
+		# paper distribution.
+		#&_paper_dist("$dir/isolate", "core.sel.gb", $taxon, "vsp");
+	} else {
+		print STDERR "* skip db $tdb (no data)\n\n";
+	}
 }
 
 sub _search_genome {
 	my $self = shift;
+	
+	#return 1;
 	
 	$self->debug;
 	if ($self->chdir('search') == 0) {
@@ -126,7 +130,6 @@ sub _search_genome {
 	my $pssm_eval = $PSSM_EVALUE;
 	my $base = $self->family->name."-".$self->taxon->dir;
 	
-	return 1;
 	###################################################
 	## 1. do hmm based search.
 
@@ -250,7 +253,9 @@ sub analyze {
 	
 	my $res = undef;
 	if ($self->{type} eq "isolate") {
-		$res = $self->_analyze_isolate;
+		foreach my $db (values %TARGET_DB) {
+			$res = $self->_analyze_isolate($db);
+		}
 	} else {
 		$res = $self->_analyze_genome;
 	}
@@ -259,11 +264,38 @@ sub analyze {
 
 sub _analyze_isolate {
 	my $self = shift;
+	my $tdb = shift;
+
+	my $family = $self->family->name;
+	my $dir = $self->taxon->dir;
+	my $db = "$VARDB_HOME/db/isolate/".$self->taxon->name."/$tdb";
+	my $hmm_name = $self->family->hmm;
+	my $iter = $PSSM_ITER;
+	my $pssm_eval = $PSSM_EVALUE;
+	my $base = $self->family->name."-".$self->taxon->dir;
+
+	$self->chdir('search');
+	if (-e "$base-$tdb.log") {
+		use varDB::ResultSet;	
+		my $rs = new varDB::ResultSet({file => "$base-$tdb.log", id => "$tdb"});
+		my $r = $rs->get_result_by_id($tdb);
+		
+		$self->chdir('fasta') or die "cannot change to directory 'fasta'";
+		use varDB::SeqSet;
+		my $seq = new varDB::SeqSet({file => "$db.fa"});
+		$r->export_fasta({file => "$base-$tdb.fa", db => $seq});
+		
+		$self->chdir('sequences');
+		$r->export_nelson_for_isolate({file => "$base-$tdb.txt", search => $self,
+			sequence => $seq});
+	}
 	return 1;
 }
 
 sub _analyze_genome {
 	my $self = shift;
+	
+	#return 1;
 	
 	my $family = $self->family->name;
 	my $dir = $self->taxon->dir;

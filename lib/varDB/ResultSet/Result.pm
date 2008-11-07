@@ -147,6 +147,105 @@ sub merge {
 	}
 }
 
+sub export_nelson_for_isolate {
+	my $self = shift;
+	my $param = shift;
+	
+	my $fh = *STDOUT;
+	if ($param->{file}) {
+		open OUT, ">$param->{file}" or die "[ResultSet::Result::export_nelson] cannot open file $param->{file} for writing: $!\n";
+		$fh = *OUT;
+	}
+	
+	my $seq = $param->{sequence};
+	
+	# parse and fix information.
+	my $search = $param->{search};
+	my $taxon = $search->taxon;
+	my $organism = $taxon->organism;
+	#my $strain = $taxon->strain;
+	
+	my $org_id = $organism;
+	my $org_tax = $organism. ".".$taxon->id;
+	
+	print $fh "SEQUENCE", "\t",
+		"family", "\t",
+		"genome", "\t",
+		#"strain", "\t",
+		#"chromosome", "\t",
+		#"translation", "\t",
+		"sequence", "\t",
+		#"start", "\t",
+		#"end", "\t",
+		#"strand", "\t",
+		#"numexons", "\t",
+		#"splicing", "\t",
+		#"pseudogene", "\t",
+		#"truncated", "\t",
+		#"rating", "\t",
+		"method", "\t",
+		#"model", "\t",
+		"score", "\t",
+		"evalue", "\t",
+		#"hmmloc", "\t",
+		"description", "\n";
+	
+	my %hit_unique;
+	my @hit_unique;
+	foreach my $hit ($self->hit_list) {
+		my $id = $hit->id;
+		push @hit_unique, $id if ! exists $hit_unique{$id};
+		push @{ $hit_unique{$id} }, $hit;
+	}
+	
+	foreach my $id (@hit_unique) {
+		my @hit = @{ $hit_unique{$id} };
+		### TODO: fix this !!!!
+		#!!!!!!!!!!!!!!!!!!!!!!
+		my $hit = $hit[0];
+		#!!!!!!!!!!!!!!!!!!!!!!
+		
+		my $nuc_seq = $seq->get_seq_by_id($id);
+		if (defined $nuc_seq) {
+			$nuc_seq = $nuc_seq->seq;
+		} else {
+			$nuc_seq = "";
+		}
+		
+		my $hmmloc = "";
+		my @hmmloc;
+		foreach my $hit_ (@hit) {
+			push @hmmloc, join "..", $hit_->start, $hit_->end if defined $hit_->start and defined $hit_->end;
+		}
+		$hmmloc = join ",", @hmmloc;
+		
+		print $fh
+			"$id\t",
+			$organism.".".$search->family->id, "\t",
+			$org_tax, "\t",
+		#	$taxon->strain, "\t",
+		#	$org_tax.".".$gene->chromosome, "\t",
+		#	$pro_seq, "\t",
+			$nuc_seq, "\t",
+		#	$gene->start, "\t",
+		#	$gene->end, "\t",
+		#	$gene->strand eq "+" ? "forward" : "reverse", "\t",
+		#	$gene->nexons, "\t",
+		#	$exonloc, "\t",
+		#	$gene->pseudogene ? "TRUE" : "FALSE", "\t",
+		#	"FALSE", "\t",
+		#	$gene->quality($eexons), "\t",
+			$hit->method, "\t",
+		#	$search->family->hmm, "\t",
+			$hit->score, "\t",
+			$hit->significance, "\t",
+			$hmmloc, "\t",
+			"", "\n";
+	}
+	
+	
+}
+
 sub export_nelson {
 	my $self = shift;
 	my $param = shift;
@@ -168,6 +267,7 @@ sub export_nelson {
 	my $taxon = $search->taxon;
 	my $organism = $taxon->organism;
 	my $strain = $taxon->strain;
+	# TODO: !!! FIX THIS !!!
 	#my $eexons = $search->family->eexons;
 	my $eexons = 3;
 		
@@ -177,8 +277,6 @@ sub export_nelson {
 	print STDERR "* org_id: $org_id\n";
 	print STDERR "* taxon: $org_tax\n";
 	
-	system "echo \"hello\" > foo.txt";
-
 	print $fh "SEQUENCE", "\t",
 		"family", "\t",
 		"genome", "\t",
@@ -276,7 +374,7 @@ sub export_fasta {
 	
 	my $fh = *STDOUT;
 	if ($param->{file}) {
-		open OUT, ">$param->{file}" or die "[ResultSet::Result::export_nelson] cannot open file $param->{file} for writing: $!\n";
+		open OUT, ">$param->{file}" or die "[ResultSet::Result::export_fasta] cannot open file $param->{file} for writing: $!\n";
 		$fh = *OUT;
 	}
 	
