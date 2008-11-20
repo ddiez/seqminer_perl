@@ -307,6 +307,88 @@ sub _download_genome {
 	{
 		$self->_download_eupathdb;
 	};
+	
+	$self->source eq "ncbi" && do
+	{
+		$self->_download_refseq;
+	};
+	
+}
+
+sub _download_refseq {
+	my $self = shift;
+	my $db = 'genome';
+	my $file = $self->organism.".gb";
+
+	my $id = _fix_taxid($self->id);	
+	my $outdir = "$VARDB_HOME/db/ncbi/".$self->binomial."_".$self->strain;
+	
+	print STDERR "# DOWNLOAD\n";
+	print STDERR "* db: $db\n";
+	print STDERR "* file: $file\n";
+	print STDERR "* outdir: $outdir\n\n";
+	
+	if (! -d $outdir) {
+		mkdir $outdir;
+	}
+	chdir $outdir;
+	unlink $file;
+	
+	use Bio::DB::EUtilities;
+
+	print STDERR "* downloading [$db]: $id\n";
+	my $factory = new Bio::DB::EUtilities (
+		-eutil => 'esearch',
+		-term  => $id,
+		-db => $db,
+		-usehistory => 'y',
+		-verbose => -1
+	);
+
+	my $count = $factory->get_count;
+	print STDERR "* count: $count\n";
+	if ($count > 0) {
+		my $hist = $factory->next_History || die 'No history data returned';
+		$factory->set_parameters(
+			-eutil => 'efetch',
+			-rettype => 'genbank',
+			-history => $hist
+		);
+		
+		my ($retmax, $retstart) = (500, 0);
+		my $retry = 0;
+		RETRIEVE_SEQS:
+		while ($retstart < $count) {
+			$factory->set_parameters(-retmax => $retmax,
+									-retstart => $retstart);
+			eval{
+				my $ret = $retstart + $retmax;
+				$ret = $count if $ret > $count;
+				printf STDERR "\r* progress: %.1f%s [%i]",
+					100 * $ret/$count, "%", $ret;
+				$factory->get_Response(-file => ">>$file");
+			};
+			if ($@) {
+				die "Server error: $@.  Try again later" if $retry == 5;
+				print STDERR "Server error, redo #$retry\n";
+				$retry++ && redo RETRIEVE_SEQS;
+			}
+			$retstart += $retmax;
+		}
+		print STDERR "\n\n";
+		
+		$outdir = "$VARDB_HOME/db/genomes/".$self->binomial."_".$self->strain;
+		if (! -d $outdir) {
+			mkdir $outdir;
+		}
+		system "vardb_ncbi_parse.pl -i $file -d $outdir";
+		chdir "$outdir";
+		system "vardb_process_directory.sh";
+		
+		print STDERR "\n";
+	} else {
+		print STDERR "** NO SEQUENCES FOUND **\n\n";
+	}
 }
 
 my %EUPATHDB_RELEASE = (
