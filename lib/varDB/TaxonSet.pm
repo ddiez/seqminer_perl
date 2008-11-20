@@ -40,9 +40,9 @@ sub _initialize {
 			my ($genus, $spp) = ($1, $2) if $taxon_name =~ /(.+)\.(.+)/;
 			$taxon->genus($genus);
 			$taxon->species($spp);
-			$taxon->strain($strain) if $strain ne "";
+			$taxon->strain($strain ne "" ? $strain : "_undef_");
 			$taxon->type($type);
-			$taxon->source($source);
+			$taxon->source($source ne "" ? $source : "_undef_");
 			$self->add($taxon);
 		}
 		my $family = new varDB::Family;

@@ -30,7 +30,7 @@ sub _initialize {
 
 sub name {
 	my $self = shift;
-	if (defined $self->strain) {
+	if ($self->strain ne "_undef_") {
 		return $self->genus.".".$self->species."_".$self->strain;
 	} else {
 		return $self->genus.".".$self->species;
@@ -112,7 +112,7 @@ sub _download_isolate {
 	my $db = shift;
 	
 	my $id = _fix_taxid($self->id);	
-	my $outdir = "$VARDB_HOME/db/".$self->type."/".$self->organism;
+	my $outdir = "$VARDB_HOME/db/".$self->type."/".$self->genus.".".$self->species;
 	my $file = $TARGET_DB{$db}.".ori.gb";
 	
 	print STDERR "# DOWNLOAD\n";

@@ -69,6 +69,12 @@ sub model {
 	return $self->{model};
 }
 
+sub model_type {
+	my $self = shift;
+	$self->{model_type} = shift if @_;
+	return $self->{model_type};
+}
+
 # returns an array of hit objects.
 sub hit_list {
 	return @{ shift->{hit_list} };
@@ -271,8 +277,10 @@ sub export_nelson {
 	#my $eexons = $search->family->eexons;
 	my $eexons = 3;
 		
-	my $org_id = $organism;
-	my $org_tax = $organism. ".".$taxon->id;
+	#my $org_id = $taxon->genus.".".$taxon->species;
+	my $org_id = $taxon->name;
+	#my $org_tax = $organism. ".".$taxon->id;
+	my $org_tax = $org_id.".".$taxon->id;
 
 	print STDERR "* org_id: $org_id\n";
 	print STDERR "* taxon: $org_tax\n";
@@ -294,6 +302,7 @@ sub export_nelson {
 		"rating", "\t",
 		"method", "\t",
 		"model", "\t",
+		#"model_type", "\t",
 		"score", "\t",
 		"evalue", "\t",
 		"hmmloc", "\t",
@@ -345,7 +354,7 @@ sub export_nelson {
 		
 		print $fh
 			"$id\t",
-			$organism.".".$search->family->id, "\t",
+			$org_id.".".$search->family->id, "\t",
 			$org_tax, "\t",
 			$taxon->strain, "\t",
 			$org_tax.".".$gene->chromosome, "\t",
@@ -360,7 +369,7 @@ sub export_nelson {
 			"FALSE", "\t",
 			$gene->quality($eexons), "\t",
 			$hit->method, "\t",
-			$search->family->hmm, "\t",
+			$search->family->hmm."_".$self->model_type, "\t",
 			$hit->score, "\t",
 			$hit->significance, "\t",
 			$hmmloc, "\t",

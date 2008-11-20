@@ -39,4 +39,10 @@ sub hmm {
 	return shift->ortholog->hmm;
 }
 
+sub type {
+	my $self = shift;
+	$self->{type} = shift if @_;
+	return $self->{type};
+}
+
 1;

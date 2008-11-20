@@ -311,10 +311,10 @@ sub _analyze_genome {
 	# read result files.
 	$self->chdir('search');
 	use varDB::ResultSet;
-	my $rs = new varDB::ResultSet({file => "$base-protein_ls.log", id => 'protein_ls'});
-	$rs->add({file => "$base-protein_fs.log", id => 'protein_fs'});
-	$rs->add({file => "$base-gene_ls.log", id => 'gene_ls'});
-	$rs->add({file => "$base-gene_fs.log", id => 'gene_fs'});
+	my $rs = new varDB::ResultSet({file => "$base-protein_ls.log", id => 'protein_ls', model_type => 'ls'});
+	$rs->add({file => "$base-protein_fs.log", id => 'protein_fs', model_type => 'fs'});
+	$rs->add({file => "$base-gene_ls.log", id => 'gene_ls', model_type => 'ls'});
+	$rs->add({file => "$base-gene_fs.log", id => 'gene_fs', model_type => 'fs'});
 	
 	my $p_ls = $rs->get_result_by_id('protein_ls');
 	my $p_fs = $rs->get_result_by_id('protein_fs');

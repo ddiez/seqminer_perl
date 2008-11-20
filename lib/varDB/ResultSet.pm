@@ -186,6 +186,7 @@ sub _parse_hmmer_file {
 	my $in = new Bio::SearchIO(-file => $param->{file}, -format => 'hmmer');
 	while (my $res = $in->next_result) {
 		my $res_ = new varDB::ResultSet::Result;
+		$res_->model_type($param->{model_type});
 		$self->add_result($res_);
 		
 		if ($param->{method} eq "hmmsearch") {
