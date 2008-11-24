@@ -124,7 +124,7 @@ sub read_gff {
 	my $self = shift;
 	my $param = shift;
 	
-	print STDERR "* reading genome file ... ";
+	#print STDERR "* reading genome file ... ";
 	my $file = $param->{file};
 	open IN, "$file" or die "[Genome:read_gff]: cannot read file $file: $!\n";
 	while (<IN>) {
@@ -154,7 +154,7 @@ sub read_gff {
 		} # nothing else.
 	}
 	close IN;
-	print STDERR "OK\n";
+	#print STDERR "OK\n";
 }
 
 sub _parse_description {

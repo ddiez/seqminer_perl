@@ -282,8 +282,9 @@ sub export_nelson {
 	#my $org_tax = $organism. ".".$taxon->id;
 	my $org_tax = $org_id.".".$taxon->id;
 
+	print STDERR "# EXPORT: NELSON\n";
 	print STDERR "* org_id: $org_id\n";
-	print STDERR "* taxon: $org_tax\n";
+	print STDERR "* taxon: $org_tax\n\n";
 	
 	print $fh "SEQUENCE", "\t",
 		"family", "\t",
@@ -312,6 +313,9 @@ sub export_nelson {
 	my @hit_unique;
 	foreach my $hit ($self->hit_list) {
 		my $id = $hit->id;
+		#if ($param->{condense}) {
+		#	$id =~ s/_..//;
+		#}
 		push @hit_unique, $id if ! exists $hit_unique{$id};
 		push @{ $hit_unique{$id} }, $hit;
 	}

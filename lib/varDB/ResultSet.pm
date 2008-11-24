@@ -203,7 +203,11 @@ sub _parse_hmmer_file {
 			if ($hit->significance <= $res_->cutoff) {
 				my $hit_ = new varDB::ResultSet::Hit;
 				$res_->add_hit($hit_);
-				$hit_->id($hit->name);
+				my $id = $hit->name;
+				if ($param->{condense}) {
+					$id =~ s/_..$//;
+				}
+				$hit_->id($id);
 				$hit_->score($hit->score);
 				$hit_->significance($hit->significance);
 				# useful for merging.
@@ -395,6 +399,7 @@ sub export_pfam_simple {
 		"domain_count", "\n";
 	foreach my $res ($result->result_list) {
 		my $id = $res->id;
+		print STDERR "$id\n";
 		
 		print OUT
 			$id, "\t",

@@ -63,17 +63,23 @@ sub taxon {
 	return $self->{taxon};
 }
 
+# TODO: clean-up this:
 sub search {
 	my $self = shift;
+	my $param = shift;
 	
 	my $res = undef;
+	
 	if ($self->{type} eq "isolate") {
+		return 2 if ($param->{type} eq "genome");
 		foreach my $db (values %TARGET_DB) {
 			$res = $self->_search_isolate($db);
 		}
 	} else {
+		return 2 if ($param->{type} eq "isolate");
 		$res = $self->_search_genome;
 	}
+
 	return $res;
 }
 
@@ -82,11 +88,12 @@ sub _search_isolate {
 	my $tdb = shift;
 	
 	$self->debug;
+		
 	if ($self->chdir('search') == 0) {
 		return 0;
 	}
 	
-	my $base = $self->family->name."-".$self->taxon->dir;
+	my $base = $self->family->name."-".$self->taxon->binomial;
 	my $db = "$VARDB_HOME/db/isolate/".$self->taxon->name."/$tdb";
 	
 	if (-e "$db.gb") {
@@ -116,13 +123,12 @@ sub _search_isolate {
 sub _search_genome {
 	my $self = shift;
 	
-	#return 1;
-	
 	$self->debug;
+	
 	if ($self->chdir('search') == 0) {
 		return 0;
 	}
-	
+
 	my $family = $self->family->name;
 	my $dir = $self->taxon->dir;
 	my $hmm_name = $self->family->hmm;
@@ -137,10 +143,10 @@ sub _search_genome {
 	# use libraries Pfam_ls and Pfam_fs.
 	print STDERR "* fetching Pfam models ... ";
 	if (! -d "$VARDB_HOME/db/models/hmm/ls/$hmm_name") {
-		system "hmmfetch $HMMDB/$PFAM_VERSION/Pfam_ls $hmm_name > $VARDB_HOME/db/models/hmm/ls/$hmm_name";
+		system "hmmfetch $VARDB_HOME/db/pfam/Pfam_ls $hmm_name > $VARDB_HOME/db/models/hmm/ls/$hmm_name";
 	}
 	if (! -d "$VARDB_HOME/db/models/hmm/fs/$hmm_name") {
-		system "hmmfetch $HMMDB/$PFAM_VERSION/Pfam_fs $hmm_name > $VARDB_HOME/db/models/hmm/fs/$hmm_name";
+		system "hmmfetch $VARDB_HOME/db/pfam/Pfam_fs $hmm_name > $VARDB_HOME/db/models/hmm/fs/$hmm_name";
 	}
 	my $ls = "$VARDB_HOME/db/models/hmm/ls/$hmm_name";
 	my $fs = "$VARDB_HOME/db/models/hmm/fs/$hmm_name";
@@ -212,7 +218,6 @@ sub _search_genome {
 	
 	# the seed would be the best hit in the Pfam_ls search, but if
 	# there is nothing there, then the next one will be tested.
-	# TODO: check that it is indeed a suitable seed (e-value/score).
 	# if no suitable seed found, use the one provided in the config file.
 	#my @search_type = ("protein\_ls", "protein\_fs", "gene\_ls", "gene\_fs");
 	#use varDB::ResultSet;
@@ -245,11 +250,60 @@ sub _search_genome {
 	#	print STDERR "* no best hit found - skipping psi-blast search.\n";
 	#}
 	
+	print STDERR "\n";
+	
 	return 1;
+}
+
+sub seed {
+	my $self = shift;
+	
+	$self->debug;
+	if ($self->chdir('search') == 0) {
+		return 0;
+	}
+	
+	my $base = $self->family->name."-".$self->taxon->dir;
+	my $dir = $self->taxon->dir;
+	my $seed_file = "$VARDB_HOME/db/models/seed/".$self->family->ortholog->id.".seed";
+	my $pssm_file = "$VARDB_HOME/db/models/pssm/".$self->family->ortholog->id.".chk";
+	my $pgp_file = "$VARDB_HOME/db/models/pgp/".$self->family->ortholog->id.".pgp";
+	my @search_type = ("protein\_ls", "protein\_fs", "gene\_ls", "gene\_fs");
+	
+	use varDB::ResultSet;
+	my $bh = undef;
+	foreach my $search_type (@search_type) {
+		my $rs = new varDB::ResultSet({file => "$base-$search_type.log"});
+		$bh = $rs->get_result_by_pos(0)->best_hit;
+		last if defined $bh
+	}
+	
+	if (defined $bh) {
+		my $seed = $bh->id;
+		system "extract_fasta.pl -d $seed -i $GENOMEDB/$dir/protein.idx > $seed_file";
+		system "blastpgp -d $GENOMEDB/$dir/protein -i $seed_file -s T -j $PSSM_ITER -h $PSSM_EVALUE -C $pssm_file -F T -b 10000  > $pgp_file";
+	}
+	
+	return 1;
+}
+
+sub hmm {
+	my $self = shift;
+	
+	$self->debug;
+	my $hmm_name = $self->family->hmm;
+	
+	print STDERR "* fetching Pfam models ... ";
+	system "hmmfetch $VARDB_HOME/db/pfam/Pfam_ls $hmm_name > $VARDB_HOME/db/models/hmm/ls/$hmm_name";
+	system "hmmfetch $VARDB_HOME/db/pfam/Pfam_fs $hmm_name > $VARDB_HOME/db/models/hmm/fs/$hmm_name";
+	print STDERR "OK\n";
 }
 
 sub analyze {
 	my $self = shift;
+	
+	print STDERR "# ANALYZE\n";
+	$self->debug;
 	
 	my $res = undef;
 	if ($self->{type} eq "isolate") {
@@ -272,7 +326,7 @@ sub _analyze_isolate {
 	my $hmm_name = $self->family->hmm;
 	my $iter = $PSSM_ITER;
 	my $pssm_eval = $PSSM_EVALUE;
-	my $base = $self->family->name."-".$self->taxon->dir;
+	my $base = $self->family->name."-".$self->taxon->binomial;
 
 	$self->chdir('search');
 	if (-e "$base-$tdb.log") {
@@ -296,7 +350,6 @@ sub _analyze_genome {
 	my $self = shift;
 	
 	#return 1;
-	
 	my $family = $self->family->name;
 	my $dir = $self->taxon->dir;
 	my $hmm_name = $self->family->hmm;

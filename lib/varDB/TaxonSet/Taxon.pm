@@ -96,6 +96,12 @@ sub source {
 	return $self->{source};
 }
 
+sub seed {
+	my $self = shift;
+	$self->{seed} = shift if @_;
+	return $self->{seed};
+}
+
 sub family {
 	return shift->{family};
 }
@@ -112,7 +118,7 @@ sub _download_isolate {
 	my $db = shift;
 	
 	my $id = _fix_taxid($self->id);	
-	my $outdir = "$VARDB_HOME/db/".$self->type."/".$self->genus.".".$self->species;
+	my $outdir = "$VARDB_HOME/db/".$self->type."/".$self->name;
 	my $file = $TARGET_DB{$db}.".ori.gb";
 	
 	print STDERR "# DOWNLOAD\n";
@@ -183,18 +189,18 @@ sub _seq_filter {
 	
 	my $filter = 0;
 	
-	my %FILTER = ();
-	open IN, "$VARDB_FILTER_FILE" or die "$!";
-	while (<IN>) {
-		next if /^#/;
-		chomp;
-		my ($source, $pubmed, $title, $keywords) = split '\t', $_;
-		push @{ $FILTER{'SOURCE'} }, $source if defined $source;
-		push @{ $FILTER{'PUBMED'} }, $pubmed if defined $pubmed;
-		push @{ $FILTER{'TITLE'} }, $title if defined $title;
-		push @{ $FILTER{'KEYWORDS'} }, $keywords if defined $keywords;
-	}
-	close IN;
+#	my %FILTER = ();
+#	open IN, "$VARDB_FILTER_FILE" or die "$!";
+#	while (<IN>) {
+#		next if /^#/;
+#		chomp;
+#		my ($source, $pubmed, $title, $keywords) = split '\t', $_;
+#		push @{ $FILTER{'SOURCE'} }, $source if defined $source;
+#		push @{ $FILTER{'PUBMED'} }, $pubmed if defined $pubmed;
+#		push @{ $FILTER{'TITLE'} }, $title if defined $title;
+#		push @{ $FILTER{'KEYWORDS'} }, $keywords if defined $keywords;
+#	}
+#	close IN;
 	
 	# TODO: move project files to another place.
 	print STDERR "* filtering ... ";
@@ -207,12 +213,18 @@ sub _seq_filter {
 			while (<IN>) {
 				$a .= $_;
 				$filter = 1 if /^PROJECT/;
-				if (/\s+?TITLE\s+(.+)/) {
-					$filter = 1 if _check_title($1, $FILTER{'TITLE'});
+				#if (/\s+?TITLE\s+(.+)/) {
+				#	$filter = 1 if $1 =~ /The genome sequence/;
+				#}
+				
+				if (/^DEFINITION\s+(.+)/) {
+					$filter = 1 if _check_filter($1);
 				}
-				if (/\s+?PUBMED\s+(.+)/) {
-					$filter = 1 if _check_pubmed($1, $FILTER{'PUBMED'});
+				
+				if (/^KEYWORDS\s+(.+)/) {
+					$filter = 1 if _check_filter($1);
 				}
+				
 				if (/^\/\//) {
 					# check project.
 					if ($filter == 1) {
@@ -234,6 +246,20 @@ sub _seq_filter {
 	close OUT1;
 	close OUT2;
 	print STDERR "OK\n";
+}
+
+sub _check_filter {
+	my $line = shift;
+	
+	my @filter = (
+		"complete genome",
+		"complete mitochondrial genome",
+	);
+	
+	foreach my $filter (@filter) {
+		return 1 if $line =~ /$filter/;
+	}
+	return 0;
 }
 
 sub _check_title {

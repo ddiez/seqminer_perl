@@ -35,10 +35,26 @@ sub _initialize {
 	}
 }
 
+sub seed {
+	my $self = shift;
+	foreach my $search ($self->item_list) {
+		if ($search->taxon->seed) {
+			$search->seed;
+		}
+	}
+}
+
+sub hmm {
+	my $self = shift;
+	foreach my $search ($self->item_list) {
+		$search->hmm;
+	}
+}
+
 sub search {
 	my $self = shift;
 	foreach my $search ($self->item_list) {
-		$search->search;
+		$search->search(@_);
 	}
 }
 
@@ -47,6 +63,11 @@ sub analyze {
 	foreach my $search ($self->item_list) {
 		$search->analyze;
 	}
+}
+
+sub debug {
+	my $self = shift;
+	print STDERR "** SEARCHSET\n";
 }
 
 1;
