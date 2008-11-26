@@ -143,10 +143,10 @@ sub _search_genome {
 	# use libraries Pfam_ls and Pfam_fs.
 	print STDERR "* fetching Pfam models ... ";
 	if (! -d "$VARDB_HOME/db/models/hmm/ls/$hmm_name") {
-		system "hmmfetch $VARDB_HOME/db/pfam/Pfam_ls $hmm_name > $VARDB_HOME/db/models/hmm/ls/$hmm_name";
+		system "hmmfetch $VARDB_HOME/db/pfam/Pfam_ls.bin $hmm_name > $VARDB_HOME/db/models/hmm/ls/$hmm_name";
 	}
 	if (! -d "$VARDB_HOME/db/models/hmm/fs/$hmm_name") {
-		system "hmmfetch $VARDB_HOME/db/pfam/Pfam_fs $hmm_name > $VARDB_HOME/db/models/hmm/fs/$hmm_name";
+		system "hmmfetch $VARDB_HOME/db/pfam/Pfam_fs.bin $hmm_name > $VARDB_HOME/db/models/hmm/fs/$hmm_name";
 	}
 	my $ls = "$VARDB_HOME/db/models/hmm/ls/$hmm_name";
 	my $fs = "$VARDB_HOME/db/models/hmm/fs/$hmm_name";
@@ -294,8 +294,8 @@ sub hmm {
 	my $hmm_name = $self->family->hmm;
 	
 	print STDERR "* fetching Pfam models ... ";
-	system "hmmfetch $VARDB_HOME/db/pfam/Pfam_ls $hmm_name > $VARDB_HOME/db/models/hmm/ls/$hmm_name";
-	system "hmmfetch $VARDB_HOME/db/pfam/Pfam_fs $hmm_name > $VARDB_HOME/db/models/hmm/fs/$hmm_name";
+	system "hmmfetch $VARDB_HOME/db/pfam/Pfam_ls.bin $hmm_name > $VARDB_HOME/db/models/hmm/ls/$hmm_name";
+	system "hmmfetch $VARDB_HOME/db/pfam/Pfam_fs.bin $hmm_name > $VARDB_HOME/db/models/hmm/fs/$hmm_name";
 	print STDERR "OK\n";
 }
 

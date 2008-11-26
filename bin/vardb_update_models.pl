@@ -14,11 +14,11 @@ $all = 0 if scalar keys %O > 0;
 # update models by taxon.
 my $ss = new varDB::SearchSet;
 ($all == 1 | $O{s}) && do {	
-	print "seed\n";
-	#$ss->seed;
+	#print "seed\n";
+	$ss->seed;
 };
 
 ($all == 1 | $O{h}) && do {
-	print "hmm\n";
-	#$ss->hmm;
+	#print "hmm\n";
+	$ss->hmm;
 };
