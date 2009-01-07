@@ -1,11 +1,11 @@
-package varDB::NCBI::Paper;
+package SeqMiner::NCBI::Paper;
 
 use strict;
 use warnings;
-use varDB::Config;
-use varDB::ItemSet::Item;
+use SeqMiner::Config;
+use SeqMiner::ItemSet::Item;
 use vars qw( @ISA );
-@ISA = ("varDB::ItemSet::Item");
+@ISA = ("SeqMiner::ItemSet::Item");
 
 sub new {
 	my $class = shift;

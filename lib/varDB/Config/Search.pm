@@ -1,11 +1,11 @@
-package varDB::Config::Search;
-#@ISA = ("varDB::ItemSet::Item");
+package SeqMiner::Config::Search;
+#@ISA = ("SeqMiner::ItemSet::Item");
 
 use strict;
 use warnings;
 
-use varDB::Config;
-#use varDB::ItemSet::Item;
+use SeqMiner::Config;
+#use SeqMiner::ItemSet::Item;
 
 sub new {
 	my $class = shift;

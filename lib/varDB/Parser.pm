@@ -1,6 +1,6 @@
-package varDB::Parser;
+package SeqMiner::Parser;
 
-#use varDB::Config;
+#use SeqMiner::Config;
 
 use strict;
 use warnings;
@@ -51,11 +51,11 @@ sub _initialize {
 	
 	# check parameters.
 	foreach my $field (keys %{$param}) {
-		die "[varDB::Parser] unknown parameter $field.\n" if ! exists $self->{$field};
+		die "[SeqMiner::Parser] unknown parameter $field.\n" if ! exists $self->{$field};
 	}
 	
 	foreach my $field (keys %{$self}) {
-	#	die "[varDB::Parser] parameter $field is required.\n" if ! exists $param->{$field};
+	#	die "[SeqMiner::Parser] parameter $field is required.\n" if ! exists $param->{$field};
 		$self->{$field} = $param->{$field};
 	}
 	

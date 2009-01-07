@@ -1,10 +1,10 @@
 #!/usr/bin/env perl
 
-use varDB::Genome;
+use SeqMiner::Genome;
 use strict;
 use warnings;
 
-my $genome = new varDB::Genome();
+my $genome = new SeqMiner::Genome();
 my $file = shift;
 
 open IN, $file or die "ERROR: cannot open file $file: $!\n";
@@ -15,7 +15,7 @@ while (<IN>) {
 	my $chr = $1 if $id =~ /(.+?)\./; # no chromosome for bacteria.
 	if ($type eq "gene") {
 		$info = parse_gene_info($info);
-		my $gene = new varDB::Gene($info);
+		my $gene = new SeqMiner::Gene($info);
 		$gene->set_strand($strand);
 		$gene->set_start($start);
 		$gene->set_end($end);
@@ -30,7 +30,7 @@ while (<IN>) {
 		} else {
 			$gene->set_description("-");
 		}
-		my $exon = new varDB::Exon($info);
+		my $exon = new SeqMiner::Exon($info);
 		$exon->set_start($gene->get_start);
 		$exon->set_end($gene->get_end);
 		$exon->set_strand($gene->get_strand);

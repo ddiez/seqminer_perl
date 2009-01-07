@@ -1,4 +1,4 @@
-package varDB::Location;
+package SeqMiner::Location;
 
 
 sub new {
@@ -35,7 +35,7 @@ sub add {
 			push @{$self->{$key}}, $param->{$key};
 			$self->{nlocs}++;
 		} else {
-			die "[varDB::Location::add] unknown key $key.\n";
+			die "[SeqMiner::Location::add] unknown key $key.\n";
 		}
 	}
 }

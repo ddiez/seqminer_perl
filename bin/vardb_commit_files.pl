@@ -3,10 +3,10 @@
 use strict;
 use warnings;
 
-use varDB::Config;
-use varDB::Config::Param;
+use SeqMiner::Config;
+use SeqMiner::Config::Param;
 
-my $param = new varDB::Config::Param;
+my $param = new SeqMiner::Config::Param;
 $param->debug;
 while (my $info = $param->next_param) {
 	$info->debug;

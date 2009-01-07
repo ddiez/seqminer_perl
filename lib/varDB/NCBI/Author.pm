@@ -1,8 +1,8 @@
-package varDB::NCBI::Author;
+package SeqMiner::NCBI::Author;
 
 use strict;
 use warnings;
-use varDB::Config;
+use SeqMiner::Config;
 
 sub new {
 	my $class = shift;

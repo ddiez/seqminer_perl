@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use varDB::Genome;
+use SeqMiner::Genome;
 use Bio::SeqIO;
 use Getopt::Long;
 
@@ -22,10 +22,10 @@ while (my $seq = $in->next_seq) {
 	my $species = $seq->species;
 	print STDERR "* species: ", $species->species, "\n";
 	
-	my $genome = new varDB::Genome;
+	my $genome = new SeqMiner::Genome;
 	$genome->organism($seq->species);
 	
-	my $chr = new varDB::Genome::Chromosome;
+	my $chr = new SeqMiner::Genome::Chromosome;
 	$chr->id($seq->accession_number);
 	$chr->seq($seq->seq);
 	$genome->add_chromosome($chr);
@@ -34,7 +34,7 @@ while (my $seq = $in->next_seq) {
     foreach my $feat (@feat) {
 		next if $feat->primary_tag eq "source";
 		if ($feat->primary_tag eq "gene") {
-			my $gene = new varDB::Genome::Gene;
+			my $gene = new SeqMiner::Genome::Gene;
 			$gene->id($feat->get_tag_values('locus_tag'));
 			$gene->source("ncbi");
 			$gene->start($feat->start);
@@ -56,7 +56,7 @@ while (my $seq = $in->next_seq) {
 			$gene->description($feat->get_tag_values('product'));
 			$gene->translation($feat->get_tag_values('translation'));
 			
-			my $exon = new varDB::Genome::Exon;
+			my $exon = new SeqMiner::Genome::Exon;
 			$exon->id($gene->nexons + 1);
 			$exon->parent($gene->id);
 			$exon->start($feat->start);
@@ -67,7 +67,7 @@ while (my $seq = $in->next_seq) {
 			my $gene = $genome->get_gene_by_id($feat->get_tag_values('locus_tag'));
 			$gene->description($feat->get_tag_values('product'));
 			
-			my $exon = new varDB::Genome::Exon;
+			my $exon = new SeqMiner::Genome::Exon;
 			$exon->id($gene->nexons + 1);
 			$exon->parent($gene->id);
 			$exon->start($feat->start);

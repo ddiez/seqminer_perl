@@ -1,4 +1,4 @@
-package varDB::Parser::Nelson;
+package SeqMiner::Parser::Nelson;
 
 use strict;
 use warnings;

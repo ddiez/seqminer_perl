@@ -1,8 +1,8 @@
-package varDB::NCBI::Filter;
+package SeqMiner::NCBI::Filter;
 
 use strict;
 use warnings;
-use varDB::Config;
+use SeqMiner::Config;
 
 sub new {
 	my $class = shift;

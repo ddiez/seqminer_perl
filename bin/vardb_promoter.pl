@@ -3,7 +3,7 @@
 use strict;
 
 use Bio::SeqIO;
-use varDB::Config;
+use SeqMiner::Config;
 
 # store regexps for different promoters.
 my %promoters = (
@@ -31,7 +31,7 @@ my %promoters = (
 );
 my @motifs = sort keys %promoters;
 
-my $DB = $varDB::Config::GENOMEDB;
+my $DB = $SeqMiner::Config::GENOMEDB;
 
 # read in parameters.
 my $org = shift;

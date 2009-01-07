@@ -1,9 +1,9 @@
-package varDB::Config::Dir;
+package SeqMiner::Config::Dir;
 
 use strict;
 use warnings;
-use varDB::Config;
-use varDB::OrthologSet;
+use SeqMiner::Config;
+use SeqMiner::OrthologSet;
 
 my @DIRS = ('search', 'analysis', 'sequences', 'pfam', 'fasta', 'domains');
 
@@ -38,7 +38,7 @@ sub create_dir_structure {
 	system "ln -s $self->{outdir} $VARDB_HOME/families/last";
 	
 	# reads a file containing that info.
-	my $og = new varDB::OrthologSet;
+	my $og = new SeqMiner::OrthologSet;
 	foreach my $dir (@DIRS) {
 		chdir "$self->{outdir}/$dir";
 		foreach my $o ($og->og_list) {
@@ -51,7 +51,7 @@ sub create_dir_structure {
 sub create_local_dir_structure {
 	my $self = shift;
 	
-	my $og = new varDB::Config::Orthologues;
+	my $og = new SeqMiner::Config::Orthologues;
 	foreach my $dir (@DIRS) {
 		foreach my $o ($og->og_list) {
 			mkdir $o->name;

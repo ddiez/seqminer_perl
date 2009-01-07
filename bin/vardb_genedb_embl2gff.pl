@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-use varDB::Genome;
+use SeqMiner::Genome;
 use Bio::SeqIO;
 use strict;
 use warnings;
@@ -17,7 +17,7 @@ while (my $seq = $in->next_seq) {
 	print STDERR "* seq $n\n";
 	
 	# in bacterial genomes that would be just one sequence.
-	my $genome = new varDB::Genome;
+	my $genome = new SeqMiner::Genome;
 	my $chr = "-";
 	
 	my @feat = $seq->get_SeqFeatures; # just top level
@@ -43,7 +43,7 @@ while (my $seq = $in->next_seq) {
 		}
 		
 		if ($feat->primary_tag eq "CDS") {
-			my $gene = new varDB::Genome::Gene;
+			my $gene = new SeqMiner::Genome::Gene;
 			if ($feat->has_tag('systematic_id')) {
 				$gene->id($feat->get_tag_values('systematic_id'));
 			} else {
@@ -61,7 +61,7 @@ while (my $seq = $in->next_seq) {
 			my @loc = $feat->location->each_Location;
 			foreach my $loc (@loc) {
 				my $gene_ = $genome->get_gene_by_id($gene->id);
-				my $exon = new varDB::Genome::Exon;
+				my $exon = new SeqMiner::Genome::Exon;
 				$exon->id($gene_->nexons + 1);
 				$exon->parent($gene_->id);
 				$exon->strand($gene_->strand);

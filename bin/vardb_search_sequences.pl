@@ -15,12 +15,12 @@
 use strict;
 use warnings;
 
-use varDB::Config;
-use varDB::Config::Param;
-use varDB::ResultSet;
+use SeqMiner::Config;
+use SeqMiner::Config::Param;
+use SeqMiner::ResultSet;
 use Getopt::Long;
 
-my $param = new varDB::Config::Param;
+my $param = new SeqMiner::Config::Param;
 $param->debug;
 
 my %O = ();
@@ -143,7 +143,7 @@ while (my $info = $param->next_param) {
 	my @search_type = ("protein\_ls", "protein\_fs", "gene\_ls", "gene\_fs");
 	my $bh = undef;
 	foreach my $search_type (@search_type) {
-		my $rs = new varDB::ResultSet({file => "$base-$search_type.log"});
+		my $rs = new SeqMiner::ResultSet({file => "$base-$search_type.log"});
 		$bh = $rs->get_result_by_pos(0)->best_hit;
 		last if defined $bh
 	}

@@ -1,4 +1,4 @@
-package varDB::SeqSet::Seq;
+package SeqMiner::SeqSet::Seq;
 
 use strict;
 use warnings;
@@ -96,7 +96,7 @@ sub subseq {
 		$length = abs $length;
 	}
 	
-	my $subseq = new varDB::SeqSet::Seq;
+	my $subseq = new SeqMiner::SeqSet::Seq;
 	$subseq->id($self->id);
 	$subseq->description($strand);
 	$subseq->seq(substr $self->{seq}, $start, $length);

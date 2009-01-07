@@ -1,4 +1,4 @@
-package varDB;
+package SeqMiner;
 
 use vars qw($VERSION);
 use strict;

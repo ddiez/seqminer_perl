@@ -1,13 +1,13 @@
-package varDB::Config::SearchSet;
-@ISA = ("varDB::ItemSet");
+package SeqMiner::Config::SearchSet;
+@ISA = ("SeqMiner::ItemSet");
 
 use strict;
 use warnings;
 
-use varDB::ItemSet;
-use varDB::Config;
-use varDB::TaxonSet;
-use varDB::Config::Search;
+use SeqMiner::ItemSet;
+use SeqMiner::Config;
+use SeqMiner::TaxonSet;
+use SeqMiner::Config::Search;
 
 sub new {
 	my $class = shift;
@@ -20,7 +20,7 @@ sub _initialize {
 	my $self = shift;
 	my $param = shift;
 	
-	my $ts = new varDB::TaxonSet;
+	my $ts = new SeqMiner::TaxonSet;
 	
 	my $file = $VARDB_SEARCH_FILE;
 	$file = $param->{file} if defined $param->{file};
@@ -28,7 +28,7 @@ sub _initialize {
 	while (<IN>) {
 		next if /^[#|\n]/;
 		chomp;
-		my $search = new varDB::Config::Search($_);
+		my $search = new SeqMiner::Config::Search($_);
 		my $taxon = $ts->get_taxon_by_id($search->taxonid);
 		$search->id($self->length);
 		$search->organism($taxon->organism);

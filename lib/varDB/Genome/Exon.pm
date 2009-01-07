@@ -1,4 +1,4 @@
-package varDB::Genome::Exon;
+package SeqMiner::Genome::Exon;
 
 use strict;
 use warnings;
@@ -25,7 +25,7 @@ sub _initialize {
 
 sub copy {
 	my $self = shift;
-	my $exon = new varDB::Genome::Exon;
+	my $exon = new SeqMiner::Genome::Exon;
 	$exon->{id} = $self->{id};
 	$exon->{parent} = $self->{parent};
 	$exon->{start} = $self->{start};

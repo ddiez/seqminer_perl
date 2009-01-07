@@ -1,11 +1,11 @@
-package varDB::ResultSet;
+package SeqMiner::ResultSet;
 ##### SUMMARY
 # this class stores several results from different hmmer/genewise searches.
 # the results may come from different programs or runs.
 use strict;
 use warnings;
 
-use varDB::ResultSet::Result;
+use SeqMiner::ResultSet::Result;
 use Bio::SearchIO;
 
 sub new {
@@ -109,7 +109,7 @@ sub _parse_psitblastn_file {
 	
 	my $in = new Bio::SearchIO(-format => "blast", -file => $param->{file});
 	while (my $res = $in->next_result) {
-		my $res_ = new varDB::ResultSet::Result;
+		my $res_ = new SeqMiner::ResultSet::Result;
 		$self->add_result($res_);
 		
 		$res_->id($param->{id});
@@ -119,7 +119,7 @@ sub _parse_psitblastn_file {
 		
 		while (my $hit = $res->next_hit) {
 			if ($hit->significance <= $res_->cutoff) {
-				my $hit_ = new varDB::ResultSet::Hit;
+				my $hit_ = new SeqMiner::ResultSet::Hit;
 				$res_->add_hit($hit_);
 				$hit_->id($hit->name);
 				$hit_->score($hit->score);
@@ -129,7 +129,7 @@ sub _parse_psitblastn_file {
 				$hit_->method($res_->method);
 				$hit_->cutoff($res_->cutoff);
 				while (my $hsp = $hit->next_hsp) {
-					my $hsp_ = new varDB::ResultSet::Hsp;
+					my $hsp_ = new SeqMiner::ResultSet::Hsp;
 					$hit_->add_hsp($hsp_);
 					#my $what = 'query';
 					#$what = 'hit' if $param->{method} eq "hmmsearch";
@@ -185,7 +185,7 @@ sub _parse_hmmer_file {
 	
 	my $in = new Bio::SearchIO(-file => $param->{file}, -format => 'hmmer');
 	while (my $res = $in->next_result) {
-		my $res_ = new varDB::ResultSet::Result;
+		my $res_ = new SeqMiner::ResultSet::Result;
 		$res_->model_type($param->{model_type});
 		$self->add_result($res_);
 		
@@ -201,7 +201,7 @@ sub _parse_hmmer_file {
 		$res_->cutoff($param->{cutoff}) if defined $param->{cutoff};
 		while (my $hit = $res->next_hit) {
 			if ($hit->significance <= $res_->cutoff) {
-				my $hit_ = new varDB::ResultSet::Hit;
+				my $hit_ = new SeqMiner::ResultSet::Hit;
 				$res_->add_hit($hit_);
 				my $id = $hit->name;
 				if ($param->{condense}) {
@@ -215,7 +215,7 @@ sub _parse_hmmer_file {
 				$hit_->method($res_->method);
 				$hit_->cutoff($res_->cutoff);
 				while (my $hsp = $hit->next_hsp) {
-					my $hsp_ = new varDB::ResultSet::Hsp;
+					my $hsp_ = new SeqMiner::ResultSet::Hsp;
 					$hit_->add_hsp($hsp_);
 					my $what = 'query';
 					$what = 'hit' if $param->{method} eq "hmmsearch";
@@ -235,7 +235,7 @@ sub _parse_genewise_file {
 	my $param = shift;
 	
 	# there is only one result in genewise searches.
-	my $res_ = new varDB::ResultSet::Result;
+	my $res_ = new SeqMiner::ResultSet::Result;
 	$res_->id($param->{id});
 	$res_->method("genewise");
 	$res_->cutoff($param->{cutoff}) if defined $param->{cutoff};	
@@ -252,7 +252,7 @@ sub _parse_genewise_file {
 			my ($search1, $hmm, $search2, $strand, $id, $score, $evalue) = split /\s+/, $_;
 			#print STDERR "* reading hit $id\n";
 			if ($evalue <= $res_->cutoff) {
-				my $hit_ = new varDB::ResultSet::Hit;
+				my $hit_ = new SeqMiner::ResultSet::Hit;
 				$res_->add_hit($hit_);
 				$hit_->id($id);
 				$hit_->score($score);
@@ -305,7 +305,7 @@ sub _parse_genewise_file {
 				#print STDERR "* prot_0: ", ($pos_0-1)/3, "\n";
 				#print STDERR "* prot_1: ", ($pos_1-1)/3, "\n";
 				#print STDERR "--\n";
-				my $hsp_ = new varDB::ResultSet::Hsp;
+				my $hsp_ = new SeqMiner::ResultSet::Hsp;
 				my $hit_ = $res_->get_hit_by_id($id);
 				if (defined $hit_) {
 					$hit_->add_hsp($hsp_);

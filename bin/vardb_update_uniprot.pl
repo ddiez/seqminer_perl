@@ -2,15 +2,15 @@
 
 use strict;
 use warnings;
-use varDB::Config;
-use varDB::Downloader::Uniprot;
+use SeqMiner::Config;
+use SeqMiner::Downloader::Uniprot;
 
-my $uniprot = new varDB::Downloader::Uniprot();
+my $uniprot = new SeqMiner::Downloader::Uniprot();
 $uniprot->debug; # show config information.
 #$uniprot->download;
 
 # retrieve release info.
-# my $rel = new varDB::Downloader({
+# my $rel = new SeqMiner::Downloader({
 		# mirror  => $MIRROR,
 		# file    => $release,
 		# outdir  => '.',
@@ -37,7 +37,7 @@ $uniprot->debug; # show config information.
 # @filetypes = sort @filetypes;
 # foreach my $filetype (@filetypes) {
 	# # download files.
-	# my $updater = new varDB::Downloader({
+	# my $updater = new SeqMiner::Downloader({
 		# mirror  => $MIRROR,
 		# file    => $FILE{$filetype},
 		# outdir  => ".",

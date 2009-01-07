@@ -1,4 +1,4 @@
-package varDB::GFF;
+package SeqMiner::GFF;
 
 sub new {
 	my $class = shift;

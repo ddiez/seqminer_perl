@@ -1,10 +1,10 @@
-package varDB::Family;
+package SeqMiner::Family;
 
 use strict;
 use warnings;
-use varDB::ItemSet::Item;
+use SeqMiner::ItemSet::Item;
 use vars qw( @ISA );
-@ISA = ("varDB::ItemSet::Item");
+@ISA = ("SeqMiner::ItemSet::Item");
 
 sub new {
 	my $class = shift;

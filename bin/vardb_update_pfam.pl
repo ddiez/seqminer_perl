@@ -2,10 +2,10 @@
 
 use strict;
 use warnings;
-use varDB::Downloader::Pfam;
+use SeqMiner::Downloader::Pfam;
 
 # retrieve release info.
-my $rel = new varDB::Downloader({
+my $rel = new SeqMiner::Downloader({
 		mirror  => $MIRROR,
 		file    => $release,
 		outdir  => '.',
@@ -32,7 +32,7 @@ my @filetypes = keys %FILE;
 @filetypes = sort @filetypes;
 foreach my $filetype (@filetypes) {
 	# download files.
-	my $updater = new varDB::Downloader({
+	my $updater = new SeqMiner::Downloader({
 		mirror  => $MIRROR,
 		file    => $FILE{$filetype},
 		outdir  => ".",

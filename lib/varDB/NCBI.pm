@@ -1,14 +1,14 @@
-package varDB::NCBI;
+package SeqMiner::NCBI;
 
 use strict;
 use warnings;
 
 use Bio::DB::EUtilities;
-use varDB::Config;
-use varDB::NCBI::Filter;
-use varDB::NCBI::Paper;
-use varDB::NCBI::Author;
-use varDB::NCBI::Keyword;
+use SeqMiner::Config;
+use SeqMiner::NCBI::Filter;
+use SeqMiner::NCBI::Paper;
+use SeqMiner::NCBI::Author;
+use SeqMiner::NCBI::Keyword;
 
 sub new {
 	my $class = shift;
@@ -34,10 +34,10 @@ sub _initialize {
 	}
 	close IN;
 	
-	$self->{filter} = new varDB::NCBI::Filter;
-	$self->{paper} = new varDB::NCBI::Paper;
-	$self->{author} = new varDB::NCBI::Author;
-	$self->{keyword} = new varDB::NCBI::Keyword;
+	$self->{filter} = new SeqMiner::NCBI::Filter;
+	$self->{paper} = new SeqMiner::NCBI::Paper;
+	$self->{author} = new SeqMiner::NCBI::Author;
+	$self->{keyword} = new SeqMiner::NCBI::Keyword;
 }
 
 sub length {
@@ -352,8 +352,8 @@ sub _paper_dist {
 	}
 	close OUT;
 	
-	use varDB::R;
-	my $r = new varDB::R;
+	use SeqMiner::R;
+	my $r = new SeqMiner::R;
 	my $title = "$org - $family";
 	$r->barplot($dir, "$base.sel.papers.txt", $title);
 }

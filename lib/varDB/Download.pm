@@ -1,4 +1,4 @@
-package varDB::Download;
+package SeqMiner::Download;
 
 
 sub new {

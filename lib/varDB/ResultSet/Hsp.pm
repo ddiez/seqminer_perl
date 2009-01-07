@@ -1,4 +1,4 @@
-package varDB::ResultSet::Hsp;
+package SeqMiner::ResultSet::Hsp;
 
 use strict;
 use warnings;

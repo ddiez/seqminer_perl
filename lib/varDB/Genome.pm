@@ -1,7 +1,7 @@
-package varDB::Genome;
+package SeqMiner::Genome;
 
-use varDB::Genome::Chromosome;
-use varDB::Genome::Gene;
+use SeqMiner::Genome::Chromosome;
+use SeqMiner::Genome::Gene;
 use strict;
 use warnings;
 
@@ -131,7 +131,7 @@ sub read_gff {
 		chomp;
 		my ($id, $source, $type, $chromosome, $strand, $start, $end, $foo, $description) = split '\t', $_;
 		if ($type eq "gene") {
-			my $gene = new varDB::Genome::Gene;
+			my $gene = new SeqMiner::Genome::Gene;
 			$gene->id($id);
 			$gene->source($source);
 			$gene->chromosome($chromosome);
@@ -144,7 +144,7 @@ sub read_gff {
 			$self->add_gene($gene);
 		} elsif ($type eq "exon") {
 			my $gene = $self->get_gene_by_id($id);
-			my $exon = new varDB::Genome::Exon;
+			my $exon = new SeqMiner::Genome::Exon;
 			$exon->id($gene->nexons() + 1);
 			$exon->parent($id);
 			$exon->strand($strand);

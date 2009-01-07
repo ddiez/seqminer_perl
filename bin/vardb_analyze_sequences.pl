@@ -3,14 +3,14 @@
 use strict;
 use warnings;
 
-use varDB::Config;
-use varDB::Config::Param;
-use varDB::SeqSet;
-use varDB::Genome;
-use varDB::ResultSet;
+use SeqMiner::Config;
+use SeqMiner::Config::Param;
+use SeqMiner::SeqSet;
+use SeqMiner::Genome;
+use SeqMiner::ResultSet;
 use Sets;
 
-my $param = new varDB::Config::Param;
+my $param = new SeqMiner::Config::Param;
 $param->debug;
 
 while (my $info = $param->next_param) {
@@ -21,11 +21,11 @@ while (my $info = $param->next_param) {
 	my $base = "$family-$organism_dir";
 	
 	# get genome info.
-	my $genome = new varDB::Genome({file => "$GENOMEDB/$organism_dir/genome.gff"});
+	my $genome = new SeqMiner::Genome({file => "$GENOMEDB/$organism_dir/genome.gff"});
 
 	# read result files.
 	$param->chdir($info, 'search');
-	my $rs = new varDB::ResultSet({file => "$base-protein_ls.log", id => 'protein_ls'});
+	my $rs = new SeqMiner::ResultSet({file => "$base-protein_ls.log", id => 'protein_ls'});
 	$rs->add({file => "$base-protein_fs.log", id => 'protein_fs'});
 	$rs->add({file => "$base-gene_ls.log", id => 'gene_ls'});
 	$rs->add({file => "$base-gene_fs.log", id => 'gene_fs'});
@@ -74,8 +74,8 @@ while (my $info = $param->next_param) {
 	$p_ls->merge($g_ls);
 	
 	# read sequence files.
-	my $pro = new varDB::SeqSet({file => "$GENOMEDB/$organism_dir/protein.fa"});
-	my $nuc = new varDB::SeqSet({file => "$GENOMEDB/$organism_dir/gene.fa"});
+	my $pro = new SeqMiner::SeqSet({file => "$GENOMEDB/$organism_dir/protein.fa"});
+	my $nuc = new SeqMiner::SeqSet({file => "$GENOMEDB/$organism_dir/gene.fa"});
 	
 	# export in nelson's format.
 	$param->chdir($info, 'sequences');

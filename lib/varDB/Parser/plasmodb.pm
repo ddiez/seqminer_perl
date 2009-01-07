@@ -1,7 +1,7 @@
-package varDB::Parser::plasmodb;
+package SeqMiner::Parser::plasmodb;
 
-use varDB::Parser;
-@ISA = qw(varDB::Parser);
+use SeqMiner::Parser;
+@ISA = qw(SeqMiner::Parser);
 
 use strict;
 use warnings;

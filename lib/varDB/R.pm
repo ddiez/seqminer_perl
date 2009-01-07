@@ -1,8 +1,8 @@
-package varDB::R;
+package SeqMiner::R;
 
 use strict;
 use warnings;
-use varDB::Config;
+use SeqMiner::Config;
 
 sub new {
 	my $class = shift;

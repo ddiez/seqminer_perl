@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-use varDB::TaxonSet;
+use SeqMiner::TaxonSet;
 use Getopt::Long;
 
 my %O = ();
@@ -9,7 +9,7 @@ GetOptions(\%O, 'g', 'i', 'db=s');
 my $all = 1;
 $all = 0 if scalar keys %O > 0;
 
-my $ts = new varDB::TaxonSet;
+my $ts = new SeqMiner::TaxonSet;
 foreach my $taxon ($ts->item_list) {
 	($taxon->type eq "isolate" & ($all == 1 | $O{i})) && do
 	{

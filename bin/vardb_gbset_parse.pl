@@ -12,7 +12,7 @@ use strict;
 use warnings;
 use Bio::SeqIO;
 use Getopt::Long;
-use varDB::Config::Param;
+use SeqMiner::Config::Param;
 
 my %O;
 GetOptions(\%O, 'i:s', 'd:s');
@@ -39,7 +39,7 @@ my $setname = $O{i};
 $setname =~ s/\.gb$//;
 
 my $date = localtime;
-open SKIP, ">>skip".&varDB::Config::Param::_get_random_dir()."log";
+open SKIP, ">>skip".&SeqMiner::Config::Param::_get_random_dir()."log";
 print SKIP "## Running time: $date ##\n";
 print SKIP "* set name: $setname\n";
 

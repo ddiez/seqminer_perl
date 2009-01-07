@@ -1,8 +1,8 @@
-package varDB::Parser::kegg;
+package SeqMiner::Parser::kegg;
 
-use varDB::Parser;
-use varDB::Location;
-@ISA = qw(varDB::Parser);
+use SeqMiner::Parser;
+use SeqMiner::Location;
+@ISA = qw(SeqMiner::Parser);
 
 use strict;
 use warnings;
@@ -27,7 +27,7 @@ sub process {
 		open OUT, ">>$dir/position.txt" or die "cannot create file $dir/position.txt for writting: $!\n";
 		my $id = $seq->accession_number;
 		my @pos = $seq->annotation()->get_Annotations('position');
-		my $loc = new varDB::Location;
+		my $loc = new SeqMiner::Location;
 		my $nexons = @pos;
 		foreach my $pos (@pos) {;
 			my $loc_ = Bio::Factory::FTLocationFactory->from_string($pos->text);

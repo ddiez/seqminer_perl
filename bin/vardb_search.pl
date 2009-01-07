@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
-use varDB::SearchSet;
-#use varDB::ScanSet;
+use SeqMiner::SearchSet;
+#use SeqMiner::ScanSet;
 use Getopt::Long;
 
 my %O = ();
@@ -12,13 +12,13 @@ my $all = 1;
 $all = 0 if scalar keys %O > 0;
 
 # search sequences by taxon.
-my $ss = new varDB::SearchSet;
+my $ss = new SeqMiner::SearchSet;
 
 $ss->search({ type => $O{'t'} }) if $all or $O{s};
 $ss->analyze if $all or $O{a};
 
 # scan sequences linked to papers.
-#my $ss2 = new varDB::ScanSet;
+#my $ss2 = new SeqMiner::ScanSet;
 #$ss2->scan;
 
 # do something...

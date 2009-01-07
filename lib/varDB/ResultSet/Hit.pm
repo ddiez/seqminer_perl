@@ -1,9 +1,9 @@
-package varDB::ResultSet::Hit;
+package SeqMiner::ResultSet::Hit;
 
 use strict;
 use warnings;
 
-use varDB::ResultSet::Hsp;
+use SeqMiner::ResultSet::Hsp;
 
 sub new {
 	my $class = shift;

@@ -2,7 +2,7 @@
 
 use stricts;
 use warnings;
-use varDB::Download;
+use SeqMiner::Download;
 
 # download files.
 

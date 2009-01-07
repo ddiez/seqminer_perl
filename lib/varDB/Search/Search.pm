@@ -1,12 +1,12 @@
-package varDB::SearchSet::Search;
+package SeqMiner::SearchSet::Search;
 
 use strict;
 use warnings;
 
-use varDB::Config;
-use varDB::ItemSet::Item;
+use SeqMiner::Config;
+use SeqMiner::ItemSet::Item;
 use vars qw( @ISA );
-@ISA = ("varDB::ItemSet::Item");
+@ISA = ("SeqMiner::ItemSet::Item");
 
 
 sub new {
@@ -212,11 +212,11 @@ sub _search_genome {
 	# TODO: check that it is indeed a suitable seed (e-value/score).
 	# if no suitable seed found, use the one provided in the config file.
 	#my @search_type = ("protein\_ls", "protein\_fs", "gene\_ls", "gene\_fs");
-	#use varDB::ResultSet;
+	#use SeqMiner::ResultSet;
 	#
 	#my $bh = undef;
 	#foreach my $search_type (@search_type) {
-	#	my $rs = new varDB::ResultSet({file => "$base-$search_type.log"});
+	#	my $rs = new SeqMiner::ResultSet({file => "$base-$search_type.log"});
 	#	$bh = $rs->get_result_by_pos(0)->best_hit;
 	#	last if defined $bh
 	#}
@@ -273,13 +273,13 @@ sub _analyze_genome {
 	my $base = $self->family->name."-".$self->taxon->dir;
 	
 	# get genome info.
-	use varDB::Genome;
-	my $genome = new varDB::Genome({file => "$GENOMEDB/$dir/genome.gff"});
+	use SeqMiner::Genome;
+	my $genome = new SeqMiner::Genome({file => "$GENOMEDB/$dir/genome.gff"});
 
 	# read result files.
 	$self->chdir('search');
-	use varDB::ResultSet;
-	my $rs = new varDB::ResultSet({file => "$base-protein_ls.log", id => 'protein_ls'});
+	use SeqMiner::ResultSet;
+	my $rs = new SeqMiner::ResultSet({file => "$base-protein_ls.log", id => 'protein_ls'});
 	$rs->add({file => "$base-protein_fs.log", id => 'protein_fs'});
 	$rs->add({file => "$base-gene_ls.log", id => 'gene_ls'});
 	$rs->add({file => "$base-gene_fs.log", id => 'gene_fs'});
@@ -329,9 +329,9 @@ sub _analyze_genome {
 	$p_ls->merge($g_ls);
 	
 	# read sequence files.
-	use varDB::SeqSet;
-	my $pro = new varDB::SeqSet({file => "$GENOMEDB/$dir/protein.fa"});
-	my $nuc = new varDB::SeqSet({file => "$GENOMEDB/$dir/gene.fa"});
+	use SeqMiner::SeqSet;
+	my $pro = new SeqMiner::SeqSet({file => "$GENOMEDB/$dir/protein.fa"});
+	my $nuc = new SeqMiner::SeqSet({file => "$GENOMEDB/$dir/gene.fa"});
 	
 	# export in nelson's format.
 	$self->chdir('sequences') or die "cannot change to directory 'sequences'";

@@ -1,15 +1,15 @@
 #!/usr/bin/env perl
 #
 use Bio::SeqIO;
-use varDB::Genome;
+use SeqMiner::Genome;
 
 use strict;
 use warnings;
 
-my $genome = new varDB::Genome;
+my $genome = new SeqMiner::Genome;
 my $in = new Bio::SeqIO(-file => shift, -format => 'kegg');
 while (my $seq = $in->next_seq) {
-	my $gene = new varDB::Gene;
+	my $gene = new SeqMiner::Gene;
 	$gene->set_id($seq->accession_number);
 	$gene->set_source("kegg");
 	$gene->set_chromosome("1");
@@ -29,7 +29,7 @@ while (my $seq = $in->next_seq) {
 
 	$genome->add_gene($gene);
 
-	my $exon = new varDB::Exon;
+	my $exon = new SeqMiner::Exon;
 	$exon->set_id(1);
 	$exon->set_parent($gene->get_id);
 	$exon->set_start($gene->get_start);

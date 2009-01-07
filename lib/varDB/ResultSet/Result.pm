@@ -1,4 +1,4 @@
-package varDB::ResultSet::Result;
+package SeqMiner::ResultSet::Result;
 ###### SUMMARY:
 # this class store a single search report from a hmmer/genewise search.
 # a search report is the output of:
@@ -11,8 +11,8 @@ package varDB::ResultSet::Result;
 use strict;
 use warnings;
 
-use varDB::ResultSet::Hit;
-use varDB::TaxonSet;
+use SeqMiner::ResultSet::Hit;
+use SeqMiner::TaxonSet;
 
 sub new {
 	my $class = shift;
@@ -262,7 +262,7 @@ sub export_nelson {
 		$fh = *OUT;
 	}
 	
-	#my $ts = new varDB::TaxonSet;
+	#my $ts = new SeqMiner::TaxonSet;
 	
 	my $pro = $param->{protein};
 	my $nuc = $param->{nucleotide};

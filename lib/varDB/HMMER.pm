@@ -1,9 +1,9 @@
-package varDB::HMMER;
+package SeqMiner::HMMER;
 
 use strict;
 use warnings;
 
-use varDB::Config;
+use SeqMiner::Config;
 
 sub new {
 	my $class = shift;

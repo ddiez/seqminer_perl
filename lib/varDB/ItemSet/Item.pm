@@ -1,4 +1,4 @@
-package varDB::ItemSet::Item;
+package SeqMiner::ItemSet::Item;
 
 use strict;
 use warnings;

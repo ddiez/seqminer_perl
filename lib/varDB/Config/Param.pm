@@ -1,11 +1,11 @@
-package varDB::Config::Param;
+package SeqMiner::Config::Param;
 
 use strict;
 use warnings;
 
-use varDB::Config;
-use varDB::TaxonSet;
-use varDB::Config::Search;
+use SeqMiner::Config;
+use SeqMiner::TaxonSet;
+use SeqMiner::Config::Search;
 
 sub new {
 	my $class = shift;
@@ -20,7 +20,7 @@ sub _initialize {
 	my $self = shift;
 	my $param = shift;
 	
-	my $ts = new varDB::TaxonSet;
+	my $ts = new SeqMiner::TaxonSet;
 	
 	my $file = $VARDB_SEARCH_FILE;
 	$file = $param->{file} if defined $param->{file};
@@ -30,7 +30,7 @@ sub _initialize {
 		next if /^[#|\n]/;
 		chomp;
 	
-		my $info = new varDB::Config::Search($_);
+		my $info = new SeqMiner::Config::Search($_);
 		#print STDERR "* taxonid: ", $info->taxonid, "\n";
 		my $taxon = $ts->get_taxon_by_id($info->taxonid);
 		$info->organism($taxon->organism);

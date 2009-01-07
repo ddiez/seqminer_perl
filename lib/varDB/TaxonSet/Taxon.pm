@@ -1,4 +1,4 @@
-package varDB::TaxonSet::Taxon;
+package SeqMiner::TaxonSet::Taxon;
 
 =head1 MAIN
 
@@ -12,11 +12,11 @@ and formating is also performed in this module.
 
 use strict;
 use warnings;
-use varDB::FamilySet;
-use varDB::Config;
-use varDB::ItemSet::Item;
+use SeqMiner::FamilySet;
+use SeqMiner::Config;
+use SeqMiner::ItemSet::Item;
 use vars qw( @ISA );
-@ISA = ("varDB::ItemSet::Item");
+@ISA = ("SeqMiner::ItemSet::Item");
 
 sub new {
 	my $class = shift;
@@ -33,7 +33,7 @@ sub _initialize {
 	$self->{genus} = undef;
 	$self->{species} = undef
 	$self->{strain} = undef;
-	$self->{family} = new varDB::FamilySet;
+	$self->{family} = new SeqMiner::FamilySet;
 	$self->{type} = undef;
 	$self->{source} = undef;
 }
@@ -460,7 +460,7 @@ sub _download_eupathdb {
 	
 	use LWP::UserAgent;
 	my $ua = new LWP::UserAgent;
-	$ua->agent("varDB");
+	$ua->agent("SeqMiner");
 	
 	print STDERR "* downloading $file ... ";
     my $req = new HTTP::Request(GET => $url);

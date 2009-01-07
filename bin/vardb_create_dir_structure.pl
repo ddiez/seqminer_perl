@@ -2,10 +2,10 @@
 
 use strict;
 use warnings;
-use varDB::Config;
-use varDB::OrthologSet;
+use SeqMiner::Config;
+use SeqMiner::OrthologSet;
 
-my $os = new varDB::OrthologSet;
+my $os = new SeqMiner::OrthologSet;
 
 my $force_new = 1; # forces new dir structure.
 

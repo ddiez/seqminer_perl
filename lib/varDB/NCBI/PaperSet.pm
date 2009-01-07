@@ -1,14 +1,14 @@
-package varDB::NCBI::PaperSet;
+package SeqMiner::NCBI::PaperSet;
 
 use strict;
 use warnings;
-use varDB::Config;
-use varDB::NCBI::Paper;
-use varDB::Ortholog;
-use varDB::OrthologSet;
-use varDB::ItemSet;
+use SeqMiner::Config;
+use SeqMiner::NCBI::Paper;
+use SeqMiner::Ortholog;
+use SeqMiner::OrthologSet;
+use SeqMiner::ItemSet;
 use vars qw( @ISA );
-@ISA = ("varDB::ItemSet");
+@ISA = ("SeqMiner::ItemSet");
 
 sub new {
 	my $class = shift;
@@ -23,7 +23,7 @@ sub new {
 sub _initialize {
 	my $self = shift;
 	
-	my $os = new varDB::OrthologSet;
+	my $os = new SeqMiner::OrthologSet;
 	
 	open IN, "$VARDB_PAPER_FILE" or die "$!";
 	while (<IN>) {
@@ -32,9 +32,9 @@ sub _initialize {
 		my ($id, $ortholog_id, $database_id) = split '\t', $_;
 		my $paper = $self->get_item_by_id($id);
 		if (! defined $paper) {
-			$paper = new varDB::NCBI::Paper($_);
+			$paper = new SeqMiner::NCBI::Paper($_);
 			$paper->id($id);
-			$paper->ortholog(new varDB::ItemSet);
+			$paper->ortholog(new SeqMiner::ItemSet);
 			$self->add($paper);
 		}
 		$paper->database($database_id);

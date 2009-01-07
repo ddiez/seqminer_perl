@@ -1,9 +1,9 @@
-package varDB::SeqSet;
+package SeqMiner::SeqSet;
 
 use strict;
 use warnings;
 
-use varDB::SeqSet::Seq;
+use SeqMiner::SeqSet::Seq;
 
 sub new {
 	my $class = shift;
@@ -97,7 +97,7 @@ sub _read_seq {
 		if (/>/) {
 			if ($n != 0) {
 				my $header = _parse_fasta_header($header_line);
-				my $seq = new varDB::SeqSet::Seq($header);
+				my $seq = new SeqMiner::SeqSet::Seq($header);
 				$seq->seq($str);
 				$self->add_seq($seq);
 			}
@@ -111,7 +111,7 @@ sub _read_seq {
 	}
 	if (defined $str) {
 		my $header = _parse_fasta_header($header_line);
-		my $seq = new varDB::SeqSet::Seq($header);
+		my $seq = new SeqMiner::SeqSet::Seq($header);
 		$seq->seq($str);
 		$self->add_seq($seq);
 	} else {

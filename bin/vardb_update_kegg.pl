@@ -6,14 +6,14 @@ use warnings;
 use LWP::UserAgent;
 use Getopt::Long;
 
-use varDB::Config;
-use varDB::KEGG;
+use SeqMiner::Config;
+use SeqMiner::KEGG;
 
-#my $GENOMEDB = $varDB::Config::GENOMEDB;
+#my $GENOMEDB = $SeqMiner::Config::GENOMEDB;
 
 my $help = <<HELP;
 
-  This script install the KEGG genomes supported in varDB in the current direc-
+  This script install the KEGG genomes supported in SeqMiner in the current direc-
 tory. If the directory exists, skyp the step, unless the -f option is passed.
 In that case, the old directory is renamed and a new one is created.
 
@@ -25,7 +25,7 @@ my $force = 0;
 $force = 1 if defined $O{f};
 
 my $ua=LWP::UserAgent->new;
-$ua->agent("varDB/0.1");
+$ua->agent("SeqMiner/0.1");
 
 # file extensions.
 my %IN_EXT = (

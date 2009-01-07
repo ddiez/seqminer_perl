@@ -6,7 +6,7 @@
 #  with the EupathDB GFF file formats. These are GFF3 compliant files and
 #  therefore, contain sequence features and sequence data. This script
 #  generates 4 files, genome.gff, genome.fa, gene.fa and protein.fa formated
-#  for use in the varDB project.
+#  for use in the SeqMiner project.
 #
 #
 use strict;
@@ -14,8 +14,8 @@ use warnings;
 use Bio::Tools::GFF;
 use Bio::SeqIO;
 use Getopt::Long;
-use varDB::Genome;
-use varDB::SeqSet;
+use SeqMiner::Genome;
+use SeqMiner::SeqSet;
 
 my %O = ();
 GetOptions(\%O, 'i:s', 'o:s');
@@ -29,7 +29,7 @@ my $help = <<"HELP";
 #  with the EupathDB GFF file formats. These are GFF3 compliant files and
 #  therefore, contain sequence features and sequence data. This script
 #  generates 4 files, genome.gff, genome.fa, gene.fa and protein.fa formated
-#  for use in the varDB project.
+#  for use in the SeqMiner project.
 #!! WARNING !!
 
     vardb_eupathdb_parse.pl -i <file>
@@ -41,7 +41,7 @@ my $outdir = ".";
 $outdir = $O{o} if exists $O{o};
 print STDERR "* outdir: $outdir\n";
 
-my $genome = new varDB::Genome;
+my $genome = new SeqMiner::Genome;
 
 my $in = new Bio::Tools::GFF(-file => $O{i}, -gff_version => 3);
 my $prot_out = new Bio::SeqIO(-file => ">$outdir/protein.fa", -format => 'fasta');
@@ -50,7 +50,7 @@ my $gen_out = new Bio::SeqIO(-file => ">$outdir/genome.fa", -format => 'fasta');
 
 while (my $feat = $in->next_feature) {
 	if ($feat->primary_tag eq "gene") {
-		my $gene = new varDB::Genome::Gene;
+		my $gene = new SeqMiner::Genome::Gene;
 		my $chr = $feat->seq_id;
 		$chr =~ s/.+\|(.+)/$1/;
 		my $id = $feat->primary_id;
@@ -70,7 +70,7 @@ while (my $feat = $in->next_feature) {
 		my $exon_id = $2;
 		my $gene = $genome->get_gene_by_id($id);
 		if (defined $gene and $gene->pseudogene == 0) {
-			my $exon = new varDB::Genome::Exon;
+			my $exon = new SeqMiner::Genome::Exon;
 			$exon->id($exon_id);
 			$gene->add_exon($exon);
 			$exon->start($feat->start);
@@ -78,7 +78,7 @@ while (my $feat = $in->next_feature) {
 			$exon->strand($feat->strand == 1 ? "+" : "-");
 		}
 	} elsif ($feat->primary_tag eq "supercontig") {
-		my $chr = new varDB::Genome::Chromosome;
+		my $chr = new SeqMiner::Genome::Chromosome;
 		my $id = $feat->primary_id;
 		$id =~ s/.+\|(.+)/$1/;
 		print STDERR "* adding chromosome $id\n";

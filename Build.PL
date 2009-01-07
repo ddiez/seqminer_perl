@@ -1,8 +1,8 @@
 use Module::Build;
 my $build = new Module::Build(
-    module_name => 'varDB',
+    module_name => 'SeqMiner',
 	dist_author => 'Diego Diez <diez@kuicr.kyoto-u.ac.jp',
-    dist_version_from => 'lib/varDB.pm',
+    dist_version_from => 'lib/SeqMiner.pm',
 	install_base => $ENV{HOME},
 );
 

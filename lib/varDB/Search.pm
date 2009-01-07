@@ -1,9 +1,9 @@
-package varDB::Search;
+package SeqMiner::Search;
 
 use strict;
 use warnings;
 
-use varDB::Config;
+use SeqMiner::Config;
 
 sub new {
 	my $class = shift;
@@ -200,7 +200,7 @@ sub _search_genome {
 	my @search_type = ("protein\_ls", "protein\_fs", "gene\_ls", "gene\_fs");
 	my $bh = undef;
 	foreach my $search_type (@search_type) {
-		my $rs = new varDB::ResultSet({file => "$base-$search_type.log"});
+		my $rs = new SeqMiner::ResultSet({file => "$base-$search_type.log"});
 		$bh = $rs->get_result_by_pos(0)->best_hit;
 		last if defined $bh
 	}

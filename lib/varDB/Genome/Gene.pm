@@ -1,6 +1,6 @@
-package varDB::Genome::Gene;
+package SeqMiner::Genome::Gene;
 
-use varDB::Genome::Exon;
+use SeqMiner::Genome::Exon;
 use strict;
 use warnings;
 

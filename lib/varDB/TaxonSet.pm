@@ -1,16 +1,16 @@
-package varDB::TaxonSet;
+package SeqMiner::TaxonSet;
 
 use strict;
 use warnings;
 
-use varDB::Config;
-use varDB::TaxonSet::Taxon;
-#use varDB::FamilySet;
-use varDB::Family;
-use varDB::OrthologSet;
-use varDB::ItemSet;
+use SeqMiner::Config;
+use SeqMiner::TaxonSet::Taxon;
+#use SeqMiner::FamilySet;
+use SeqMiner::Family;
+use SeqMiner::OrthologSet;
+use SeqMiner::ItemSet;
 use vars qw( @ISA );
-@ISA = ("varDB::ItemSet");
+@ISA = ("SeqMiner::ItemSet");
 
 sub new {
 	my $class = shift;
@@ -26,7 +26,7 @@ sub _initialize {
 	my $self = shift;
 	my $param = shift;
 
-	my $os = new varDB::OrthologSet;
+	my $os = new SeqMiner::OrthologSet;
 
 	open IN, "$VARDB_TAXON_FILE" or die "$!";
 	while (<IN>) {
@@ -35,7 +35,7 @@ sub _initialize {
 		my ($id, $taxon_name, $strain, $ortholog, $family_id, $type, $source, $seed) = split '\t', $_;
 		my $taxon = $self->get_item_by_id($id);
 		if (! defined $taxon) {
-			$taxon = new varDB::TaxonSet::Taxon;
+			$taxon = new SeqMiner::TaxonSet::Taxon;
 			$taxon->id($id);
 			my ($genus, $spp) = ($1, $2) if $taxon_name =~ /(.+)\.(.+)/;
 			$taxon->genus($genus);
@@ -46,7 +46,7 @@ sub _initialize {
 			$taxon->seed($seed);
 			$self->add($taxon);
 		}
-		my $family = new varDB::Family;
+		my $family = new SeqMiner::Family;
 		$family->id($family_id);
 		$family->ortholog($os->get_item_by_id($ortholog));
 		$taxon->family->add($family);

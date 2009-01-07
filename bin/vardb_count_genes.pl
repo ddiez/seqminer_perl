@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use varDB::Config;
+use SeqMiner::Config;
 
 opendir DIR, $GENOMEDB or die "Cannot opendir $GENOMEDB: $!";
 

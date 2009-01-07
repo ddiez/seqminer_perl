@@ -1,12 +1,12 @@
-package varDB::OrthologSet;
+package SeqMiner::OrthologSet;
 
 use strict;
 use warnings;
-use varDB::Config;
-use varDB::Ortholog;
-use varDB::ItemSet;
+use SeqMiner::Config;
+use SeqMiner::Ortholog;
+use SeqMiner::ItemSet;
 use vars qw( @ISA );
-@ISA = ("varDB::ItemSet");
+@ISA = ("SeqMiner::ItemSet");
 
 sub new {
 	my $class = shift;
@@ -28,7 +28,7 @@ sub _initialize {
 		my ($id, $hmm) = split '\t', $_;
 		my $ortholog = $self->get_item_by_id($id);
 		if (! defined $ortholog) {
-			$ortholog = new varDB::Ortholog($_);
+			$ortholog = new SeqMiner::Ortholog($_);
 			$ortholog->id($id);
 			$self->add($ortholog);
 		}

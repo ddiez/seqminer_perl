@@ -1,14 +1,14 @@
-package varDB::SearchSet;
+package SeqMiner::SearchSet;
 
 use strict;
 use warnings;
 
-use varDB::Config;
-use varDB::TaxonSet;
-use varDB::SearchSet::Search;
-use varDB::ItemSet;
+use SeqMiner::Config;
+use SeqMiner::TaxonSet;
+use SeqMiner::SearchSet::Search;
+use SeqMiner::ItemSet;
 use vars qw( @ISA );
-@ISA = ("varDB::ItemSet");
+@ISA = ("SeqMiner::ItemSet");
 
 sub new {
 	my $class = shift;
@@ -22,13 +22,13 @@ sub new {
 sub _initialize {
 	my $self = shift;
 	
-	my $ts = new varDB::TaxonSet;
+	my $ts = new SeqMiner::TaxonSet;
 	
 	foreach my $taxon ($ts->item_list) {
 		#print STDERR "+ ", $taxon->id, "\n";
 		foreach my $family ($taxon->family->item_list) {
 			#print STDERR "  - ", $family->id, "\n";
-			my $search = new varDB::SearchSet::Search($taxon, $family);
+			my $search = new SeqMiner::SearchSet::Search($taxon, $family);
 			$search->id($search->taxon->id.".".$search->family->ortholog->id.".".$search->family->id);
 			$self->add($search);
 		}

@@ -1,4 +1,4 @@
-package varDB::Genome::Chromosome;
+package SeqMiner::Genome::Chromosome;
 
 use strict;
 use warnings;

@@ -19,7 +19,7 @@ use strict;
 use warnings;
 
 use Getopt::Long;
-use varDB::Genome;
+use SeqMiner::Genome;
 
 my %O = ();
 GetOptions(\%O, 'i:s', 't:s', 'o:s', 'd:s');
@@ -70,7 +70,7 @@ if ($type eq 'gff') {
 	use Bio::Tools::GFF;
 	
 	my $in = new Bio::Tools::GFF(-file => $O{i}, -gff_version => 2);
-	my $genome = new varDB::Genome;
+	my $genome = new SeqMiner::Genome;
 	while (my $feat = $in->next_feature) {
 		# !!! NOTE !!! #
 		# this implementation doesn't use the start/stop codons.
@@ -83,7 +83,7 @@ if ($type eq 'gff') {
 			
 			if (! defined $gene) {
 				# add the gene.
-				$gene = new varDB::Genome::Gene;
+				$gene = new SeqMiner::Genome::Gene;
 				$gene->id($id);
 				
 				my $chr = $feat->seq_id;
@@ -103,7 +103,7 @@ if ($type eq 'gff') {
 				$genome->add_gene($gene);
 			}
 			
-			my $exon = new varDB::Genome::Exon;
+			my $exon = new SeqMiner::Genome::Exon;
 			$exon->id($gene->nexons + 1);
 			$exon->parent($gene->id);
 			$exon->strand($feat->strand == 1 ? "+" : "-");
