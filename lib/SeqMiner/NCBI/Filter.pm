@@ -17,7 +17,7 @@ sub new {
 sub _initialize {
 	my $self = shift;
 	
-	open IN, "$VARDB_FILTER_FILE" or die "$!";
+	open IN, "$SM_FILTER_FILE" or die "$!";
 	while (<IN>) {
 		next if /^#/;
 		chomp;

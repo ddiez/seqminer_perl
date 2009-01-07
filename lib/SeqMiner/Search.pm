@@ -19,8 +19,8 @@ sub _initialize {
 	
 	$self->{type} = shift;
 	
-	my $basedir = "$VARDB_HOME/families/vardb-$VARDB_RELEASE/";
-	$basedir = "$VARDB_HOME/families/last/" if $DEBUG == 1;
+	my $basedir = "$SM_HOME/families/vardb-$SM_RELEASE/";
+	$basedir = "$SM_HOME/families/last/" if $DEBUG == 1;
 	if ($self->{type} eq "isolate") {
 		$basedir .= "isolate";
 	} else {
@@ -73,7 +73,7 @@ sub _search_isolate {
 	return 1;
 	
 	my $base = $self->taxon->name;
-	my $db = "$VARDB_HOME/db/isolate/$base/core";
+	my $db = "$SM_HOME/db/isolate/$base/core";
 	my $pssm_file = "$PSIBLASTDB/pssm/".$self->family->ortholog.".chk";
 	my $seed_file = "$PSIBLASTDB/seed/".$self->family->ortholog.".seed";
 	my $evalue = 1e-02;

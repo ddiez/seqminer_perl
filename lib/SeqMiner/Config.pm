@@ -11,39 +11,39 @@ use strict;
 use warnings;
 
 our @ISA = qw/Exporter/;
-our @EXPORT = qw/$VARDB_RELEASE $VARDB_HOME $VARDB_SEARCH_FILE
-	$VARDB_ORGANISM_FILE $VARDB_TAXON_FILE $VARDB_FILTER_FILE $VARDB_PAPER_FILE
-	$VARDB_AUTHOR_FILE $VARDB_KEYWORD_FILE $VARDB_SEARCH_DIR $UNIPROTDB $PDBDB
-	$HMMDB $GENOMEDB $PFAM_VERSION $DEBUG $VARDB_COMMIT_DIR $HMMERPARAM
-	$WISEPARAM $PSIBLASTDB $PSSM_ITER $PSSM_EVALUE $VARDB_ORTHOLOG_FILE
-	$VARDB_MINING_DIR %TARGET_DB/;
+our @EXPORT = qw/$SM_RELEASE $SM_HOME $SM_SEARCH_FILE
+	$SM_ORGANISM_FILE $SM_TAXON_FILE $SM_FILTER_FILE $SM_PAPER_FILE
+	$SM_AUTHOR_FILE $SM_KEYWORD_FILE $SM_SEARCH_DIR $UNIPROTDB $PDBDB
+	$HMMDB $GENOMEDB $PFAM_VERSION $DEBUG $SM_COMMIT_DIR $HMMERPARAM
+	$WISEPARAM $PSIBLASTDB $PSSM_ITER $PSSM_EVALUE $SM_ORTHOLOG_FILE
+	$SM_MINING_DIR %TARGET_DB/;
 
-our $VARDB_RELEASE = 1;
+our $SM_RELEASE = 1;
 our $DEBUG = 1;
 
-our $VARDB_HOME = "/Volumes/Data/projects/vardb";
+our $SM_HOME = "/Volumes/Data/projects/vardb";
 
-our $VARDB_SEARCH_FILE = "$VARDB_HOME/etc/search.txt";
-our $VARDB_ORGANISM_FILE = "$VARDB_HOME/etc/organisms.txt";
-our $VARDB_TAXON_FILE = "$VARDB_HOME/etc/taxon.txt";
-our $VARDB_FILTER_FILE = "$VARDB_HOME/etc/filter.txt";
-our $VARDB_PAPER_FILE = "$VARDB_HOME/etc/paper.txt";
-our $VARDB_AUTHOR_FILE = "$VARDB_HOME/etc/author.txt";
-our $VARDB_KEYWORD_FILE = "$VARDB_HOME/etc/keyword.txt";
-our $VARDB_ORTHOLOG_FILE = "$VARDB_HOME/etc/ortholog.txt";
+our $SM_SEARCH_FILE = "$SM_HOME/etc/search.txt";
+our $SM_ORGANISM_FILE = "$SM_HOME/etc/organisms.txt";
+our $SM_TAXON_FILE = "$SM_HOME/etc/taxon.txt";
+our $SM_FILTER_FILE = "$SM_HOME/etc/filter.txt";
+our $SM_PAPER_FILE = "$SM_HOME/etc/paper.txt";
+our $SM_AUTHOR_FILE = "$SM_HOME/etc/author.txt";
+our $SM_KEYWORD_FILE = "$SM_HOME/etc/keyword.txt";
+our $SM_ORTHOLOG_FILE = "$SM_HOME/etc/ortholog.txt";
 
-our $VARDB_COMMIT_DIR = "$VARDB_HOME/web/data/diego/";
-our $VARDB_MINING_DIR = "$VARDB_HOME/mining";
-our $VARDB_SEARCH_DIR = "$VARDB_MINING_DIR/vardb-$VARDB_RELEASE";
-$VARDB_SEARCH_DIR = "$VARDB_MINING_DIR/last" if $DEBUG == 1;
+our $SM_COMMIT_DIR = "$SM_HOME/web/data/diego/";
+our $SM_MINING_DIR = "$SM_HOME/mining";
+our $SM_SEARCH_DIR = "$SM_MINING_DIR/vardb-$SM_RELEASE";
+$SM_SEARCH_DIR = "$SM_MINING_DIR/last" if $DEBUG == 1;
 
 
-our $UNIPROTDB = "$VARDB_HOME/db/uniprot";
-our $PDBDB = "$VARDB_HOME/db/pdb";
-our $HMMDB = "$VARDB_HOME/db/pfam";
+our $UNIPROTDB = "$SM_HOME/db/uniprot";
+our $PDBDB = "$SM_HOME/db/pdb";
+our $HMMDB = "$SM_HOME/db/pfam";
 our $PFAM_VERSION = "pfam-22";
-our $GENOMEDB = "$VARDB_HOME/db/genomes";
-our $PSIBLASTDB = "$VARDB_HOME/db/psiblast";
+our $GENOMEDB = "$SM_HOME/db/genomes";
+our $PSIBLASTDB = "$SM_HOME/db/psiblast";
 
 our $HMMER_EVALUE = 1e-2;
 our $PSSM_EVALUE = 1e-3;

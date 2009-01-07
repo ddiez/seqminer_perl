@@ -22,7 +22,7 @@ sub _initialize {
 	
 	my $ts = new SeqMiner::TaxonSet;
 	
-	my $file = $VARDB_SEARCH_FILE;
+	my $file = $SM_SEARCH_FILE;
 	$file = $param->{file} if defined $param->{file};
 	open IN, "$file" or die "$!";
 	while (<IN>) {

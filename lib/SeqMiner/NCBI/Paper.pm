@@ -20,8 +20,8 @@ sub new {
 sub _initialize {
 	my $self = shift;
 	
-	my $basedir = "$VARDB_MINING_DIR/vardb-$VARDB_RELEASE/";
-	$basedir = "$VARDB_MINING_DIR/last/" if $DEBUG == 1;
+	my $basedir = "$SM_MINING_DIR/vardb-$SM_RELEASE/";
+	$basedir = "$SM_MINING_DIR/last/" if $DEBUG == 1;
 	$basedir .= "paper";
 	$self->{basedir} = $basedir;
 }

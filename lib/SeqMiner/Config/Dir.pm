@@ -18,7 +18,7 @@ sub new {
 
 sub _initialize {
 	my $self = shift;
-	$self->{outdir} = $VARDB_SEARCH_DIR;
+	$self->{outdir} = $SM_SEARCH_DIR;
 }
 
 sub create_dir_structure {
@@ -34,8 +34,8 @@ sub create_dir_structure {
 		die "directory $self->{outdir} already exists!.\n";
 	}
 	
-	unlink "$VARDB_HOME/families/last";
-	system "ln -s $self->{outdir} $VARDB_HOME/families/last";
+	unlink "$SM_HOME/families/last";
+	system "ln -s $self->{outdir} $SM_HOME/families/last";
 	
 	# reads a file containing that info.
 	my $og = new SeqMiner::OrthologSet;

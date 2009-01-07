@@ -14,9 +14,9 @@ my @DIR_SUB = ('search', 'analysis', 'sequences', 'pfam', 'fasta', 'domains');
 
 
 if ($force_new) {
-	chdir "$VARDB_MINING_DIR";
+	chdir "$SM_MINING_DIR";
 	
-	if (! -d $VARDB_SEARCH_DIR) {
+	if (! -d $SM_SEARCH_DIR) {
 		print "no dir! (use force to create news)\n";
 	}
 	
@@ -24,7 +24,7 @@ if ($force_new) {
 	if ($DEBUG == 1) {
 		$dir = &_get_random_dir;
 	} else {
-		$dir = "vardb-$VARDB_RELEASE";
+		$dir = "vardb-$SM_RELEASE";
 	}
 	mkdir $dir;
 	unlink "last";

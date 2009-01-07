@@ -23,7 +23,7 @@ sub new {
 sub _initialize {
 	my $self = shift;
 	
-	open IN, "$VARDB_TAXON_FILE" or die "$!";
+	open IN, "$SM_TAXON_FILE" or die "$!";
 	while (<IN>) {
 		next if /^#/;
 		chomp;
@@ -64,7 +64,7 @@ sub filter {
 
 sub search {
 	my $self = shift;
-	my $base = $VARDB_HOME."/db/genbank/test2";
+	my $base = $SM_HOME."/db/genbank/test2";
 	
 	foreach my $taxid ($self->taxon_list) {
 		my $taxon = $self->taxon_by_id($taxid);

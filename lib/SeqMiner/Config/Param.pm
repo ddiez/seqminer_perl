@@ -22,7 +22,7 @@ sub _initialize {
 	
 	my $ts = new SeqMiner::TaxonSet;
 	
-	my $file = $VARDB_SEARCH_FILE;
+	my $file = $SM_SEARCH_FILE;
 	$file = $param->{file} if defined $param->{file};
 	$self->{file} = $file;
 	open IN, "$file" or die "$!";
@@ -41,8 +41,8 @@ sub _initialize {
 	}
 	close IN;
 	
-	$self->{outdir} = "$VARDB_HOME/families/vardb-$VARDB_RELEASE";
-	$self->{outdir} = "$VARDB_HOME/families/last" if $DEBUG == 1;
+	$self->{outdir} = "$SM_HOME/families/vardb-$SM_RELEASE";
+	$self->{outdir} = "$SM_HOME/families/last" if $DEBUG == 1;
 }
 
 sub length {
@@ -67,10 +67,10 @@ our @DIRS = ('search', 'analysis', 'sequences', 'pfam', 'fasta', 'domains');
 sub create_dir_structure {
 	my $self = shift;
 	
-	$self->{outdir} = "$VARDB_MINING_DIR/vardb-$VARDB_RELEASE";
+	$self->{outdir} = "$SM_MINING_DIR/vardb-$SM_RELEASE";
 	if ($DEBUG == 1) {
 		my $randir = &_get_random_dir;
-		$self->{outdir} = "$VARDB_MINING_DIR/$randir";
+		$self->{outdir} = "$SM_MINING_DIR/$randir";
 	}
 	
 	# create working directory, die on failure.
@@ -83,7 +83,7 @@ sub create_dir_structure {
 		die "directory $self->{outdir} already exists!.\n";
 	}
 	
-	chdir $VARDB_MINING_DIR;
+	chdir $SM_MINING_DIR;
 	unlink "last";
 	system "ln -s $self->{outdir} last";
 	

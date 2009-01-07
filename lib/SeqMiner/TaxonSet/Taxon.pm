@@ -128,7 +128,7 @@ sub _download_isolate {
 	my $db = shift;
 	
 	my $id = _fix_taxid($self->id);	
-	my $outdir = "$VARDB_HOME/db/genbank/".$self->name;
+	my $outdir = "$SM_HOME/db/genbank/".$self->name;
 	my $file = $TARGET_DB{$db}.".gb";
 	
 	print STDERR "# DOWNLOAD\n";
@@ -186,7 +186,7 @@ sub _download_isolate {
 		print STDERR "\n\n";
 	
 		my $outdir1 = $outdir;
-		my $outdir2 = "$VARDB_HOME/db/isolate/".$self->name;
+		my $outdir2 = "$SM_HOME/db/isolate/".$self->name;
 		
 		&_seq_filter($outdir, $outdir1, $outdir2, $TARGET_DB{$db});
 		&_seq_format($outdir, $TARGET_DB{$db});
@@ -205,7 +205,7 @@ sub _seq_filter {
 	my $filter = 0;
 	
 #	my %FILTER = ();
-#	open IN, "$VARDB_FILTER_FILE" or die "$!";
+#	open IN, "$SM_FILTER_FILE" or die "$!";
 #	while (<IN>) {
 #		next if /^#/;
 #		chomp;
@@ -362,7 +362,7 @@ sub _download_refseq {
 	my $file = $self->organism.".gb";
 
 	my $id = _fix_taxid($self->id);	
-	my $outdir = "$VARDB_HOME/db/ncbi/".$self->binomial."_".$self->strain;
+	my $outdir = "$SM_HOME/db/ncbi/".$self->binomial."_".$self->strain;
 	
 	print STDERR "# DOWNLOAD\n";
 	print STDERR "* db: $db\n";
@@ -418,7 +418,7 @@ sub _download_refseq {
 		}
 		print STDERR "\n\n";
 		
-		$outdir = "$VARDB_HOME/db/genomes/".$self->binomial."_".$self->strain;
+		$outdir = "$SM_HOME/db/genomes/".$self->binomial."_".$self->strain;
 		if (! -d $outdir) {
 			mkdir $outdir;
 		}
@@ -467,7 +467,7 @@ sub _download_eupathdb {
     my $res = $ua->request($req);
     if ($res->is_success) {
 		print STDERR "OK\n";
-		my $dir = "$VARDB_HOME/db/eupathdb/".$self->binomial."_".$self->strain;
+		my $dir = "$SM_HOME/db/eupathdb/".$self->binomial."_".$self->strain;
 		print STDERR "* outdir: $dir\n";
         print STDERR "* writting $org file ... ";
 		chdir $dir;
@@ -477,7 +477,7 @@ sub _download_eupathdb {
 		print STDERR "OK\n\n";
 		
 		# processing;
-		my $outdir = "$VARDB_HOME/db/genomes/".$self->binomial."_".$self->strain;
+		my $outdir = "$SM_HOME/db/genomes/".$self->binomial."_".$self->strain;
 		chdir "$outdir";
 		system "vardb_eupathdb_parse.pl -i $dir/$file";
 		system "vardb_process_directory.sh";

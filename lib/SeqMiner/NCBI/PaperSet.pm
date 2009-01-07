@@ -25,7 +25,7 @@ sub _initialize {
 	
 	my $os = new SeqMiner::OrthologSet;
 	
-	open IN, "$VARDB_PAPER_FILE" or die "$!";
+	open IN, "$SM_PAPER_FILE" or die "$!";
 	while (<IN>) {
 		next if /^[#|\n|pubmed_id]/;
 		chomp;

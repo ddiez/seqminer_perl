@@ -34,6 +34,6 @@ sub commit {
 	}
 	
 	print STDERR "* commiting $file\n";
-	my $res = system "cp", $file, $VARDB_COMMIT_DIR.$dir.$info->super_family;
+	my $res = system "cp", $file, $SM_COMMIT_DIR.$dir.$info->super_family;
 	die "ERROR [commit]: some error occured commiting files: $!" if $res == -1;
 }

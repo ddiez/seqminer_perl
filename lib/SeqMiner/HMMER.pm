@@ -80,8 +80,8 @@ sub _run_hmmpsearch {
 sub _run_hmmpfam {
 	my $self = shift;
 	
-	system "hmmpfam $HMMERPARAM $VARDB_HOME/db/pfam/Pfam_ls_b /tmp/hmmer-tmp.fa > /tmp/hmmer_ls.log";
-	system "hmmpfam $HMMERPARAM $VARDB_HOME/db/pfam/Pfam_fs_b /tmp/hmmer-tmp.fa > /tmp/hmmer_fs.log";
+	system "hmmpfam $HMMERPARAM $SM_HOME/db/pfam/Pfam_ls_b /tmp/hmmer-tmp.fa > /tmp/hmmer_ls.log";
+	system "hmmpfam $HMMERPARAM $SM_HOME/db/pfam/Pfam_fs_b /tmp/hmmer-tmp.fa > /tmp/hmmer_fs.log";
 }
 
 

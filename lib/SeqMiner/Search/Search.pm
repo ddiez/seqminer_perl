@@ -32,8 +32,8 @@ sub _initialize {
 
 sub _set_basedir {
 	my $self = shift;
-	my $basedir = "$VARDB_MINING_DIR/vardb-$VARDB_RELEASE/";
-	$basedir = "$VARDB_MINING_DIR/last/" if $DEBUG == 1;
+	my $basedir = "$SM_MINING_DIR/vardb-$SM_RELEASE/";
+	$basedir = "$SM_MINING_DIR/last/" if $DEBUG == 1;
 	if ($self->{type} eq "isolate") {
 		$basedir .= "isolate";
 	} else {
@@ -86,9 +86,9 @@ sub _search_isolate {
 	return 1;
 	
 	my $base = $self->taxon->name;
-	my $db = "$VARDB_HOME/db/isolate/$base/core";
-	my $pssm_file = "$VARDB_HOME/db/models/pssm/".$self->family->ortholog->id.".chk";
-	my $seed_file = "$VARDB_HOME/db/models/seed/".$self->family->ortholog->id.".seed";
+	my $db = "$SM_HOME/db/isolate/$base/core";
+	my $pssm_file = "$SM_HOME/db/models/pssm/".$self->family->ortholog->id.".chk";
+	my $seed_file = "$SM_HOME/db/models/seed/".$self->family->ortholog->id.".seed";
 	my $evalue = 1e-02;
 	
 	print STDERR "+ db: $base\n";
@@ -133,14 +133,14 @@ sub _search_genome {
 	# retrieve model with hmmfetch library hmm_name.
 	# use libraries Pfam_ls and Pfam_fs.
 	print STDERR "* fetching Pfam models ... ";
-	if (! -d "$VARDB_HOME/db/models/hmm/ls/$hmm_name") {
-		system "hmmfetch $HMMDB/$PFAM_VERSION/Pfam_ls $hmm_name > $VARDB_HOME/db/models/hmm/ls/$hmm_name";
+	if (! -d "$SM_HOME/db/models/hmm/ls/$hmm_name") {
+		system "hmmfetch $HMMDB/$PFAM_VERSION/Pfam_ls $hmm_name > $SM_HOME/db/models/hmm/ls/$hmm_name";
 	}
-	if (! -d "$VARDB_HOME/db/models/hmm/fs/$hmm_name") {
-		system "hmmfetch $HMMDB/$PFAM_VERSION/Pfam_fs $hmm_name > $VARDB_HOME/db/models/hmm/fs/$hmm_name";
+	if (! -d "$SM_HOME/db/models/hmm/fs/$hmm_name") {
+		system "hmmfetch $HMMDB/$PFAM_VERSION/Pfam_fs $hmm_name > $SM_HOME/db/models/hmm/fs/$hmm_name";
 	}
-	my $ls = "$VARDB_HOME/db/models/hmm/ls/$hmm_name";
-	my $fs = "$VARDB_HOME/db/models/hmm/fs/$hmm_name";
+	my $ls = "$SM_HOME/db/models/hmm/ls/$hmm_name";
+	my $fs = "$SM_HOME/db/models/hmm/fs/$hmm_name";
 	print STDERR "OK\n";
 
 	# search in protein sequences.
