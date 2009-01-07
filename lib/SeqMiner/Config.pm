@@ -32,7 +32,7 @@ our $SM_AUTHOR_FILE = "$SM_HOME/etc/author.txt";
 our $SM_KEYWORD_FILE = "$SM_HOME/etc/keyword.txt";
 our $SM_ORTHOLOG_FILE = "$SM_HOME/etc/ortholog.txt";
 
-our $SM_COMMIT_DIR = "$SM_HOME/web/data/diego/";
+our $SM_COMMIT_DIR = "$SM_HOME/web/trunk/data/diego/";
 our $SM_MINING_DIR = "$SM_HOME/mining";
 our $SM_SEARCH_DIR = "$SM_MINING_DIR/vardb-$SM_RELEASE";
 $SM_SEARCH_DIR = "$SM_MINING_DIR/last" if $DEBUG == 1;

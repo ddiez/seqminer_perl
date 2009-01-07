@@ -227,7 +227,8 @@ sub export_nelson_for_isolate {
 		
 		print $fh
 			"$id\t",
-			$organism.".".$search->family->id, "\t",
+			#$organism.".".$search->family->id, "\t",
+			$search->taxon->full_name, "\t",
 			$org_tax, "\t",
 		#	$taxon->strain, "\t",
 		#	$org_tax.".".$gene->chromosome, "\t",

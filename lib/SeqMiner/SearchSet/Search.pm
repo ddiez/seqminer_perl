@@ -87,6 +87,7 @@ sub _search_isolate {
 	my $self = shift;
 	my $tdb = shift;
 	
+	print STDERR "# SEARCH INFO\n";
 	$self->debug;
 		
 	if ($self->chdir('search') == 0) {
@@ -123,6 +124,7 @@ sub _search_isolate {
 sub _search_genome {
 	my $self = shift;
 	
+	print STDERR "# SEARCH INFO\n";
 	$self->debug;
 	
 	if ($self->chdir('search') == 0) {
@@ -460,8 +462,8 @@ sub chdir {
 sub debug {
 	my $self = shift;
 	
-	print STDERR "# SEARCH INFO\n";
 	print STDERR "* id: ", $self->id, "\n";
+	print STDERR "* organism: ", $self->taxon->organism, "\n";
 	print STDERR "* taxon: [", $self->taxon->id, "] ", $self->taxon->name, "\n";
 	print STDERR "* ortholog: ", $self->family->ortholog->id, "\n";
 	print STDERR "* family: ", $self->family->name, "\n";
@@ -482,6 +484,53 @@ sub _get_random_dir {
 	$time[0] = sprintf("%02d", $time[0]);
 	
 	return "$time[5]$time[4]$time[3].$time[2]$time[1]$time[0]";
+}
+
+sub commit {
+	my $self = shift;
+	
+	my $base = $self->family->name."-".$self->taxon->dir;
+	$self->chdir("sequences");
+	
+	my $file = undef;
+	if ($self->type eq "genome") {
+		$file = $base.".txt";
+		$self->commit_file($file, "sequences");
+	} else {
+		$file = $base."-core.txt";
+		$self->commit_file($file, "sequences");
+		$file = $base."-est.txt";
+		$self->commit_file($file, "sequences");
+	}
+	
+	$self->chdir("domains");
+	if ($self->type eq "genome") {
+		$file = $base."-pfam.txt";
+		$self->commit_file($file, "pfam");
+	} else {
+		#$file = $base."-core.txt";
+		#$self->commit_file($file);
+		#$file = $base."-est.txt";
+		#$self->commit_file($file);
+	}
+}
+
+
+sub commit_file {
+	my $self = shift;
+	my $file = shift;
+	my $dir = shift;
+
+	my $outdir = $SM_COMMIT_DIR.$dir."/".$self->family->ortholog->id;
+	
+	print STDERR "* commiting $file ... ";
+	if (-e $file) {
+		my $res = system "cp", $file, $outdir;
+		die "ERROR [commit]: some error occured commiting files: $!" if $res == -1;
+		print STDERR "OK\n";
+	} else {
+		print STDERR "ERROR [$!]\n";
+	}	
 }
 
 1;

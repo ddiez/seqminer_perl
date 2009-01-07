@@ -55,14 +55,17 @@ sub binomial {
 
 sub organism {
 	my $self = shift;
-	my $org = $self->genus.".".$self->species;
-	$org .= "_".$self->strain if defined $self->strain;
-	return $org;
+
+	if ($self->strain ne "_undef_") {
+		return $self->genus.".".$self->species."_".$self->strain;
+	} else {
+		return $self->genus.".".$self->species;
+	}
 }
 
 sub dir {
 	my $self = shift;
-	if (defined $self->strain) {
+	if ($self->strain ne "_undef_") {
 		return $self->binomial."_".$self->strain;
 	} else {
 		return $self->binomial;
@@ -491,6 +494,7 @@ sub _download_eupathdb {
 sub debug {
 	my $self = shift;
 	print STDERR "* taxon: ", $self->id, "\n";
+	print STDERR "* organism: ", $self->organism, "\n";
 	print STDERR "* genus: ", $self->genus, "\n";
 	print STDERR "* species: ", $self->species, "\n";
 	print STDERR "* strain: ", $self->strain, "\n";
