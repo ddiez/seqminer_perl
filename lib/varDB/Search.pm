@@ -209,7 +209,9 @@ sub _search_genome {
 		my $seed = $bh->id;
 	
 		my $seedfile = "$family-$dir.seed";
-		system "extract_fasta.pl -d $seed -i $GENOMEDB/$dir/protein.idx > $seedfile";
+		#system "extract_fasta.pl -d $seed -i $GENOMEDB/$dir/protein.idx > $seedfile";
+		system "fastacmd -d $GENOMEDB/$dir/protein -s $seed > $seedfile";
+		
 		
 		# search in protein database with psi-blast and generate pssm file.
 		print STDERR "* searching protein database (psi-blast) ... ";

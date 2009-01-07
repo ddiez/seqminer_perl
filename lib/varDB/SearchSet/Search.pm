@@ -280,7 +280,8 @@ sub seed {
 	
 	if (defined $bh) {
 		my $seed = $bh->id;
-		system "extract_fasta.pl -d $seed -i $GENOMEDB/$dir/protein.idx > $seed_file";
+		#system "extract_fasta.pl -d $seed -i $GENOMEDB/$dir/protein.idx > $seed_file";
+		system "fastacmd -d $GENOMEDB/$dir/protein -s $seed > $seed_file";
 		system "blastpgp -d $GENOMEDB/$dir/protein -i $seed_file -s T -j $PSSM_ITER -h $PSSM_EVALUE -C $pssm_file -F T -b 10000  > $pgp_file";
 	}
 	
@@ -428,6 +429,22 @@ sub _analyze_genome {
 	$self->chdir('fasta') or die "cannot change to directory 'fasta'";
 	$p_ls->export_fasta({file => "$base-protein.fa", db => $pro});
 	$p_ls->export_fasta({file => "$base-nucleotide.fa", db => $nuc});
+}
+
+sub pfam {
+	my $self = shift;
+
+	if ($self->type eq "genome") {
+		$self->_search_pfam_genome;
+	} else {
+		$self->_search_pfam_isolate;
+	}
+}
+
+sub _search_pfam_genome {
+	my $self = shift;
+
+
 }
 
 sub chdir {

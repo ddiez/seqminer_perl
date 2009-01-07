@@ -1,5 +1,15 @@
 package varDB::TaxonSet::Taxon;
 
+=head1 MAIN
+
+SeqMiner::TaxonSet::Taxon
+
+Methods working at taxon level allowing various task to be performed. Mainly is used for
+maintaining taxon information and downloading data from specific repositories. Filtering
+and formating is also performed in this module.
+
+=cut
+
 use strict;
 use warnings;
 use varDB::FamilySet;
@@ -118,8 +128,8 @@ sub _download_isolate {
 	my $db = shift;
 	
 	my $id = _fix_taxid($self->id);	
-	my $outdir = "$VARDB_HOME/db/".$self->type."/".$self->name;
-	my $file = $TARGET_DB{$db}.".ori.gb";
+	my $outdir = "$VARDB_HOME/db/genbank/".$self->name;
+	my $file = $TARGET_DB{$db}.".gb";
 	
 	print STDERR "# DOWNLOAD\n";
 	print STDERR "* db: $db\n";
@@ -174,8 +184,11 @@ sub _download_isolate {
 			$retstart += $retmax;
 		}
 		print STDERR "\n\n";
+	
+		my $outdir1 = $outdir;
+		my $outdir2 = "$VARDB_HOME/db/isolate/".$self->name;
 		
-		&_seq_filter($outdir, $TARGET_DB{$db});
+		&_seq_filter($outdir, $outdir1, $outdir2, $TARGET_DB{$db});
 		&_seq_format($outdir, $TARGET_DB{$db});
 		print STDERR "\n";
 	} else {
@@ -185,6 +198,8 @@ sub _download_isolate {
 
 sub _seq_filter {
 	my $dir = shift;
+	my $outdir1 = shift;
+	my $outdir2 = shift;
 	my $file = shift;
 	
 	my $filter = 0;
@@ -201,12 +216,12 @@ sub _seq_filter {
 #		push @{ $FILTER{'KEYWORDS'} }, $keywords if defined $keywords;
 #	}
 #	close IN;
-	
+		
 	# TODO: move project files to another place.
 	print STDERR "* filtering ... ";
-	open OUT1, ">$dir/$file.project.gb" or die "$!";
-	open OUT2, ">$dir/$file.gb" or die "$!";
-	open IN, "$dir/$file.ori.gb" or die "$!";
+	open OUT1, ">$outdir1/$file.project.gb" or die "$!";
+	open OUT2, ">$outdir2/$file.gb" or die "$!";
+	open IN, "$dir/$file.gb" or die "$!";
 	while (<IN>) {
 		if (/^LOCUS/) {
 			$a .= $_;
@@ -313,7 +328,7 @@ sub _seq_format {
 	}
 	close OUT;
 	
-	system "formatdb -i $outfile -n $basename -p F";
+	system "formatdb -i $outfile -n $basename -p F -o T -V";
 	print STDERR "OK\n";
 }
 

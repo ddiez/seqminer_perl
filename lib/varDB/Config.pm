@@ -1,4 +1,11 @@
 package varDB::Config;
+require Exporter;
+
+=head1 MAIN
+
+This module contains exported global variables for SeqMiner (a.k.a. as varDB Framework)
+
+=cut
 
 use strict;
 use warnings;

@@ -152,7 +152,8 @@ while (my $info = $param->next_param) {
 		my $seed = $bh->id;
 	
 		my $seedfile = "$family-$organism_dir.seed";
-		system "extract_fasta.pl -d $seed -i $GENOMEDB/$organism_dir/protein.idx > $seedfile";
+		#system "extract_fasta.pl -d $seed -i $GENOMEDB/$organism_dir/protein.idx > $seedfile";
+		system "fastacmd -d $GENOMEDB/$organism_dir/protein -s $seed > $seedfile";
 		
 		# search in protein database with psi-blast and generate pssm file.
 		print STDERR "* searching protein database (psi-blast) ... ";
