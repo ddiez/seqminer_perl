@@ -1,4 +1,4 @@
-package SeqMiner::Hmmer;
+package SeqMiner::Hmmer::Hmmpfam;
 
 =head1 MAIN
 
@@ -61,9 +61,13 @@ sub model {
 sub run {
 	my $self = shift;
 	$self->debug;
-	#my $res = system "hmmpfam", $HMMERPARAM, $model, $file, "> $dir/$outfile";
-	#return $res;
-	#"hmmpfam $HMMERPARAM $SM_HOME/db/pfam/Pfam_ls_b /tmp/hmmer-tmp.fa > /tmp/hmmer_ls.log";
+	my $output = $self->outdir."/".$self->outfile;
+	my $infile = $self->infile;
+	my $model = $self->model;
+	#my $res = system "hmmpfam", $HMMERPARAM, $self->model, $self->infile, "> ", $output;
+	my $res = system "hmmpfam $HMMERPARAM $model $infile > $output";
+	#my $res = system "hmmpfam ".$HMMERPARAM." ".$self->model." ".$self->infile." > ".$self->outdir."/".$self->outfile;
+	return $res;
 }
 
 sub debug {

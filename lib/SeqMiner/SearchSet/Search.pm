@@ -50,6 +50,10 @@ sub _set_basedir {
 	$self->{basedir} = $basedir;
 }
 
+sub basedir {
+	return shift->{basedir};
+}
+
 sub family {
 	my $self = shift;
 	$self->{family} = shift if @_;
@@ -445,7 +449,7 @@ sub pfam {
 	my $self = shift;
 
 	print STDERR "# PFAM SCAN\n";
-	#$self->debug;
+	$self->debug;
 
 	if ($self->type eq "genome") {
 		$self->_search_pfam_genome;
@@ -457,19 +461,24 @@ sub pfam {
 sub _search_pfam_genome {
 	my $self = shift;
 	
-	use SeqMiner::Hmmer;
-	my $hmmer = new SeqMiner::Hmmer;
+	use SeqMiner::Hmmer::Hmmpfam;
+	my $hmmer = new SeqMiner::Hmmer::Hmmpfam;
 	
 	$self->chdir('fasta');
 	
-	my $base = $self->family->name."-".$self->taxon->dir;
+	# first we do protein sequences:
+	my $base = $self->family->name."-".$self->taxon->dir."-protein";
 	
-	$hmmer->infile($base.".txt");
-	$hmmer->outdir($self->dir('domains'));
+	$hmmer->infile($base.".fa");
+	$hmmer->outdir($self->dir('pfam'));
 	
 	$hmmer->outfile($base."_ls.log");
 	$hmmer->model("$SM_HOME/db/pfam/Pfam_ls.bin");
-	$hmmer->run;	
+	$hmmer->run;
+	
+	$hmmer->outfile($base."_fs.log");
+	$hmmer->model("$SM_HOME/db/pfam/Pfam_fs.bin");
+	$hmmer->run;
 }
 
 sub _search_pfam_isolate {
