@@ -1,5 +1,14 @@
 package SeqMiner::SearchSet::Search;
 
+=head1 MAIN
+
+SeqMiner::SearchSet::Search;
+
+Methods for performing search like operations like search using HMMER or PSI-Blast.
+
+=cut
+
+
 use strict;
 use warnings;
 
@@ -7,7 +16,6 @@ use SeqMiner::Config;
 use SeqMiner::ItemSet::Item;
 use vars qw( @ISA );
 @ISA = ("SeqMiner::ItemSet::Item");
-
 
 sub new {
 	my $class = shift;
@@ -437,7 +445,7 @@ sub pfam {
 	my $self = shift;
 
 	print STDERR "# PFAM SCAN\n";
-	$self->debug;
+	#$self->debug;
 
 	if ($self->type eq "genome") {
 		$self->_search_pfam_genome;
@@ -448,12 +456,27 @@ sub pfam {
 
 sub _search_pfam_genome {
 	my $self = shift;
+	
+	my $hmmer = new SeqMiner::Hmmer;
+	
+	$self->chdir('fasta');
+	
+	my $base = $self->family->name."-".$self->taxon->dir;
+	my $file = $base."-protein.fa";
+	if (-e $file) {
+		$hmmer->run($file, $outdir);
+		#system "hmmpfam $HMMERPARAM $SM_HOME/db/pfam/Pfam_ls_b /tmp/hmmer-tmp.fa > /tmp/hmmer_ls.log";
+		#system "hmmpfam $HMMERPARAM $SM_HOME/db/pfam/Pfam_fs_b /tmp/hmmer-tmp.fa > /tmp/hmmer_fs.log";
+	} else {
+		print STDERR "++++++ FILE NOT FOUND ++++++\n";
+		print STDERR "+ $file +\n";
+	}	
 }
 
 sub _search_pfam_isolate {
 	my $self = shift;
 	
-	print STDERR "## NOT YET IMPLEMENTED\n";
+	#print STDERR "## NOT YET IMPLEMENTED\n";
 }
 
 sub chdir {
