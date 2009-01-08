@@ -457,20 +457,19 @@ sub pfam {
 sub _search_pfam_genome {
 	my $self = shift;
 	
+	use SeqMiner::Hmmer;
 	my $hmmer = new SeqMiner::Hmmer;
 	
 	$self->chdir('fasta');
 	
 	my $base = $self->family->name."-".$self->taxon->dir;
-	my $file = $base."-protein.fa";
-	if (-e $file) {
-		$hmmer->run($file, $outdir);
-		#system "hmmpfam $HMMERPARAM $SM_HOME/db/pfam/Pfam_ls_b /tmp/hmmer-tmp.fa > /tmp/hmmer_ls.log";
-		#system "hmmpfam $HMMERPARAM $SM_HOME/db/pfam/Pfam_fs_b /tmp/hmmer-tmp.fa > /tmp/hmmer_fs.log";
-	} else {
-		print STDERR "++++++ FILE NOT FOUND ++++++\n";
-		print STDERR "+ $file +\n";
-	}	
+	
+	$hmmer->infile($base.".txt");
+	$hmmer->outdir($self->dir('domains'));
+	
+	$hmmer->outfile($base."_ls.log");
+	$hmmer->model("$SM_HOME/db/pfam/Pfam_ls.bin");
+	$hmmer->run;	
 }
 
 sub _search_pfam_isolate {
@@ -488,6 +487,14 @@ sub chdir {
 	my $res = chdir $outdir;
 	return $res;
 }
+
+sub dir {
+	my $self = shift;
+	my $dir = shift;
+	
+	return "$self->{basedir}/$dir/".$self->family->ortholog->id;
+}
+
 
 sub debug {
 	my $self = shift;
