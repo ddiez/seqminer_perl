@@ -65,6 +65,13 @@ sub analyze {
 	}
 }
 
+sub pfam {
+	my $self = shift;
+	foreach my $search ($self->item_list) {
+		$search->pfam;
+	}
+}
+
 sub debug {
 	my $self = shift;
 	print STDERR "** SEARCHSET\n";

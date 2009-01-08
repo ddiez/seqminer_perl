@@ -436,6 +436,9 @@ sub _analyze_genome {
 sub pfam {
 	my $self = shift;
 
+	print STDERR "# PFAM SCAN\n";
+	$self->debug;
+
 	if ($self->type eq "genome") {
 		$self->_search_pfam_genome;
 	} else {
@@ -445,8 +448,12 @@ sub pfam {
 
 sub _search_pfam_genome {
 	my $self = shift;
+}
 
-
+sub _search_pfam_isolate {
+	my $self = shift;
+	
+	print STDERR "## NOT YET IMPLEMENTED\n";
 }
 
 sub chdir {
