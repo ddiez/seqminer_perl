@@ -95,6 +95,11 @@ sub search {
 	return $res;
 }
 
+sub base {
+	my $self = shift;
+	return $self->family->name."-".$self->taxon->binomial;
+}
+
 sub _search_isolate {
 	my $self = shift;
 	my $tdb = shift;
@@ -106,7 +111,7 @@ sub _search_isolate {
 		return 0;
 	}
 	
-	my $base = $self->family->name."-".$self->taxon->binomial;
+	my $base = $self->base;
 	my $db = "$SM_HOME/db/isolate/".$self->taxon->name."/$tdb";
 	
 	if (-e "$db.gb") {

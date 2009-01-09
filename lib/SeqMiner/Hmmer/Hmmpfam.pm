@@ -64,9 +64,7 @@ sub run {
 	my $output = $self->outdir."/".$self->outfile;
 	my $infile = $self->infile;
 	my $model = $self->model;
-	#my $res = system "hmmpfam", $HMMERPARAM, $self->model, $self->infile, "> ", $output;
 	my $res = system "hmmpfam $HMMERPARAM $model $infile > $output";
-	#my $res = system "hmmpfam ".$HMMERPARAM." ".$self->model." ".$self->infile." > ".$self->outdir."/".$self->outfile;
 	return $res;
 }
 
