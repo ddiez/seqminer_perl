@@ -6,15 +6,16 @@ sub new {
 	
 	my $self = {};
 	bless $self, $class;
-    $self->_initialize(@_) if @_;
+    return $self->_initialize(@_) if @_;
     return $self;
 }
 
 sub _initialize {
 	my $self = shift;
+    my $module = shift;
+    $module = "SeqMiner::Download::$module";
+    eval "require $module";
+    return $module;
 }
 
-sub plasmodb {
-	my $self = shift;
-	
-}
+1;
