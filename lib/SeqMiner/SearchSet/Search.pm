@@ -515,9 +515,10 @@ sub _analyze_pfam_genome {
 	$self->chdir('pfam');
 
 	# first we do protein sequences:
-	my $base = $self->family->name."-".$self->taxon->dir."-protein";
-	my $ls = new SeqMiner::ResultSet({file => "$base\_ls.log", id => 'protein_ls', model_type => 'ls'});
-	my $fs = new SeqMiner::ResultSet({file => "$base\_fs.log", id => 'protein_fs', model_type => 'ls'});
+	#my $base = $self->family->name."-".$self->taxon->dir."-protein";
+	my $base = $self->family->name."-".$self->taxon->dir;
+	my $ls = new SeqMiner::ResultSet({file => "$base-protein\_ls.log", id => 'protein_ls', model_type => 'ls'});
+	my $fs = new SeqMiner::ResultSet({file => "$base-protein\_fs.log", id => 'protein_fs', model_type => 'ls'});
 
 	$self->chdir('domains');
 	SeqMiner::ResultSet::export_pfam({file => "$base-pfam.txt", fs => $fs, ls => $ls});
