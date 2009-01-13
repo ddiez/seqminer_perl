@@ -492,6 +492,43 @@ sub _search_pfam_isolate {
 	#print STDERR "## NOT YET IMPLEMENTED\n";
 }
 
+sub analyze_pfam {
+	my $self = shift;
+	
+	print STDERR "# ANALYZE PFAM\n";
+	$self->debug;
+	
+	my $res = undef;
+	if ($self->{type} eq "isolate") {
+		foreach my $db (values %TARGET_DB) {
+			$res = $self->_analyze_pfam_isolate($db);
+		}
+	} else {
+		$res = $self->_analyze_pfam_genome;
+	}
+	return $res;
+}
+
+sub _analyze_pfam_genome {
+	my $self = shift;
+	
+	$self->chdir('pfam');
+
+	# first we do protein sequences:
+	my $base = $self->family->name."-".$self->taxon->dir."-protein";
+	my $ls = new SeqMiner::ResultSet({file => "$base\_ls.log", id => 'protein_ls', model_type => 'ls'});
+	my $fs = new SeqMiner::ResultSet({file => "$base\_fs.log", id => 'protein_fs', model_type => 'ls'});
+
+	$self->chdir('domains');
+	SeqMiner::ResultSet::export_pfam({file => "$base-pfam.txt", fs => $fs, ls => $ls});
+}
+
+sub _analyze_pfam_isolate {
+	my $self = shift;
+	
+	#print STDERR "## NOT YET IMPLEMENTED\n";
+}
+
 sub chdir {
 	my $self = shift;
 	my $dir = shift;

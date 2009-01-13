@@ -157,10 +157,13 @@ sub export_nelson_for_isolate {
 	my $self = shift;
 	my $param = shift;
 	
+	my $source = "_undef_"; # this is a bad fix.
 	my $fh = *STDOUT;
 	if ($param->{file}) {
 		open OUT, ">$param->{file}" or die "[ResultSet::Result::export_nelson] cannot open file $param->{file} for writing: $!\n";
 		$fh = *OUT;
+		$source = $param->{file};
+		$source =~ s/.+-(.+).txt/$1/;
 	}
 	
 	my $seq = $param->{sequence};
@@ -177,6 +180,8 @@ sub export_nelson_for_isolate {
 	print $fh "SEQUENCE", "\t",
 		"family", "\t",
 		"genome", "\t",
+		"taxid", "\t",
+		"source", "\t",
 		#"strain", "\t",
 		#"chromosome", "\t",
 		#"translation", "\t",
@@ -227,9 +232,10 @@ sub export_nelson_for_isolate {
 		
 		print $fh
 			"$id\t",
-			#$organism.".".$search->family->id, "\t",
-			$search->taxon->organism.".".$search->family->id, "\t",
+			$search->taxon->binomial_long.".".$search->family->id, "\t",
 			$org_tax, "\t",
+			$search->taxon->id, "\t",
+			$source, "\t",
 		#	$taxon->strain, "\t",
 		#	$org_tax.".".$gene->chromosome, "\t",
 		#	$pro_seq, "\t",
@@ -274,13 +280,8 @@ sub export_nelson {
 	my $taxon = $search->taxon;
 	my $organism = $taxon->organism;
 	my $strain = $taxon->strain;
-	# TODO: !!! FIX THIS !!!
-	#my $eexons = $search->family->eexons;
-	my $eexons = 3;
-		
-	#my $org_id = $taxon->genus.".".$taxon->species;
-	my $org_id = $taxon->name;
-	#my $org_tax = $organism. ".".$taxon->id;
+
+	my $org_id = $taxon->binomial_long;
 	my $org_tax = $org_id.".".$taxon->id;
 
 	print STDERR "# EXPORT: NELSON\n";
@@ -291,6 +292,8 @@ sub export_nelson {
 		"family", "\t",
 		"genome", "\t",
 		"strain", "\t",
+		"taxid", "\t",
+		"source", "\t",
 		"chromosome", "\t",
 		"translation", "\t",
 		"sequence", "\t",
@@ -301,7 +304,7 @@ sub export_nelson {
 		"splicing", "\t",
 		"pseudogene", "\t",
 		"truncated", "\t",
-		"rating", "\t",
+#		"rating", "\t",
 		"method", "\t",
 		"model", "\t",
 		#"model_type", "\t",
@@ -362,6 +365,8 @@ sub export_nelson {
 			$org_id.".".$search->family->id, "\t",
 			$org_tax, "\t",
 			$taxon->strain, "\t",
+			$taxon->id, "\t",
+			$taxon->source, "\t",
 			$org_tax.".".$gene->chromosome, "\t",
 			$pro_seq, "\t",
 			$nuc_seq, "\t",
@@ -372,7 +377,7 @@ sub export_nelson {
 			$exonloc, "\t",
 			$gene->pseudogene ? "TRUE" : "FALSE", "\t",
 			"FALSE", "\t",
-			$gene->quality($eexons), "\t",
+#			$gene->quality($eexons), "\t",
 			$hit->method, "\t",
 			$search->family->hmm."_".$self->model_type, "\t",
 			$hit->score, "\t",

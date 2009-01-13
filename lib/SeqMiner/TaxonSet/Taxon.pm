@@ -40,17 +40,18 @@ sub _initialize {
 
 sub name {
 	my $self = shift;
-	if ($self->strain ne "_undef_") {
-		return $self->genus.".".$self->species."_".$self->strain;
-	} else {
-		return $self->genus.".".$self->species;
-	}
+	$self->organism;
 }
 
 sub binomial {
 	my $self = shift;
 	$self->genus =~ /^(.{1})/;
 	return $1.".".$self->species;
+}
+
+sub binomial_long {
+	my $self = shift;
+	return $self->genus.".".$self->species;
 }
 
 sub organism {
