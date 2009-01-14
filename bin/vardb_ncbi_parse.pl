@@ -103,17 +103,20 @@ while (my $seq = $in->next_seq) {
 				if ($feat->has_tag('translation')) {
 					$gene->translation($feat->get_tag_values('translation'));
 				} else {
-					$gene->translation($feat->seq->translate);
+					$gene->translation($feat->seq->translate->seq);
 				}
 			}
 			
-			my $exon = new SeqMiner::Genome::Exon;
-			$exon->id($gene->nexons + 1);
-			$exon->parent($gene->id);
-			$exon->start($feat->start);
-			$exon->end($feat->end);
-			$exon->strand($feat->strand == 1 ? "+" : "-");
-			$genome->add_exon($exon);
+			for my $loc ($feat->location->each_Location) {
+				my $exon = new SeqMiner::Genome::Exon;
+				$exon->id($gene->nexons + 1);
+				$exon->parent($gene->id);
+				$exon->start($loc->start);
+				$exon->end($loc->end);
+				$exon->strand($feat->strand == 1 ? "+" : "-");
+				$genome->add_exon($exon);
+			}
+			
 		} elsif ($feat->primary_tag eq "tRNA") {
 			my $gene = $genome->get_gene_by_id($feat->get_tag_values('locus_tag'));
 			$gene->description($feat->get_tag_values('product'));
