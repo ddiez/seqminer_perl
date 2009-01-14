@@ -25,8 +25,15 @@ my $help = <<"HELP";
 #  the SeqMiner project.
 #!! WARNING !!
 
-    vardb_ncbi_parse.pl -i <file>
+Usage:
 
+ vardb_ncbi_parse.pl -i <file> -d
+
+Options:
+
+   -i   file in Genbank format
+   -d   directory to output data
+ 
 HELP
 
 die $help if !exists $O{i};
@@ -42,7 +49,7 @@ my $in = new Bio::SeqIO(-file => $O{i}, -format => 'genbank');
 while (my $seq = $in->next_seq) {
 	# in bacterial genomes that would be just one sequence.
 	print STDERR "* id: ", $seq->accession_number, "\n";
-	print STDERR "* circular: ", $seq->is_circular, "\n";
+	print STDERR "* circular: ", defined $seq->is_circular ? $seq->is_circular : "undef", "\n";
 	print STDERR "* description: ", $seq->description, "\n";
 	my $species = $seq->species;
 	print STDERR "* species: ", $species->species, "\n";
@@ -76,10 +83,17 @@ while (my $seq = $in->next_seq) {
 				$gene->description("");
 			}
 			$genome->add_gene($gene);
+		} elsif ($feat->primary_tag eq "mRNA") {
+			my $gene = $genome->get_gene_by_id($feat->get_tag_values('locus_tag'));
+			$gene->description($feat->get_tag_values('product')) if $feat->has_tag('product');
 		} elsif ($feat->primary_tag eq "CDS") {
 			my $gene = $genome->get_gene_by_id($feat->get_tag_values('locus_tag'));
-			$gene->description($feat->get_tag_values('product'));
-			$gene->translation($feat->get_tag_values('translation'));
+			$gene->description($feat->get_tag_values('product')) if $feat->has_tag('product');
+			if ($feat->has_tag('translation')) {
+				$gene->translation($feat->get_tag_values('translation'));
+			} else {
+				$gene->translation($feat->seq->translate);
+			}
 			
 			my $exon = new SeqMiner::Genome::Exon;
 			$exon->id($gene->nexons + 1);

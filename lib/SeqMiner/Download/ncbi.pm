@@ -40,7 +40,8 @@ sub download_by_taxon {
         my $hist = $factory->next_History || die 'No history data returned';
         $factory->set_parameters(
             -eutil => 'efetch',
-            -rettype => 'genbank',
+			#-rettype => 'genbank',
+			-rettype => 'gbwithparts',
             -history => $hist
         );
 
