@@ -14,7 +14,6 @@ foreach my $taxon ($ts->item_list) {
 	($taxon->type eq "isolate" & ($all == 1 | $O{i})) && do
 	{
 		$taxon->debug;
-		print "iso\n";
 		if ($O{db} eq "nuccore") {
 			$taxon->download("nuccore");	
 		} elsif ($O{db} eq "nucest") {

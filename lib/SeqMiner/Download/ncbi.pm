@@ -2,6 +2,14 @@ package SeqMiner::Download::ncbi;
 
 use base qw(SeqMiner::Download);
 
+sub new {
+	my $class = shift;
+	
+	my $self = {};
+	bless $self, $class;
+    return $self;
+}
+
 sub download {
 	my $self = shift;
 	print STDERR "parser for ncbi!\n";
@@ -11,10 +19,17 @@ sub download_by_taxon {
 	my $self = shift;
 	my $id = shift;
 	my $db = shift;
+	my $special = shift;
 
 	$id = _fix_taxid($id);
-	my $outdir = ".";
-	my $file = "foo.gb";
+	
+	if ($special eq "babesia") {
+		$id = $id."+biomol genomic[properties]";
+		$db = "nuccore";
+	}
+	
+	my $outdir = $self->outdir;
+	my $file = $self->filename;
 
 	print STDERR "# DOWNLOAD\n";
 	print STDERR "* db: $db\n";
@@ -56,7 +71,7 @@ sub download_by_taxon {
                 $ret = $count if $ret > $count;
                 printf STDERR "\r* progress: %.1f%s [%i]",
                     100 * $ret/$count, "%", $ret;
-                $factory->get_Response(-file => ">>$file");
+                $factory->get_Response(-file => ">>$outdir/$file");
             };
             if ($@) {
                 die "Server error: $@.  Try again later" if $retry == 5;
@@ -65,17 +80,9 @@ sub download_by_taxon {
             }
             $retstart += $retmax;
         }
-        print STDERR "\n\n";
-
-        #my $outdir1 = $outdir;
-        #my $outdir2 = "$SM_HOME/db/isolate/".$self->name;
-
-        #&_seq_filter($outdir, $outdir1, $outdir2, $TARGET_DB{$db});
-        #&_seq_format($outdir, $TARGET_DB{$db});
         print STDERR "\n";
-    } else {
-		print STDERR "** NO SEQUENCES FOUND **\n\n";
     }
+    return $count;
 }
 
 sub _fix_taxid {

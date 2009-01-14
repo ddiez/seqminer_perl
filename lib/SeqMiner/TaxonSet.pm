@@ -54,4 +54,9 @@ sub _initialize {
 	close IN;
 }
 
+sub debug {
+	my $self = shift;
+	print STDERR "* number of taxon: ", scalar $self->item_list, "\n";
+}
+
 1;

@@ -131,140 +131,34 @@ sub _download_isolate {
 	my $self = shift;
 	my $db = shift;
 	
-	my $id = _fix_taxid($self->id);	
-	my $outdir = "$SM_HOME/db/genbank/".$self->name;
+	my $outdir1 = "$SM_HOME/db/genbank/".$self->name;
+	my $outdir2 = "$SM_HOME/db/isolate/".$self->name;
 	my $file = $TARGET_DB{$db}.".gb";
 	
-	print STDERR "# DOWNLOAD\n";
-	print STDERR "* db: $db\n";
-	print STDERR "* file: $file\n";
-	print STDERR "* outdir: $outdir\n\n";
-	
-	if (! -d $outdir) {
-		mkdir $outdir;
+	if (! -d $outdir1) {
+		mkdir $outdir1;
 	}
-	chdir $outdir;
+	chdir $outdir1;
 	unlink $file;
 	
-	use Bio::DB::EUtilities;
-
-	print STDERR "* downloading [$db]: $id\n";
-	my $factory = new Bio::DB::EUtilities (
-		-eutil => 'esearch',
-		-term  => $id,
-		-db => $db,
-		-usehistory => 'y',
-		-verbose => -1
-	);
+	if (! -d $outdir2) {
+		mkdir $outdir2;
+	}
 	
-	my $count = $factory->get_count;
-	print STDERR "* count: $count\n";
+	use SeqMiner::Download;
+	my $down = new SeqMiner::Download("ncbi");
+	$down->outdir($outdir1);
+	$down->filename($file);
+	#my $special = undef;
+	#$special = "babesia" if $self->id eq "484906";
+	my $count = $down->download_by_taxon($self->id, $db);
+	
 	if ($count > 0) {
-		my $hist = $factory->next_History || die 'No history data returned';
-		$factory->set_parameters(
-			-eutil => 'efetch',
-			-rettype => 'genbank',
-			-history => $hist
-		);
-		
-		my ($retmax, $retstart) = (500, 0);
-		my $retry = 0;
-		RETRIEVE_SEQS:
-		while ($retstart < $count) {
-			$factory->set_parameters(-retmax => $retmax,
-									-retstart => $retstart);
-			eval{
-				my $ret = $retstart + $retmax;
-				$ret = $count if $ret > $count;
-				printf STDERR "\r* progress: %.1f%s [%i]",
-					100 * $ret/$count, "%", $ret;
-				$factory->get_Response(-file => ">>$file");
-			};
-			if ($@) {
-				die "Server error: $@.  Try again later" if $retry == 5;
-				print STDERR "Server error, redo #$retry\n";
-				$retry++ && redo RETRIEVE_SEQS;
-			}
-			$retstart += $retmax;
-		}
-		print STDERR "\n\n";
-	
-		my $outdir1 = $outdir;
-		my $outdir2 = "$SM_HOME/db/isolate/".$self->name;
-		
-		&_seq_filter($outdir, $outdir1, $outdir2, $TARGET_DB{$db});
-		&_seq_format($outdir, $TARGET_DB{$db});
-		print STDERR "\n";
+		&_seq_filter($outdir1, $outdir2, $TARGET_DB{$db});
+		&_seq_format($outdir2, $TARGET_DB{$db});
 	} else {
-		print STDERR "** NO SEQUENCES FOUND **\n\n";
+		print STDERR "## NO SEQUENCES FOUND\n\n";
 	}
-}
-
-sub _seq_filter {
-	my $dir = shift;
-	my $outdir1 = shift;
-	my $outdir2 = shift;
-	my $file = shift;
-	
-	my $filter = 0;
-	
-#	my %FILTER = ();
-#	open IN, "$SM_FILTER_FILE" or die "$!";
-#	while (<IN>) {
-#		next if /^#/;
-#		chomp;
-#		my ($source, $pubmed, $title, $keywords) = split '\t', $_;
-#		push @{ $FILTER{'SOURCE'} }, $source if defined $source;
-#		push @{ $FILTER{'PUBMED'} }, $pubmed if defined $pubmed;
-#		push @{ $FILTER{'TITLE'} }, $title if defined $title;
-#		push @{ $FILTER{'KEYWORDS'} }, $keywords if defined $keywords;
-#	}
-#	close IN;
-		
-	# TODO: move project files to another place.
-	print STDERR "* filtering ... ";
-	open OUT1, ">$outdir1/$file.project.gb" or die "$!";
-	open OUT2, ">$outdir2/$file.gb" or die "$!";
-	open IN, "$dir/$file.gb" or die "$!";
-	while (<IN>) {
-		if (/^LOCUS/) {
-			$a .= $_;
-			while (<IN>) {
-				$a .= $_;
-				$filter = 1 if /^PROJECT/;
-				#if (/\s+?TITLE\s+(.+)/) {
-				#	$filter = 1 if $1 =~ /The genome sequence/;
-				#}
-				
-				if (/^DEFINITION\s+(.+)/) {
-					$filter = 1 if _check_filter($1);
-				}
-				
-				if (/^KEYWORDS\s+(.+)/) {
-					$filter = 1 if _check_filter($1);
-				}
-				
-				if (/^\/\//) {
-					# check project.
-					if ($filter == 1) {
-						# print.
-						print OUT1 $a;
-					} else {
-						# print.
-						print OUT2 $a;
-					}
-					# reset.
-					$filter = 0;
-					$a = "";
-					last;
-				}
-			}
-		}
-	}
-	close IN;
-	close OUT1;
-	close OUT2;
-	print STDERR "OK\n";
 }
 
 sub _check_filter {
@@ -273,6 +167,7 @@ sub _check_filter {
 	my @filter = (
 		"complete genome",
 		"complete mitochondrial genome",
+		"chromosome\.+complete sequence"
 	);
 	
 	foreach my $filter (@filter) {
@@ -281,35 +176,60 @@ sub _check_filter {
 	return 0;
 }
 
-sub _check_title {
-	my $line = shift;
-	my @title = @{ (shift) };
-	return 0 if $line eq "Direct Submission";
-	#print STDERR "begin check\n";
-	#print STDERR "checking: #$line#\n";
-	#print STDERR "and: @title\n";
-	foreach my $title (@title) {
-		return 1 if $title eq $line;
-	}
-	return 0;
-}
-
-sub _check_pubmed {
-	my $line = shift;
-	my @pubmed = @{ (shift) };
-	foreach my $pubmed (@pubmed) {
-		my @refs = split ";", $pubmed;
-		foreach my $ref (@refs) {
-			return 1 if $ref eq $line;
+sub _seq_filter {
+	my $dir1 = shift;
+	my $dir2 = shift;
+	my $file = shift;
+	
+	print STDERR "* filtering ... ";
+	
+	use Bio::SeqIO;
+	
+	my $in = new Bio::SeqIO(-file => "$dir1/$file.gb", -format => 'genbank');
+	my $out1 = new Bio::SeqIO(-file => ">$dir1/$file.project.gb", -format => 'genbank');
+	my $out2 = new Bio::SeqIO(-file => ">$dir2/$file.gb", -format => 'genbank');
+	while (my $seq = $in->next_seq) {
+		if (_check_filter($seq->desc)) {
+			$out1->write_seq($seq);
+		} else {
+			# do extra checks.
+			
+			# if not.
+			$out2->write_seq($seq);
 		}
 	}
-	return 0;
 }
+
+#sub _check_title {
+#	my $line = shift;
+#	my @title = @{ (shift) };
+#	return 0 if $line eq "Direct Submission";
+#	#print STDERR "begin check\n";
+#	#print STDERR "checking: #$line#\n";
+#	#print STDERR "and: @title\n";
+#	foreach my $title (@title) {
+#		return 1 if $title eq $line;
+#	}
+#	return 0;
+#}
+#
+#sub _check_pubmed {
+#	my $line = shift;
+#	my @pubmed = @{ (shift) };
+#	foreach my $pubmed (@pubmed) {
+#		my @refs = split ";", $pubmed;
+#		foreach my $ref (@refs) {
+#			return 1 if $ref eq $line;
+#		}
+#	}
+#	return 0;
+#}
 
 sub _seq_format {
 	my $dir = shift;
 	my $basename = shift;
 	
+	chdir $dir;
 	
 	my $infile = "$basename.gb";
 	#print STDERR "format: $infile\n";
@@ -336,9 +256,9 @@ sub _seq_format {
 	print STDERR "OK\n";
 }
 
-sub _fix_taxid {
-	return "txid".(shift)."[Organism:exp]";
-}
+#sub _fix_taxid {
+#	return "txid".(shift)."[Organism:exp]";
+#}
 
 sub _download_genome {
 	my $self = shift;
@@ -355,7 +275,17 @@ sub _download_genome {
 	
 	$self->source eq "ncbi" && do
 	{
-		$self->_download_refseq;
+		my $file = $self->organism.".gb";
+		my $outdir = "$SM_HOME/db/ncbi/".$self->binomial."_".$self->strain;
+		
+		
+		use SeqMiner::Download;
+		my $down = new SeqMiner::Download("ncbi");
+		$down->outdir($outdir);
+		$down->filename($file);
+		my $special = undef;
+		$special = "babesia" if $self->id eq "484906";
+		my $count = $down->download_by_taxon($self->id, "genome", $special);
 	};
 	
 }
