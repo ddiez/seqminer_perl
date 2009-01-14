@@ -230,7 +230,7 @@ sub print_fasta {
 	
 	if ($type eq "genome") {
 		foreach my $chr ($self->chromosome_list) {
-			print $fh ">", 	$chr->id, "\n";
+			print $fh ">", $chr->id, defined $chr->description ? " chromosome: ".$chr->description.";\n" : "\n";
 			print $fh _format_seq($chr->seq);
 		}
 	} else {

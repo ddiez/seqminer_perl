@@ -17,6 +17,7 @@ sub _initialize {
 	my $param = shift;
 	$self->{id} = $param->{id};
 	$self->{seq} = undef;
+	$self->{description} = undef;
 }
 
 sub id {

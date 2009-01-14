@@ -43,19 +43,15 @@ $outdir = $O{d} if defined $O{d};
 
 my $in = new Bio::SeqIO(-file => $O{i}, -format => 'genbank');
 
-#!!! NOTE !!!
-# this implies one sequence (genome) per file, as everything will be dump
-# to the same files.
+my $genome = new SeqMiner::Genome;
 while (my $seq = $in->next_seq) {
 	# in bacterial genomes that would be just one sequence.
 	print STDERR "* id: ", $seq->accession_number, "\n";
 	print STDERR "* circular: ", defined $seq->is_circular ? $seq->is_circular : "undef", "\n";
 	print STDERR "* description: ", $seq->description, "\n";
-	my $species = $seq->species;
-	print STDERR "* species: ", $species->species, "\n";
+	print STDERR "* organism: ", $seq->species->binomial, "\n";
 	
-	my $genome = new SeqMiner::Genome;
-	$genome->organism($seq->species);
+	$genome->organism($seq->species) if ! defined $genome->organism;
 	
 	my $chr = new SeqMiner::Genome::Chromosome;
 	$chr->id($seq->accession_number);
@@ -64,7 +60,11 @@ while (my $seq = $in->next_seq) {
 	
 	my @feat = $seq->get_SeqFeatures; # just top level
     foreach my $feat (@feat) {
-		next if $feat->primary_tag eq "source";
+		if ($feat->primary_tag eq "source") {
+			if ($feat->has_tag('chromosome')) {
+				$chr->description($feat->get_tag_values('chromosome'));
+			}
+		}
 		if ($feat->primary_tag eq "gene") {
 			my $gene = new SeqMiner::Genome::Gene;
 			$gene->id($feat->get_tag_values('locus_tag'));
@@ -73,11 +73,15 @@ while (my $seq = $in->next_seq) {
 			$gene->end($feat->end);
 			$gene->seq($seq->subseq($gene->start, $gene->end));
 			$gene->strand($feat->strand == 1 ? "+" : "-");
-			$gene->chromosome($seq->accession_number);
+			if (defined $chr->description) {
+				$gene->chromosome($chr->description);
+			} else {
+				$gene->chromosome($seq->accession_number);
+			}
 			if ($feat->has_tag('pseudo')) {
 				$gene->pseudogene(1);
 			}
-			if ($feat->has_tag('pseudo') && $feat->has_tag('note')) {
+			if ($feat->has_tag('note')) {
 				$gene->description($feat->get_tag_values('note'));
 			} else {
 				$gene->description("");
@@ -85,14 +89,22 @@ while (my $seq = $in->next_seq) {
 			$genome->add_gene($gene);
 		} elsif ($feat->primary_tag eq "mRNA") {
 			my $gene = $genome->get_gene_by_id($feat->get_tag_values('locus_tag'));
+			$gene->coding_gene(1);
+			$gene->description($feat->get_tag_values('product')) if $feat->has_tag('product');
+		} elsif ($feat->primary_tag eq "ncRNA") {
+			my $gene = $genome->get_gene_by_id($feat->get_tag_values('locus_tag'));
+			$gene->coding_gene(0);
+			$gene->ncrna_class($feat->get_tag_values('ncRNA_class'));
 			$gene->description($feat->get_tag_values('product')) if $feat->has_tag('product');
 		} elsif ($feat->primary_tag eq "CDS") {
 			my $gene = $genome->get_gene_by_id($feat->get_tag_values('locus_tag'));
 			$gene->description($feat->get_tag_values('product')) if $feat->has_tag('product');
-			if ($feat->has_tag('translation')) {
-				$gene->translation($feat->get_tag_values('translation'));
-			} else {
-				$gene->translation($feat->seq->translate);
+			if (! $gene->pseudogene) {
+				if ($feat->has_tag('translation')) {
+					$gene->translation($feat->get_tag_values('translation'));
+				} else {
+					$gene->translation($feat->seq->translate);
+				}
 			}
 			
 			my $exon = new SeqMiner::Genome::Exon;

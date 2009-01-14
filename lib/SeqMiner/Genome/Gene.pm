@@ -30,6 +30,8 @@ sub _initialize {
 	$self->{seq} = $param->{seq};
 	$self->{translation} = $param->{translation};
 	$self->{nexons} = 0;
+	$self->{coding_gene} = undef;
+	$self->{ncrna_class} = undef;
 }
 
 sub id {
@@ -51,6 +53,18 @@ sub pseudogene {
 	return $self->{pseudogene};
 }
 
+sub coding_gene {
+	my $self = shift;
+	$self->{coding_gene} = shift if @_;
+	return $self->{coding_gene};
+}
+
+sub ncrna_class {
+	my $self = shift;
+	$self->{ncrna_class} = shift if @_;
+	return $self->{ncrna_class};
+}
+
 sub description {
 	my $self = shift;
 	$self->{description} = shift if @_;
@@ -59,7 +73,15 @@ sub description {
 
 sub get_gff_desc {
 	my $self = shift;
-	return "description=".$self->description.";pseudogene=".$self->pseudogene.";";
+	if ($self->coding_gene) {
+		return "description=".$self->description.";pseudogene=".$self->pseudogene.";";
+	} else {
+		if (defined $self->ncrna_class) {
+			return "description=".$self->description.";ncrna_class=".$self->ncrna_class.";";
+		} else {
+			return "description=".$self->description.";";
+		}
+	}
 }
 
 sub chromosome {
