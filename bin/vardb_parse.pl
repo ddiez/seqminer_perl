@@ -37,3 +37,4 @@ die $help if !exists $O{f};
 
 my $parser = new SeqMiner::Parser($O{format});
 $parser->parse($O{t}, $O{d});
+$parser->format;

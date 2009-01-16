@@ -37,5 +37,20 @@ sub driver {
 	return $self->{driver};
 }
 
+sub format {
+	my $self = shift;
+	
+	chdir $self->outdir;
+	print STDERR "* formating genome (blast) ... ";
+	system "formatdb -p F -i genome.fa -n genome -o T -V";
+	print STDERR "OK\n";
+	print STDERR "* formating gene (blast) ... ";
+	system "formatdb -p F -i gene.fa -n gene -o T -V";
+	print STDERR "OK\n";
+	print STDERR "* formating protein (blast) ... ";
+	system "formatdb -i protein.fa -n protein -o T -V";
+	print STDERR "OK\n";
+}
+
 
 1;
