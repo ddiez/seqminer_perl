@@ -65,13 +65,17 @@ sub organism {
 }
 
 sub dir {
-	my $self = shift;
-	if ($self->strain ne "_undef_") {
-		return $self->binomial."_".$self->strain;
-	} else {
-		return $self->binomial;
-	}
+	return shift->organism;
 }
+
+#sub dir {
+#	my $self = shift;
+#	if ($self->strain ne "_undef_") {
+#		return $self->binomial."_".$self->strain;
+#	} else {
+#		return $self->binomial;
+#	}
+#}
 
 sub key {
 	my $self = shift;
@@ -131,43 +135,53 @@ sub _download_isolate {
 	my $self = shift;
 	my $db = shift;
 	
-	my $outdir1 = "$SM_HOME/db/genbank/".$self->name;
-	my $outdir2 = "$SM_HOME/db/isolate/".$self->name;
+	my $outdir = "$SM_HOME/db/genbank/".$self->name;
+	#my $outdir2 = "$SM_HOME/db/isolate/".$self->name;
 	my $file = $TARGET_DB{$db}.".gb";
 	
-	if (! -d $outdir1) {
-		mkdir $outdir1;
+	if (! -d $outdir) {
+		mkdir $outdir;
 	}
-	chdir $outdir1;
+	chdir $outdir;
 	unlink $file;
 	
-	if (! -d $outdir2) {
-		mkdir $outdir2;
-	}
+	#if (! -d $outdir2) {
+	#	mkdir $outdir2;
+	#}
 	
 	use SeqMiner::Download;
 	my $down = new SeqMiner::Download("ncbi");
-	$down->outdir($outdir1);
+	$down->outdir($outdir);
 	$down->filename($file);
 	#my $special = undef;
 	#$special = "babesia" if $self->id eq "484906";
-	my $count = $down->download_by_taxon($self->id, $db);
+	return $down->download_by_taxon($self->id, $db);
 	
-	if ($count > 0) {
-		&_seq_filter($outdir1, $outdir2, $TARGET_DB{$db});
-		&_seq_format($outdir2, $TARGET_DB{$db});
-	} else {
-		print STDERR "## NO SEQUENCES FOUND\n\n";
-	}
+#	if ($count > 0) {
+#		&_seq_filter($outdir1, $outdir2, $TARGET_DB{$db});
+#		&_seq_format($outdir2, $TARGET_DB{$db});
+#	} else {
+#		print STDERR "## NO SEQUENCES FOUND\n\n";
+#	}
 }
 
+sub filter {
+	my $self = shift;
+	
+	$self->type eq "isolate" && do { $self->_filter_isolate(@_); };
+	#$self->type eq "genome" && do { $self->_download_genome(@_); };
+}
+
+# this are nasty manual filters to remove genome sequencing files
+# from a set of downloaded Nuclotide Core/EST files.
 sub _check_filter {
 	my $line = shift;
 	
 	my @filter = (
 		"complete genome",
 		"complete mitochondrial genome",
-		"chromosome\.+complete sequence"
+		"chromosome.+complete sequence",
+		"chromosome.+\\*\\*\\* SEQUENCING IN PROGRESS \\*\\*\\*"
 	);
 	
 	foreach my $filter (@filter) {
@@ -176,56 +190,71 @@ sub _check_filter {
 	return 0;
 }
 
-sub _seq_filter {
-	my $dir1 = shift;
-	my $dir2 = shift;
-	my $file = shift;
+sub _filter_isolate {
+	my $self = shift;
+	my $db = shift;
 	
-	print STDERR "* filtering ... ";
+	print STDERR "* filtering $db ... ";
 	
-	use Bio::SeqIO;
-	
-	my $in = new Bio::SeqIO(-file => "$dir1/$file.gb", -format => 'genbank');
-	my $out1 = new Bio::SeqIO(-file => ">$dir1/$file.project.gb", -format => 'genbank');
-	my $out2 = new Bio::SeqIO(-file => ">$dir2/$file.gb", -format => 'genbank');
-	while (my $seq = $in->next_seq) {
-		if (_check_filter($seq->desc)) {
-			$out1->write_seq($seq);
-		} else {
-			# do extra checks.
-			
-			# if not.
-			$out2->write_seq($seq);
+	my $outdir1 = "$SM_HOME/db/genbank/".$self->organism;
+	my $outdir2 = "$SM_HOME/db/isolate/".$self->organism;
+	my $base = $TARGET_DB{$db};
+	my $filter = 0;
+
+	if (! -e "$outdir1/$base.gb") {
+		print STDERR "WARNING: file $base.gb not found.\n\n";
+		return 0;
+	}
+
+	open OUT1, ">$outdir1/$base.project.gb" or die "$!";
+	open OUT2, ">$outdir2/$base.gb" or die "$!";
+	open IN, "$outdir1/$base.gb" or die "$!";
+	while (<IN>) {
+		if (/^LOCUS/) {
+			$a .= $_;
+			while (<IN>) {
+				$a .= $_;
+				$filter = 1 if /^PROJECT/;
+				#if (/\s+?TITLE\s+(.+)/) {
+				#	$filter = 1 if $1 =~ /The genome sequence/;
+				#}
+				
+				if (/^DEFINITION\s+(.+)/) {
+					$filter = 1 if _check_filter($1);
+				}
+				
+#				if (/^KEYWORDS\s+(.+)/) {
+#					$filter = 1 if _check_filter($1);
+#				}
+				
+				if (/^\/\//) {
+					# check project.
+					if ($filter == 1) {
+						# print.
+						print OUT1 $a;
+					} else {
+						# print.
+						print OUT2 $a;
+					}
+					# reset.
+					$filter = 0;
+					$a = "";
+					last;
+				}
+			}
 		}
 	}
+	close IN;
+	close OUT1;
+	close OUT2;
+	print STDERR "OK\n";
+	
+	$self->_seq_format($outdir2, $base);
+	print STDERR "\n";
 }
 
-#sub _check_title {
-#	my $line = shift;
-#	my @title = @{ (shift) };
-#	return 0 if $line eq "Direct Submission";
-#	#print STDERR "begin check\n";
-#	#print STDERR "checking: #$line#\n";
-#	#print STDERR "and: @title\n";
-#	foreach my $title (@title) {
-#		return 1 if $title eq $line;
-#	}
-#	return 0;
-#}
-#
-#sub _check_pubmed {
-#	my $line = shift;
-#	my @pubmed = @{ (shift) };
-#	foreach my $pubmed (@pubmed) {
-#		my @refs = split ";", $pubmed;
-#		foreach my $ref (@refs) {
-#			return 1 if $ref eq $line;
-#		}
-#	}
-#	return 0;
-#}
-
 sub _seq_format {
+	my $self = shift;
 	my $dir = shift;
 	my $basename = shift;
 	
@@ -241,7 +270,7 @@ sub _seq_format {
 	my $in = new Bio::SeqIO(-file => "$infile", -format => 'genbank');
 	my $out = new Bio::SeqIO(-file => ">$outfile", -format => 'fasta');
 
-	print STDERR "* formatting ... ";
+	print STDERR "* extract FASTA ... ";
 	open OUT, ">$basename.skip" or die "$!";
 	while (my $seq = $in->next_seq) {
 		if (defined $seq->seq) {
@@ -251,14 +280,11 @@ sub _seq_format {
 		}
 	}
 	close OUT;
-	
+	print STDERR "OK\n";
+	print STDERR "* format ... ";
 	system "formatdb -i $outfile -n $basename -p F -o T -V";
 	print STDERR "OK\n";
 }
-
-#sub _fix_taxid {
-#	return "txid".(shift)."[Organism:exp]";
-#}
 
 sub _download_genome {
 	my $self = shift;

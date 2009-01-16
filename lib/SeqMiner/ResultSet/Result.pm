@@ -198,7 +198,7 @@ sub export_nelson_for_isolate {
 		#"model", "\t",
 		"score", "\t",
 		"evalue", "\t",
-		#"hmmloc", "\t",
+		"hmmloc", "\t",
 		"description", "\n";
 	
 	my %hit_unique;
@@ -217,11 +217,6 @@ sub export_nelson_for_isolate {
 		#!!!!!!!!!!!!!!!!!!!!!!
 		
 		my $nuc_seq = $seq->get_seq_by_id($id);
-		if (defined $nuc_seq) {
-			$nuc_seq = $nuc_seq->seq;
-		} else {
-			$nuc_seq = "";
-		}
 		
 		my $hmmloc = "";
 		my @hmmloc;
@@ -239,7 +234,7 @@ sub export_nelson_for_isolate {
 		#	$taxon->strain, "\t",
 		#	$org_tax.".".$gene->chromosome, "\t",
 		#	$pro_seq, "\t",
-			$nuc_seq, "\t",
+			defined $nuc_seq->seq ? $nuc_seq->seq : "", "\t",
 		#	$gene->start, "\t",
 		#	$gene->end, "\t",
 		#	$gene->strand eq "+" ? "forward" : "reverse", "\t",
@@ -253,7 +248,7 @@ sub export_nelson_for_isolate {
 			$hit->score, "\t",
 			$hit->significance, "\t",
 			$hmmloc, "\t",
-			"", "\n";
+			defined $nuc_seq->description ? $nuc_seq->description : "", "\n";
 	}
 	
 	
