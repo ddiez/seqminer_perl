@@ -320,16 +320,19 @@ sub hmm {
 
 sub analyze_sequence {
 	my $self = shift;
+	my $param = shift;
 	
 	print STDERR "# ANALYZE\n";
 	$self->debug;
 	
 	my $res = undef;
 	if ($self->{type} eq "isolate") {
+		return 2 if ($param->{type} eq "isolate");
 		foreach my $db (values %TARGET_DB) {
 			$res = $self->_analyze_isolate($db);
 		}
 	} else {
+		return 2 if ($param->{type} eq "genome");
 		$res = $self->_analyze_genome;
 	}
 	return $res;
@@ -501,16 +504,19 @@ sub _search_pfam_isolate {
 
 sub analyze_domain {
 	my $self = shift;
+	my $param = shift;
 	
 	print STDERR "# ANALYZE PFAM\n";
 	$self->debug;
 	
 	my $res = undef;
 	if ($self->{type} eq "isolate") {
+		return 2 if ($param->{type} eq "isolate");
 		foreach my $db (values %TARGET_DB) {
 			$res = $self->_analyze_pfam_isolate($db);
 		}
 	} else {
+		return 2 if ($param->{type} eq "genome");
 		$res = $self->_analyze_pfam_genome;
 	}
 	return $res;

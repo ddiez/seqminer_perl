@@ -5,7 +5,7 @@ sub new {
 	
 	my $self = {};
 	$self->{outdir};
-#	$self->{filename};
+	$self->{filename};
 	bless $self, $class;
     return $self->_initialize(@_) if @_;
 }
@@ -15,6 +15,7 @@ sub _initialize {
     my $module = shift;
     $module = "SeqMiner::Parser::$module";
     eval "require $module";
+    $self->{driver} = $module;
     return $module;
 }
 
@@ -24,10 +25,17 @@ sub outdir {
 	return $self->{outdir};
 }
 
-#sub filename {
-#	my $self = shift;
-#	$self->{filename} = shift if @_;
-#	return $self->{filename};
-#}
+sub filename {
+	my $self = shift;
+	$self->{filename} = shift if @_;
+	return $self->{filename};
+}
+
+sub driver {
+	my $self = shift;
+	$self->{driver} = shift if @_;
+	return $self->{driver};
+}
+
 
 1;

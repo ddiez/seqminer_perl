@@ -10,7 +10,6 @@ sub new {
     return $self;
 }
 
-
 sub parse {
 	my $self = shift;
 	

@@ -10,7 +10,7 @@ use SeqMiner::Parser;
 use Getopt::Long;
 
 my %O;
-GetOptions(\%O, 'i:s', 'd:s', 'format:s');
+GetOptions(\%O, 'i:s', 'd:s', 'format:s', 't');
 
 my $help = <<"HELP";
 
@@ -24,9 +24,11 @@ Usage:
 
 Options:
 
-   -i   file in Genbank format
-   -d   directory to output data
+   -i   input file
+   -o   output directory
    -f   source format (ncbi, plasmodb, broad) [default: null]
+   -t   file type (for broad driver)
+   -d   description file (for broad driver)
  
 HELP
 
@@ -34,4 +36,4 @@ die $help if !exists $O{i};
 die $help if !exists $O{f};
 
 my $parser = new SeqMiner::Parser($O{format});
-$parser->parse;
+$parser->parse($O{t}, $O{d});
