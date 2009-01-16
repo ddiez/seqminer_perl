@@ -9,6 +9,7 @@ bin/vardb_count_list.pl
 bin/vardb_create_dir_structure.pl
 bin/vardb_create_local_dir.pl
 bin/vardb_download.pl
+bin/vardb_embl_parse.pl
 bin/vardb_eupathdb_parse.pl
 bin/vardb_extract_regulatory_regions.pl
 bin/vardb_formatdb.pl
@@ -42,6 +43,8 @@ lib/SeqMiner/Config/Param.pm
 lib/SeqMiner/Config/Search.pm
 lib/SeqMiner/Config/SearchSet.pm
 lib/SeqMiner/Download.pm
+lib/SeqMiner/Download/ncbi.pm
+lib/SeqMiner/Download/plasmodb.pm
 lib/SeqMiner/Family.pm
 lib/SeqMiner/FamilySet.pm
 lib/SeqMiner/Genome.pm
@@ -50,6 +53,7 @@ lib/SeqMiner/Genome/Exon.pm
 lib/SeqMiner/Genome/Gene.pm
 lib/SeqMiner/GFF.pm
 lib/SeqMiner/HMMER.pm
+lib/SeqMiner/Hmmer/Hmmpfam.pm
 lib/SeqMiner/ItemSet.pm
 lib/SeqMiner/ItemSet/Item.pm
 lib/SeqMiner/Location.pm
