@@ -12,6 +12,7 @@ use strict;
 use warnings;
 use Bio::SeqIO;
 use Getopt::Long;
+# Fix: deprecated module, use TaxonSet instead.
 use SeqMiner::Config::Param;
 
 my %O;
