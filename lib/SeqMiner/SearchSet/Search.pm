@@ -322,17 +322,17 @@ sub analyze_sequence {
 	my $self = shift;
 	my $param = shift;
 	
-	print STDERR "# ANALYZE\n";
+	print STDERR "# ANALYZE SEQUENCE\n";
 	$self->debug;
 	
 	my $res = undef;
 	if ($self->{type} eq "isolate") {
-		return 2 if ($param->{type} eq "isolate");
+		return 2 if ($param->{type} eq "genome");
 		foreach my $db (values %TARGET_DB) {
 			$res = $self->_analyze_isolate($db);
 		}
 	} else {
-		return 2 if ($param->{type} eq "genome");
+		return 2 if ($param->{type} eq "isolate");
 		$res = $self->_analyze_genome;
 	}
 	return $res;
@@ -456,7 +456,7 @@ sub search_domain {
 	my $self = shift;
 	my $param = shift;
 
-	print STDERR "# PFAM SCAN\n";
+	print STDERR "# SEARCH DOMAIN\n";
 	$self->debug;
 	
 	my $res = undef;
@@ -506,17 +506,17 @@ sub analyze_domain {
 	my $self = shift;
 	my $param = shift;
 	
-	print STDERR "# ANALYZE PFAM\n";
+	print STDERR "# ANALYZE DOMAIN\n";
 	$self->debug;
 	
 	my $res = undef;
 	if ($self->{type} eq "isolate") {
-		return 2 if ($param->{type} eq "isolate");
+		return 2 if ($param->{type} eq "genome");
 		foreach my $db (values %TARGET_DB) {
 			$res = $self->_analyze_pfam_isolate($db);
 		}
 	} else {
-		return 2 if ($param->{type} eq "genome");
+		return 2 if ($param->{type} eq "isolate");
 		$res = $self->_analyze_pfam_genome;
 	}
 	return $res;

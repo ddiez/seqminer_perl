@@ -4,7 +4,7 @@ use SeqMiner::SearchSet;
 use Getopt::Long;
 
 my %O = ();
-GetOptions(\%O, 's', 'a', 'd');
+GetOptions(\%O, 's', 'a', 'd', 't=s');
 
 my $help =<<HELP;
 
