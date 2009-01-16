@@ -12,3 +12,7 @@ old
 vardb-perl.kpf
 vardb.kpf
 deprecated
+alpha
+.includepath
+.project
+Build
