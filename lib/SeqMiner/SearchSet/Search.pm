@@ -75,8 +75,7 @@ sub taxon {
 	return $self->{taxon};
 }
 
-# TODO: clean-up this:
-sub search {
+sub search_sequence {
 	my $self = shift;
 	my $param = shift;
 	
@@ -319,7 +318,7 @@ sub hmm {
 	print STDERR "OK\n";
 }
 
-sub analyze {
+sub analyze_sequence {
 	my $self = shift;
 	
 	print STDERR "# ANALYZE\n";
@@ -450,17 +449,25 @@ sub _analyze_genome {
 	$p_ls->export_fasta({file => "$base-nucleotide.fa", db => $nuc});
 }
 
-sub pfam {
+sub search_domain {
 	my $self = shift;
+	my $param = shift;
 
 	print STDERR "# PFAM SCAN\n";
 	$self->debug;
-
-	if ($self->type eq "genome") {
-		$self->_search_pfam_genome;
+	
+	my $res = undef;
+	if ($self->{type} eq "isolate") {
+		return 2 if ($param->{type} eq "genome");
+		foreach my $db (values %TARGET_DB) {
+			$res = $self->_search_pfam_isolate($db);
+		}
 	} else {
-		$self->_search_pfam_isolate;
+		return 2 if ($param->{type} eq "isolate");
+		$res = $self->_search_pfam_genome;
 	}
+	
+	return $res;
 }
 
 sub _search_pfam_genome {
@@ -492,7 +499,7 @@ sub _search_pfam_isolate {
 	#print STDERR "## NOT YET IMPLEMENTED\n";
 }
 
-sub analyze_pfam {
+sub analyze_domain {
 	my $self = shift;
 	
 	print STDERR "# ANALYZE PFAM\n";

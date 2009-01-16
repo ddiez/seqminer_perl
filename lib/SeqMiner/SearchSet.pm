@@ -51,31 +51,31 @@ sub hmm {
 	}
 }
 
-sub search {
+sub search_sequence {
 	my $self = shift;
 	foreach my $search ($self->item_list) {
-		$search->search(@_);
+		$search->search_sequence(@_);
 	}
 }
 
-sub analyze {
+sub analyze_sequence {
 	my $self = shift;
 	foreach my $search ($self->item_list) {
-		$search->analyze;
+		$search->analyze_sequence(@_);
 	}
 }
 
-sub pfam {
+sub search_domain {
 	my $self = shift;
 	foreach my $search ($self->item_list) {
-		$search->pfam;
+		$search->search_domain(@_);
 	}
 }
 
-sub analyze_pfam {
+sub analyze_domain {
 	my $self = shift;
 	foreach my $search ($self->item_list) {
-		$search->analyze_pfam;
+		$search->analyze_domain(@_);
 	}
 }
 

@@ -4,18 +4,18 @@ use SeqMiner::SearchSet;
 use Getopt::Long;
 
 my %O = ();
-GetOptions(\%O, 's', 'a', 'd', 't=s');
+GetOptions(\%O, 's', 'a', 'd');
 
 my $help =<<HELP;
 
-Usage: vardb_search.pl {-a [-s -p] [t type]}
+Usage: vardb_analyze.pl {-a [-s -d] [t type]}
 
 Options:
 
-   -a   search sequences and domains
-   -s   search sequences
-   -d   search domains
-   -t   target sequences (genome, isolate, all) [default: all]
+   -a   do sequences and domains
+   -s   analyze sequences
+   -d   analyze domains
+   -t   target sequences (genome, isolate) [default: all]
 
 HELP
 
@@ -31,5 +31,5 @@ $do_sequence = 1 if $O{s} or $all == 1;
 $do_domain = 1 if $O{d} or $all == 1;
 
 my $ss = new SeqMiner::SearchSet;
-$ss->search_sequence({ type => $O{t} }) if $do_sequence;
-$ss->search_domain({ type => $O{t} }) if $do_domain;
+$ss->analyze_sequence({ type => $O{t} }) if $do_sequence;
+$ss->analyze_domain({ type => $O{t} }) if $do_domain;
