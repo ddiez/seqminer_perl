@@ -23,6 +23,7 @@ sub _initialize {
 	my $self = shift;
 	
 	my $ts = new SeqMiner::TaxonSet;
+	my $ps = new SeqMiner::PaperSet;
 	
 	foreach my $taxon ($ts->item_list) {
 		#print STDERR "+ ", $taxon->id, "\n";

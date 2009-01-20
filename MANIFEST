@@ -20,6 +20,8 @@ lib/SeqMiner/ItemSet.pm
 lib/SeqMiner/ItemSet/Item.pm
 lib/SeqMiner/Ortholog.pm
 lib/SeqMiner/OrthologSet.pm
+lib/SeqMiner/PaperSet.pm
+lib/SeqMiner/PaperSet/Paper.pm
 lib/SeqMiner/Parser.pm
 lib/SeqMiner/Parser/broad.pm
 lib/SeqMiner/Parser/embl.pm
