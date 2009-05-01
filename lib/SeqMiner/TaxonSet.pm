@@ -44,12 +44,20 @@ sub _initialize {
 			$taxon->type($type);
 			$taxon->source($source ne "" ? $source : "_undef_");
 			$taxon->seed($seed);
+			#$taxon->ortholog(new SeqMiner::ItemSet);
+			#$taxon->ortholog->add($os->get_item_by_id($ortholog));
+			#$taxon->family($family_id);
 			$self->add($taxon);
 		}
-		my $family = new SeqMiner::Family;
-		$family->id($family_id);
-		$family->ortholog($os->get_item_by_id($ortholog));
-		$taxon->family->add($family);
+		# old way (deprecated module FamilySet)
+#		my $family = new SeqMiner::Family;
+#		$family->id($family_id);
+#		$family->ortholog($os->get_item_by_id($ortholog));
+#		$taxon->family->add($family);
+
+		# new way (like in PaperSet)
+		$taxon->family($family_id);
+		$taxon->ortholog->add($os->get_item_by_id($ortholog));
 	}
 	close IN;
 }

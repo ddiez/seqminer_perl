@@ -33,7 +33,9 @@ sub _initialize {
 	$self->{genus} = undef;
 	$self->{species} = undef
 	$self->{strain} = undef;
-	$self->{family} = new SeqMiner::FamilySet;
+	#$self->{family} = new SeqMiner::FamilySet;
+	$self->{family} = undef;
+	$self->{ortholog} = new SeqMiner::ItemSet;
 	$self->{type} = undef;
 	$self->{source} = undef;
 }
@@ -121,7 +123,15 @@ sub seed {
 }
 
 sub family {
-	return shift->{family};
+	my $self = shift;
+	$self->{family} = shift if @_;
+	return $self->{family};
+}
+
+sub ortholog {
+	my $self = shift;
+	$self->{ortholog} = shift if @_;
+	return $self->{ortholog};
 }
 
 sub download {

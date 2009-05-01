@@ -23,7 +23,8 @@ sub new {
 	my $self = {};
 	$self->{type} = undef;
 	$self->{family} = undef;
-	$self->{taxon} = undef;
+	#$self->{taxon} = undef;
+	$self->{search} = undef;
 	$self->{basedir} = undef;
 	bless $self, $class;
     $self->_initialize(@_);
@@ -32,10 +33,12 @@ sub new {
 
 sub _initialize {
 	my $self = shift;
-	$self->{taxon} = shift if @_;
-	$self->{family} = shift if @_;
-	$self->{type} = $self->taxon->type;
-	$self->_set_basedir;
+#	$self->{taxon} = shift if @_;
+	#$self->{search} = shift if @_;
+	#$self->{family} = shift if @_;
+	#$self->{type} = $self->taxon->type;
+	#$self->{type} = $self->search->type;
+	#$self->_set_basedir;
 }
 
 sub _set_basedir {
@@ -44,8 +47,12 @@ sub _set_basedir {
 	$basedir = "$SM_MINING_DIR/last/" if $DEBUG == 1;
 	if ($self->{type} eq "isolate") {
 		$basedir .= "isolate";
-	} else {
+	} elsif ($self->{type} eq "genome") {
 		$basedir .= "genome";
+	} elsif ($self->{type} eq "paper") {
+		$basedir .= "paper";
+	} else {
+		die "ERROR [SeqMiner::Search] Unknown type $self->{type}\n";
 	}
 	$self->{basedir} = $basedir;
 }
@@ -53,6 +60,13 @@ sub _set_basedir {
 sub basedir {
 	return shift->{basedir};
 }
+
+sub search {
+	my $self = shift;
+	$self->{search} = shift if @_;
+	return $self->{search};
+}
+
 
 sub family {
 	my $self = shift;
@@ -69,11 +83,12 @@ sub type {
 	return $self->{type};
 }
 
-sub taxon {
-	my $self = shift;
-	$self->{taxon} = shift if @_;
-	return $self->{taxon};
-}
+#sub taxon {
+#	my $self = shift;
+#	#$self->{taxon} = shift if @_;
+#	#return $self->{taxon};
+#	$self->search(@_);
+#}
 
 sub search_sequence {
 	my $self = shift;

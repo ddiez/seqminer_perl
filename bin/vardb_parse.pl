@@ -10,7 +10,7 @@ use SeqMiner::Parser;
 use Getopt::Long;
 
 my %O;
-GetOptions(\%O, 'i:s', 'd:s', 'format:s', 't');
+GetOptions(\%O, 'i:s', 'd:s', 'f:s', 't:s', 'o:s');
 
 my $help = <<"HELP";
 
@@ -20,8 +20,7 @@ my $help = <<"HELP";
 
 Usage:
 
- vardb_parse.pl -i <file> -d -format <format>
-
+ vardb_parse.pl -i <file> -f <format> -o <dir>
 Options:
 
    -i   input file
@@ -35,6 +34,8 @@ HELP
 die $help if !exists $O{i};
 die $help if !exists $O{f};
 
-my $parser = new SeqMiner::Parser($O{format});
+my $parser = new SeqMiner::Parser($O{f});
+$parser->filename($O{i});
+$parser->outdir($O{o}) if exists $O{o};
 $parser->parse($O{t}, $O{d});
 $parser->format;

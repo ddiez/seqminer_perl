@@ -23,11 +23,7 @@ sub parse {
 	
 	my $genome = new SeqMiner::Genome;
 
-	my $in = new Bio::Tools::GFF(-file => $O{i}, -gff_version => 3);
-	my $prot_out = new Bio::SeqIO(-file => ">$outdir/protein.fa", -format => 'fasta');
-	my $nuc_out = new Bio::SeqIO(-file => ">$outdir/gene.fa", -format => 'fasta');
-	my $gen_out = new Bio::SeqIO(-file => ">$outdir/genome.fa", -format => 'fasta');
-	
+	my $in = new Bio::Tools::GFF(-file => $file, -gff_version => 3);
 	while (my $feat = $in->next_feature) {
 		if ($feat->primary_tag eq "gene") {
 			my $gene = new SeqMiner::Genome::Gene;
@@ -102,10 +98,10 @@ sub parse {
 	}
 	
 	# output files.
-	$genome->print_fasta({type => "nucleotide", file => "gene.fa"});
-	$genome->print_fasta({type => "protein", file => "protein.fa"});
-	$genome->print_fasta({type => "genome", file => "genome.fa"});
-	$genome->print_gff({file => "genome.gff"});
+	$genome->print_fasta({type => "nucleotide", file => "$outdir/gene.fa"});
+	$genome->print_fasta({type => "protein", file => "$outdir/protein.fa"});
+	$genome->print_fasta({type => "genome", file => "$outdir/genome.fa"});
+	$genome->print_gff({file => "$outdir/genome.gff"});
 }
 
 1;

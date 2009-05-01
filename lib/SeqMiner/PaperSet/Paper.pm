@@ -19,6 +19,7 @@ sub new {
 	my $class = shift;
 	
 	my $self = {};
+	$self->{ortholog} = new SeqMiner::ItemSet;
 	bless $self, $class;
     $self->_initialize(@_);
     return $self;
@@ -26,6 +27,23 @@ sub new {
 
 sub _initialize {
 	my $self = shift;
+}
+
+sub ortholog {
+	my $self = shift;
+	$self->{ortholog} = shift if @_;
+	return $self->{ortholog};
+}
+
+sub name {
+	my $self = shift;
+
+#	if ($self->strain ne "_undef_") {
+#		return $self->genus.".".$self->species."_".$self->strain;
+#	} else {
+#		return $self->genus.".".$self->species;
+#	} 
+	return $self->id;
 }
 
 1;

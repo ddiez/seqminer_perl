@@ -10,9 +10,9 @@ use vars qw( @ISA );
 
 sub new {
 	my $class = shift;
-	
+
 	my $self = {};
-	
+
 	bless $self, $class;
     $self->_initialize(@_);
     return $self;

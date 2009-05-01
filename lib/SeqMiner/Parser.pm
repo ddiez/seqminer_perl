@@ -1,11 +1,14 @@
 package SeqMiner::Parser;
 
+use Bio::SeqIO;
+
 sub new {
 	my $class = shift;
 	
 	my $self = {};
-	$self->{outdir};
-	$self->{filename};
+	$self->{outdir} = ".";
+	$self->{filename} = undef;
+	$self->{driver};
 	bless $self, $class;
     return $self->_initialize(@_) if @_;
 }

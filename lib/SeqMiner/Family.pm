@@ -11,8 +11,8 @@ sub new {
 	
 	my $self = {};
 	bless $self, $class;
-    $self->_initialize(@_);
-    return $self;
+	$self->_initialize(@_);
+	return $self;
 }
 
 sub _initialize {
