@@ -1,9 +1,8 @@
-bin/vardb_analyze.pl
-bin/vardb_commit.pl
-bin/vardb_download.pl
-bin/vardb_parse.pl
-bin/vardb_process_directory.sh
-bin/vardb_search.pl
+bin/sm_analyze.pl
+bin/sm_commit.pl
+bin/sm_download.pl
+bin/sm_parse.pl
+bin/sm_search.pl
 lib/SeqMiner.pm
 lib/SeqMiner/Config.pm
 lib/SeqMiner/Download.pm
@@ -25,6 +24,7 @@ lib/SeqMiner/PaperSet/Paper.pm
 lib/SeqMiner/Parser.pm
 lib/SeqMiner/Parser/broad.pm
 lib/SeqMiner/Parser/embl.pm
+lib/SeqMiner/Parser/ensembl.pm
 lib/SeqMiner/Parser/ncbi.pm
 lib/SeqMiner/Parser/plasmodb.pm
 lib/SeqMiner/R.pm

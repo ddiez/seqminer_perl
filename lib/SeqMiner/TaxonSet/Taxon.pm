@@ -392,9 +392,10 @@ sub _download_refseq {
 		if (! -d $outdir) {
 			mkdir $outdir;
 		}
-		system "vardb_ncbi_parse.pl -i $file -d $outdir";
-		chdir "$outdir";
-		system "vardb_process_directory.sh";
+#		system "vardb_ncbi_parse.pl -i $file -d $outdir";
+#		chdir "$outdir";
+#		system "vardb_process_directory.sh";
+		system "sm_parse.pl -i $file -o $outdir -f ncbi";
 		
 		print STDERR "\n";
 	} else {
@@ -405,11 +406,13 @@ sub _download_refseq {
 my %EUPATHDB_RELEASE = (
 	plasmodb  => "5.5",
 	giardiadb => "1.1",
+	tritrypdb => "1.1",
 );
 
 my %EUPATHDB_MIRRORS = (
 	plasmodb  => "http://www.plasmodb.org/common/downloads/release-",
 	giardiadb => "http://giardiadb.org/common/downloads/release-",
+	tritrypdb => "http://tritrypdb.org/common/downloads/release-",
 );
 
 
@@ -449,8 +452,9 @@ sub _download_eupathdb {
 		# processing;
 		my $outdir = "$SM_HOME/db/genomes/".$self->binomial."_".$self->strain;
 		chdir "$outdir";
-		system "vardb_eupathdb_parse.pl -i $dir/$file";
-		system "vardb_process_directory.sh";
+		system "sm_parse.pl -i $dir/$file -o . -f plasmodb";
+		#system "vardb_eupathdb_parse.pl -i $dir/$file";
+		#system "vardb_process_directory.sh";
 		print STDERR "\n";
     } else {
 		print STDERR "ERROR\n";

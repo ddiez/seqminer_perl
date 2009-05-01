@@ -20,7 +20,7 @@ my $help = <<"HELP";
 
 Usage:
 
- vardb_parse.pl -i <file> -f <format> -o <dir>
+ sm_parse.pl -i <file> -f <format> -o <dir>
 Options:
 
    -i   input file

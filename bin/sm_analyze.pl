@@ -8,7 +8,7 @@ GetOptions(\%O, 's', 'a', 'd', 't=s');
 
 my $help =<<HELP;
 
-Usage: vardb_analyze.pl {-a [-s -d] [t type]}
+Usage: sm_analyze.pl {-a [-s -d] [t type]}
 
 Options:
 

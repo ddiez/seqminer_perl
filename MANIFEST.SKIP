@@ -9,8 +9,6 @@ MANIFEST
 MANIFEST.SKIP
 _build
 old
-vardb-perl.kpf
-vardb.kpf
 deprecated
 alpha
 .includepath
