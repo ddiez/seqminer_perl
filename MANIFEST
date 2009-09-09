@@ -5,6 +5,7 @@ bin/sm_parse.pl
 bin/sm_search.pl
 lib/SeqMiner.pm
 lib/SeqMiner/Config.pm
+lib/SeqMiner/Config2.pm
 lib/SeqMiner/Download.pm
 lib/SeqMiner/Download/ncbi.pm
 lib/SeqMiner/Download/plasmodb.pm
