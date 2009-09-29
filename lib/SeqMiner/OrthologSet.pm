@@ -35,10 +35,18 @@ sub _initialize {
 		$ortholog->hmm($hmm);
 	}
 	close IN;
+	#$self->debug if $DEBUG;
 }
 
 sub ortholog_list {
 	return shift->SUPER::item_list;
+}
+
+sub debug {
+	my $self = shift;
+	for my $o ($self->item_list) {
+		print STDERR $o->hmm, "\n";
+	}
 }
 
 1;

@@ -5,9 +5,12 @@ use warnings;
 use SeqMiner::Config;
 use SeqMiner::OrthologSet;
 
+# TODO: add warnings and confirmation.
+
 my $os = new SeqMiner::OrthologSet;
 
 my $force_new = 1; # forces new dir structure.
+my $PROJECT = "vardb";
 
 my @DIR_BASE = ("isolate", "genome", "paper");
 my @DIR_SUB = ('search', 'analysis', 'sequences', 'pfam', 'fasta', 'domains');
@@ -24,7 +27,7 @@ if ($force_new) {
 	if ($DEBUG == 1) {
 		$dir = &_get_random_dir;
 	} else {
-		$dir = "vardb-$SM_RELEASE";
+		$dir = "$PROJECT-$SM_RELEASE";
 	}
 	mkdir $dir;
 	unlink "last";

@@ -21,7 +21,7 @@ our @EXPORT = qw/$SM_RELEASE $SM_HOME $SM_SEARCH_FILE
 our $SM_RELEASE = 1;
 our $DEBUG = 1;
 
-our $SM_HOME = "/Volumes/Data/projects/vardb";
+our $SM_HOME = "/Volumes/Biodev/projects/vardb";
 
 our $SM_SEARCH_FILE = "$SM_HOME/etc/search.txt";
 our $SM_ORGANISM_FILE = "$SM_HOME/etc/organisms.txt";
