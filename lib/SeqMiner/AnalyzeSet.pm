@@ -5,7 +5,7 @@ use warnings;
 
 use SeqMiner::Analyze;
 use SeqMiner::ItemSet;
-use base "SeqMiner::ItemSet";
+use base "SeqMiner::SearchSet";
 
 sub new {
 	my $class = shift;
@@ -16,6 +16,11 @@ sub new {
 
 sub _initialize {
 	my $self = shift;
+	shift->SUPER::_initialize(@_);
+}
+
+sub analyze {
+	shift->SUPER::search(@_);
 }
 
 1;
