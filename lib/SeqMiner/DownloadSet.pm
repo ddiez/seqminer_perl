@@ -32,9 +32,9 @@ sub add {
 	my $self = shift;
 	my $ts = shift;
 	for my $t ($ts->item_list) {
-		my $d = new SeqMiner::Download;
-		$d->debug;
+		my $d = new SeqMiner::Download($t->name);
 		$d->taxon($t);
+		$d->debug;
 		$self->SUPER::add($d);
 	}
 }
