@@ -6,8 +6,13 @@ use SeqMiner::OrthologSet;
 use SeqMiner::TaxonSet;
 use Getopt::Long;
 
-my %O = ();
-GetOptions(\%O, 't=s', 'o=s');
+#my %O = ();
+#GetOptions(\%O, 't=s', 'o=s');
+
+my @of;
+my @tf; 
+my %O;
+GetOptions('-h' => \%O, 'tf=s' => \@tf, 'of=s' => \@of);
 
 my $help =<<HELP;
 
@@ -15,32 +20,20 @@ Usage: sm_megasearch.pl
 
 Options:
 
+   -h
+   -tf
+   -of
+
 HELP
 
-#die $help if scalar keys %O == 0;
-
-my $tf = [$O{t}];
-my $of = [$O{o}];
+die $help if exists $O{h};
 
 my $ss = new SeqMiner::SearchSet({empty => 1});
 my $os = new SeqMiner::OrthologSet;
-$os = $os->filter_by_ortholog_name($of);
+$os = $os->filter_by_ortholog_name(\@of);
 my $ts = new SeqMiner::TaxonSet;
-$ts = $ts->filter_by_taxon_name($tf);
+$ts = $ts->filter_by_taxon_name(\@tf);
 
-for my $taxon ($ts->item_list) {
-	if ($taxon->type eq "spp") {
-		for my $family ($os->item_list) {
-			print STDERR $taxon->name, "\t", $family->hmm, "\n";
-			my $search = new SeqMiner::SearchSet::Search;
-			$search->id($taxon->type.".".$taxon->id.".".$family->id.".".$taxon->family);
-			$search->search($taxon);
-			$search->family($family);
-			#$search->type($taxon->type);
-			$search->type("genome");
-			$ss->add($search);
-		}
-	}
-}
-
-#$ss->search_domain({type => "genome"});
+$ss->add({taxon => $ts, ortholog => $os});
+$ss->debug;
+$ss->search({source => "genome", type => "domain"});

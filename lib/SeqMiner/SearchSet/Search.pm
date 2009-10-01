@@ -14,18 +14,11 @@ use warnings;
 
 use SeqMiner::Config;
 use SeqMiner::ItemSet::Item;
-use vars qw( @ISA );
-@ISA = ("SeqMiner::ItemSet::Item");
+use base "SeqMiner::ItemSet::Item";
 
 sub new {
 	my $class = shift;
-	
-	my $self = {};
-	$self->{type} = undef;
-	$self->{family} = undef;
-	#$self->{taxon} = undef;
-	$self->{search} = undef;
-	$self->{basedir} = undef;
+	my $self = $class->SUPER::new(@_);
 	bless $self, $class;
     $self->_initialize(@_);
     return $self;
@@ -33,26 +26,24 @@ sub new {
 
 sub _initialize {
 	my $self = shift;
-#	$self->{taxon} = shift if @_;
-	#$self->{search} = shift if @_;
-	#$self->{family} = shift if @_;
-	#$self->{type} = $self->taxon->type;
-	#$self->{type} = $self->search->type;
-	#$self->_set_basedir;
+	$self->{ortholog} = undef;
+	$self->{taxon} = undef;
+	$self->{source} = undef;
+	$self->{basedir} = undef;
 }
 
 sub _set_basedir {
 	my $self = shift;
-	my $basedir = "$SM_MINING_DIR/vardb-$SM_RELEASE/";
+	my $basedir = "$SM_MINING_DIR/$SM_PROJECT-$SM_RELEASE/";
 	$basedir = "$SM_MINING_DIR/last/" if $DEBUG == 1;
-	if ($self->{type} eq "isolate") {
+	if ($self->source eq "isolate") {
 		$basedir .= "isolate";
-	} elsif ($self->{type} eq "genome") {
+	} elsif ($self->source eq "genome") {
 		$basedir .= "genome";
-	} elsif ($self->{type} eq "paper") {
+	} elsif ($self->source eq "paper") {
 		$basedir .= "paper";
 	} else {
-		die "ERROR [SeqMiner::Search] Unknown type $self->{type}\n";
+		die "ERROR [SeqMiner::Search] Unknown source ", $self->source, "\n";
 	}
 	$self->{basedir} = $basedir;
 }
@@ -61,60 +52,78 @@ sub basedir {
 	return shift->{basedir};
 }
 
-sub search {
+sub ortholog {
 	my $self = shift;
-	$self->{search} = shift if @_;
-	return $self->{search};
+	$self->{ortholog} = shift if @_;
+	return $self->{ortholog};
 }
 
-
-sub family {
-	my $self = shift;
-	$self->{family} = shift if @_;
-	return $self->{family};
-}
-
-sub type {
+sub source {
 	my $self = shift;
 	if (@_) {
-		$self->{type} = shift;
+		$self->{source} = shift;
 		$self->_set_basedir;
 	}
-	return $self->{type};
+	return $self->{source};
 }
 
-#sub taxon {
-#	my $self = shift;
-#	#$self->{taxon} = shift if @_;
-#	#return $self->{taxon};
-#	$self->search(@_);
-#}
+sub taxon {
+	my $self = shift;
+	$self->{taxon} = shift if @_;
+	return $self->{taxon};
+}
 
-sub search_sequence {
+sub search {
 	my $self = shift;
 	my $param = shift;
 	
 	my $res = undef;
-	
-	if ($self->{type} eq "isolate") {
+	if ($param->{source} eq "genome") {
+		return 2 if ($self->source eq "isolate");
+		if ($param->{type} eq "domain") {
+			$res = $self->_search_domain_genome;
+		} elsif ($param->type eq "sequence") {
+			$res = $self->_search_sequence_genome;
+		}
+	} elsif($param->{source} eq "isolate") {
 		return 2 if ($param->{type} eq "genome");
 		foreach my $db (values %TARGET_DB) {
-			$res = $self->_search_isolate($db);
+			if ($param->{type} eq "domain") {
+				$res = $self->_search_domain_isolate($db);
+			} elsif ($param->type eq "sequence") {
+				$res = $self->_search_sequence_isolate($db);
+			}
 		}
-	} else {
-		return 2 if ($param->{type} eq "isolate");
-		$res = $self->_search_genome;
 	}
-
+	
 	return $res;
 }
+
+#sub search_sequence {
+#	my $self = shift;
+#	my $param = shift;
+#	
+#	my $res = undef;
+#	
+#	if ($self->source eq "isolate") {
+#		return 2 if ($param->{type} eq "genome");
+#		foreach my $db (values %TARGET_DB) {
+#			$res = $self->_search_isolate($db);
+#		}
+#	} else {
+#		return 2 if ($param->{type} eq "isolate");
+#		$res = $self->_search_genome;
+#	}
+#
+#	return $res;
+#}
 
 sub base {
 	my $self = shift;
 	return $self->family->name."-".$self->taxon->binomial;
 }
 
-sub _search_isolate {
+sub _search_sequence_isolate {
 	my $self = shift;
 	my $tdb = shift;
 	
@@ -152,7 +161,7 @@ sub _search_isolate {
 	}
 }
 
-sub _search_genome {
+sub _search_sequence_genome {
 	my $self = shift;
 	
 	print STDERR "# SEARCH INFO\n";
@@ -341,7 +350,7 @@ sub analyze_sequence {
 	$self->debug;
 	
 	my $res = undef;
-	if ($self->{type} eq "isolate") {
+	if ($self->source eq "isolate") {
 		return 2 if ($param->{type} eq "genome");
 		foreach my $db (values %TARGET_DB) {
 			$res = $self->_analyze_isolate($db);
@@ -467,28 +476,28 @@ sub _analyze_genome {
 	$p_ls->export_fasta({file => "$base-nucleotide.fa", db => $nuc});
 }
 
-sub search_domain {
-	my $self = shift;
-	my $param = shift;
+#sub search_domain {
+#	my $self = shift;
+#	my $param = shift;
+#
+#	print STDERR "# SEARCH DOMAIN\n";
+#	$self->debug;
+#	
+#	my $res = undef;
+#	if ($self->source eq "isolate") {
+#		return 2 if ($param->{type} eq "genome");
+#		foreach my $db (values %TARGET_DB) {
+#			$res = $self->_search_pfam_isolate($db);
+#		}
+#	} else {
+#		return 2 if ($param->{type} eq "isolate");
+#		$res = $self->_search_pfam_genome;
+#	}
+#	
+#	return $res;
+#}
 
-	print STDERR "# SEARCH DOMAIN\n";
-	$self->debug;
-	
-	my $res = undef;
-	if ($self->{type} eq "isolate") {
-		return 2 if ($param->{type} eq "genome");
-		foreach my $db (values %TARGET_DB) {
-			$res = $self->_search_pfam_isolate($db);
-		}
-	} else {
-		return 2 if ($param->{type} eq "isolate");
-		$res = $self->_search_pfam_genome;
-	}
-	
-	return $res;
-}
-
-sub _search_pfam_genome {
+sub _search_domain_genome {
 	my $self = shift;
 	
 	use SeqMiner::Hmmer::Hmmpfam;
@@ -511,7 +520,7 @@ sub _search_pfam_genome {
 	$hmmer->run;
 }
 
-sub _search_pfam_isolate {
+sub _search_domain_isolate {
 	my $self = shift;
 	
 	#print STDERR "## NOT YET IMPLEMENTED\n";
@@ -525,7 +534,7 @@ sub analyze_domain {
 	$self->debug;
 	
 	my $res = undef;
-	if ($self->{type} eq "isolate") {
+	if ($self->source eq "isolate") {
 		return 2 if ($param->{type} eq "genome");
 		foreach my $db (values %TARGET_DB) {
 			$res = $self->_analyze_pfam_isolate($db);
@@ -610,7 +619,7 @@ sub commit {
 	$self->chdir("sequences");
 	
 	my $file = undef;
-	if ($self->type eq "genome") {
+	if ($self->source eq "genome") {
 		$file = $base.".txt";
 		$self->commit_file($file, "sequences");
 	} else {
@@ -621,7 +630,7 @@ sub commit {
 	}
 	
 	$self->chdir("domains");
-	if ($self->type eq "genome") {
+	if ($self->source eq "genome") {
 		$file = $base."-pfam.txt";
 		$self->commit_file($file, "pfam");
 	} else {

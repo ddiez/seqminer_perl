@@ -3,10 +3,10 @@ package SeqMiner::SearchSet;
 use strict;
 use warnings;
 
-use SeqMiner::Config;
-use SeqMiner::OrthologSet;
-use SeqMiner::TaxonSet;
-use SeqMiner::PaperSet;
+#use SeqMiner::Config;
+#use SeqMiner::OrthologSet;
+#use SeqMiner::TaxonSet;
+#use SeqMiner::PaperSet;
 use SeqMiner::SearchSet::Search;
 use SeqMiner::ItemSet;
 use base "SeqMiner::ItemSet";
@@ -20,27 +20,27 @@ sub new {
 
 sub _initialize {
 	my $self = shift;
-	my $param = shift;
+#	my $param = shift;
 	
-	if (defined $param->{empty}) {
-		return if $param->{empty} == 1;
-	}
+#	if (defined $param->{empty}) {
+#		return if $param->{empty} == 1;
+#	}
 	
-	my $ts = new SeqMiner::TaxonSet;
-	#my $ps = new SeqMiner::PaperSet;
-	my $os = new SeqMiner::OrthologSet;
+#	my $ts = new SeqMiner::TaxonSet;
+#	my $ps = new SeqMiner::PaperSet;
+#	my $os = new SeqMiner::OrthologSet;
 	
-	for my $ortholog ($os->item_list) {
-		for my $taxon ($ts->item_list) {
-			if ($taxon->ortholog->get_item_by_id($ortholog->id)) {
-				my $search = new SeqMiner::SearchSet::Search;
-				$search->id($taxon->type.".".$taxon->id.".".$ortholog->id.".".$taxon->family);
-				$search->search($taxon);
-				$search->family($ortholog);
-				$search->type($taxon->type);
-				$self->add($search);
-			}
-		}
+#	for my $ortholog ($os->item_list) {
+#		for my $taxon ($ts->item_list) {
+#			if ($taxon->ortholog->get_item_by_id($ortholog->id)) {
+#				my $search = new SeqMiner::SearchSet::Search;
+#				$search->id($taxon->type.".".$taxon->id.".".$ortholog->id.".".$taxon->family);
+#				$search->search($taxon);
+#				$search->family($ortholog);
+#				$search->type($taxon->type);
+#				$self->add($search);
+#			}
+#		}
 		
 #		for my $paper ($ps->item_list) {
 #			if ($paper->ortholog->get_item_by_id($ortholog->id)) {
@@ -53,7 +53,7 @@ sub _initialize {
 #				$self->add($search);
 #			}
 #		}
-	}
+#	}
 	
 #	foreach my $taxon ($ts->item_list) {
 #		#print STDERR "+ ", $taxon->id, "\n";
@@ -68,57 +68,85 @@ sub _initialize {
 
 sub add {
 	my $self = shift;
-	$self->SUPER::add(@_);
-}
+	my $param = shift;
+	
+	my $ts = $param->{taxon};
+	my $os = $param->{ortholog};
 
-sub seed {
-	my $self = shift;
-	foreach my $search ($self->item_list) {
-		if ($search->taxon->seed) {
-			$search->seed;
+	for my $taxon ($ts->item_list) {
+		if ($taxon->type eq "spp") {
+			for my $ortholog ($os->item_list) {
+				my $search = new SeqMiner::SearchSet::Search;
+				$search->id($taxon->type.".".$taxon->id.".".$ortholog->id);
+				$search->taxon($taxon);
+				$search->ortholog($ortholog);
+				$search->source($taxon->type eq "spp" ? "genome" : "isolate");
+				$self->SUPER::add($search);
+			}
 		}
 	}
 }
 
-sub hmm {
+
+#sub seed {
+#	my $self = shift;
+#	foreach my $search ($self->item_list) {
+#		if ($search->taxon->seed) {
+#			$search->seed;
+#		}
+#	}
+#}
+
+#sub hmm {
+#	my $self = shift;
+#	foreach my $search ($self->item_list) {
+#		$search->hmm;
+#	}
+#}
+
+sub search {
 	my $self = shift;
-	foreach my $search ($self->item_list) {
-		$search->hmm;
+	for my $s ($self->item_list) {
+		$s->search(@_);
 	}
 }
 
-sub search_sequence {
-	my $self = shift;
-	foreach my $search ($self->item_list) {
-		$search->search_sequence(@_);
-	}
-}
-
-sub analyze_sequence {
-	my $self = shift;
-	foreach my $search ($self->item_list) {
-		$search->analyze_sequence(@_);
-	}
-}
-
-sub search_domain {
-	my $self = shift;
-	foreach my $search ($self->item_list) {
-		$search->search_domain(@_);
-	}
-}
-
-sub analyze_domain {
-	my $self = shift;
-	foreach my $search ($self->item_list) {
-		$search->analyze_domain(@_);
-	}
-}
+#sub search_sequence {
+#	my $self = shift;
+#	foreach my $search ($self->item_list) {
+#		$search->search_sequence(@_);
+#	}
+#}
+#
+#sub search_domain {
+#	my $self = shift;
+#	foreach my $search ($self->item_list) {
+#		$search->search_domain(@_);
+#	}
+#}
+#
+#sub analyze_sequence {
+#	my $self = shift;
+#	foreach my $search ($self->item_list) {
+#		$search->analyze_sequence(@_);
+#	}
+#}
+#
+#sub analyze_domain {
+#	my $self = shift;
+#	foreach my $search ($self->item_list) {
+#		$search->analyze_domain(@_);
+#	}
+#}
 
 sub debug {
 	my $self = shift;
-	print STDERR "** SEARCHSET\n";
-	print STDERR "*  Search items: ", $self->length, "\n";
+	print STDERR "#---", ref $self, "--->\n";
+	print STDERR "* number of searches: ", $self->length, "\n";
+	for my $s ($self->item_list) {
+		print STDERR "* ", $s->taxon->name, ":", $s->ortholog->name, " [", $s->source, "]\n";
+	}
+	print STDERR "\\\\\n";
 }
 
 1;

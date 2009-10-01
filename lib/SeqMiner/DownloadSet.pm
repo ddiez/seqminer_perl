@@ -2,11 +2,8 @@ package SeqMiner::DownloadSet;
 
 use strict;
 use warnings;
-use SeqMiner::Config;
-use SeqMiner::Ortholog;
+#use SeqMiner::Config;
 use SeqMiner::ItemSet;
-use SeqMiner::TaxonSet;
-use SeqMiner::TaxonSet::Taxon;
 use SeqMiner::Download;
 use base "SeqMiner::ItemSet";
 
