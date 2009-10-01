@@ -102,25 +102,6 @@ sub search {
 	return $res;
 }
 
-#sub search_sequence {
-#	my $self = shift;
-#	my $param = shift;
-#	
-#	my $res = undef;
-#	
-#	if ($self->source eq "isolate") {
-#		return 2 if ($param->{type} eq "genome");
-#		foreach my $db (values %TARGET_DB) {
-#			$res = $self->_search_isolate($db);
-#		}
-#	} else {
-#		return 2 if ($param->{type} eq "isolate");
-#		$res = $self->_search_genome;
-#	}
-#
-#	return $res;
-#}
-
 sub base {
 	my $self = shift;
 	return $self->family->name."-".$self->taxon->binomial;
@@ -344,28 +325,6 @@ sub fetch_hmm {
 	system "hmmfetch $SM_HOME/db/pfam/Pfam_fs.bin $hmm_name > $SM_HOME/db/models/hmm/fs/$hmm_name";
 	print STDERR "OK\n";
 }
-
-
-#sub search_domain {
-#	my $self = shift;
-#	my $param = shift;
-#
-#	print STDERR "# SEARCH DOMAIN\n";
-#	$self->debug;
-#	
-#	my $res = undef;
-#	if ($self->source eq "isolate") {
-#		return 2 if ($param->{type} eq "genome");
-#		foreach my $db (values %TARGET_DB) {
-#			$res = $self->_search_pfam_isolate($db);
-#		}
-#	} else {
-#		return 2 if ($param->{type} eq "isolate");
-#		$res = $self->_search_pfam_genome;
-#	}
-#	
-#	return $res;
-#}
 
 sub _search_domain_genome {
 	my $self = shift;
