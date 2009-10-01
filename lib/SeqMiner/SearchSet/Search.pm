@@ -83,17 +83,13 @@ sub search {
 	my $res = undef;
 	if ($param->{source} eq "genome") {
 		return 2 if ($self->source eq "isolate");
-		if ($param->{type} eq "domain") {
-			$res = $self->_search_domain_genome;
-		} elsif ($param->{type} eq "sequence") {
+		if  ($param->{type} eq "sequence") {
 			$res = $self->_search_sequence_genome;
 		}
 	} elsif($param->{source} eq "isolate") {
 		return 2 if ($param->{type} eq "genome");
 		foreach my $db (values %TARGET_DB) {
-			if ($param->{type} eq "domain") {
-				$res = $self->_search_domain_isolate($db);
-			} elsif ($param->type eq "sequence") {
+			if ($param->type eq "sequence") {
 				$res = $self->_search_sequence_isolate($db);
 			}
 		}
@@ -324,35 +320,6 @@ sub fetch_hmm {
 	system "hmmfetch $SM_HOME/db/pfam/Pfam_ls.bin $hmm_name > $SM_HOME/db/models/hmm/ls/$hmm_name";
 	system "hmmfetch $SM_HOME/db/pfam/Pfam_fs.bin $hmm_name > $SM_HOME/db/models/hmm/fs/$hmm_name";
 	print STDERR "OK\n";
-}
-
-sub _search_domain_genome {
-	my $self = shift;
-	
-	use SeqMiner::Hmmer::Hmmpfam;
-	my $hmmer = new SeqMiner::Hmmer::Hmmpfam;
-	
-	$self->chdir('fasta');
-	
-	# first we do protein sequences:
-	my $base = $self->ortholog->name."-".$self->taxon->organism."-protein";
-	
-	$hmmer->infile($base.".fa");
-	$hmmer->outdir($self->dir('pfam'));
-	
-	$hmmer->outfile($base."_ls.log");
-	$hmmer->model("$SM_HOME/db/pfam/Pfam_ls.bin");
-	$hmmer->run;
-	
-	$hmmer->outfile($base."_fs.log");
-	$hmmer->model("$SM_HOME/db/pfam/Pfam_fs.bin");
-	$hmmer->run;
-}
-
-sub _search_domain_isolate {
-	my $self = shift;
-	
-	#print STDERR "## NOT YET IMPLEMENTED\n";
 }
 
 sub chdir {
