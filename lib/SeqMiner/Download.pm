@@ -12,21 +12,18 @@ sub new {
 
 sub _initialize {
 	my $self = shift;
+	$self->{taxon} = undef;
 }
 
+sub taxon {
+	my $self = shift;
+	$self->{taxon} = shift if @_;
+	return $self->{taxon};
+}
 
 sub dir {
 	return shift->organism;
 }
-
-#sub dir {
-#	my $self = shift;
-#	if ($self->strain ne "_undef_") {
-#		return $self->binomial."_".$self->strain;
-#	} else {
-#		return $self->binomial;
-#	}
-#}
 
 sub download {
 	my $self = shift;
