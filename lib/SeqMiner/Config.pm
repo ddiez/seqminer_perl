@@ -16,7 +16,7 @@ our @EXPORT = qw/$SM_RELEASE $SM_HOME $SM_SEARCH_FILE
 	$SM_AUTHOR_FILE $SM_KEYWORD_FILE $SM_SEARCH_DIR $UNIPROTDB $PDBDB
 	$HMMDB $GENOMEDB $PFAM_VERSION $DEBUG $SM_COMMIT_DIR $HMMERPARAM
 	$WISEPARAM $PSIBLASTDB $PSSM_ITER $PSSM_EVALUE $SM_ORTHOLOG_FILE
-	$SM_MINING_DIR %TARGET_DB/;
+	$SM_MINING_DIR %TARGET_DB $SM_FAMILY_FILE/;
 
 our $SM_RELEASE = 1;
 our $DEBUG = 1;
@@ -25,12 +25,14 @@ our $SM_HOME = "/Volumes/Biodev/projects/vardb";
 
 our $SM_SEARCH_FILE = "$SM_HOME/etc/search.txt";
 our $SM_ORGANISM_FILE = "$SM_HOME/etc/organisms.txt";
-our $SM_TAXON_FILE = "$SM_HOME/etc/taxon.txt";
 our $SM_FILTER_FILE = "$SM_HOME/etc/filter.txt";
 our $SM_PAPER_FILE = "$SM_HOME/etc/paper.txt";
 our $SM_AUTHOR_FILE = "$SM_HOME/etc/author.txt";
 our $SM_KEYWORD_FILE = "$SM_HOME/etc/keyword.txt";
+
+our $SM_TAXON_FILE = "$SM_HOME/etc/taxon.txt";
 our $SM_ORTHOLOG_FILE = "$SM_HOME/etc/ortholog.txt";
+our $SM_FAMILY_FILE = "$SM_HOME/etc/family.txt";
 
 our $SM_COMMIT_DIR = "$SM_HOME/web/trunk/data/diego/";
 our $SM_MINING_DIR = "$SM_HOME/mining";

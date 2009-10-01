@@ -33,9 +33,8 @@ sub _initialize {
 	$self->{genus} = undef;
 	$self->{species} = undef
 	$self->{strain} = undef;
-	#$self->{family} = new SeqMiner::FamilySet;
-	$self->{family} = undef;
-	$self->{ortholog} = new SeqMiner::ItemSet;
+	#$self->{family} = undef;
+	#$self->{ortholog} = new SeqMiner::ItemSet;
 	$self->{type} = undef;
 	$self->{source} = undef;
 }
@@ -116,23 +115,23 @@ sub source {
 	return $self->{source};
 }
 
-sub seed {
-	my $self = shift;
-	$self->{seed} = shift if @_;
-	return $self->{seed};
-}
+#sub seed {
+#	my $self = shift;
+#	$self->{seed} = shift if @_;
+#	return $self->{seed};
+#}
 
-sub family {
-	my $self = shift;
-	$self->{family} = shift if @_;
-	return $self->{family};
-}
-
-sub ortholog {
-	my $self = shift;
-	$self->{ortholog} = shift if @_;
-	return $self->{ortholog};
-}
+#sub family {
+#	my $self = shift;
+#	$self->{family} = shift if @_;
+#	return $self->{family};
+#}
+#
+#sub ortholog {
+#	my $self = shift;
+#	$self->{ortholog} = shift if @_;
+#	return $self->{ortholog};
+#}
 
 sub download {
 	my $self = shift;
@@ -159,8 +158,8 @@ sub _download_isolate {
 	#	mkdir $outdir2;
 	#}
 	
-	use SeqMiner::Download;
-	my $down = new SeqMiner::Download("ncbi");
+	use SeqMiner::Download::Driver;
+	my $down = new SeqMiner::Download::Driver("ncbi");
 	$down->outdir($outdir);
 	$down->filename($file);
 	#my $special = undef;

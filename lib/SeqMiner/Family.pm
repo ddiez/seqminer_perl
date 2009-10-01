@@ -3,13 +3,11 @@ package SeqMiner::Family;
 use strict;
 use warnings;
 use SeqMiner::ItemSet::Item;
-use vars qw( @ISA );
-@ISA = ("SeqMiner::ItemSet::Item");
+use base "SeqMiner::ItemSet::Item";
 
 sub new {
 	my $class = shift;
-	
-	my $self = {};
+	my $self = $class->SUPER::new();
 	bless $self, $class;
 	$self->_initialize(@_);
 	return $self;
@@ -18,12 +16,15 @@ sub new {
 sub _initialize {
 	my $self = shift;
 	$self->{name} = undef;
+	$self->{taxon} = undef;
 	$self->{ortholog} = undef;
 }
 
 # an alias to id.
 sub name {
-	shift->id(@_);
+	my $self = shift;
+	$self->{name} = shift if @_;
+	return $self->{name};
 }
 
 sub ortholog {
@@ -32,17 +33,16 @@ sub ortholog {
 	return $self->{ortholog};
 }
 
-sub hmm {
-	#my $self = shift;
-	#$self->{hmm} = shift if @_;
-	#return $self->{hmm};
-	return shift->ortholog->hmm;
+sub taxon {
+	my $self = shift;
+	$self->{taxon} = shift if @_;
+	return $self->{taxon};
 }
 
-sub type {
-	my $self = shift;
-	$self->{type} = shift if @_;
-	return $self->{type};
-}
+#sub type {
+#	my $self = shift;
+#	$self->{type} = shift if @_;
+#	return $self->{type};
+#}
 
 1;

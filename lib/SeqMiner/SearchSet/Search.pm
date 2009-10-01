@@ -580,10 +580,10 @@ sub debug {
 	my $self = shift;
 	
 	print STDERR "* id: ", $self->id, "\n";
-	print STDERR "* organism: ", $self->taxon->organism, "\n";
-	print STDERR "* taxon: [", $self->taxon->id, "] ", $self->taxon->name, "\n";
-	print STDERR "* ortholog: ", $self->family->ortholog->id, "\n";
-	print STDERR "* family: ", $self->family->name, "\n";
+	print STDERR "* organism: ", $self->search->organism, "\n";
+	print STDERR "* taxon: [", $self->search->id, "] ", $self->search->name, "\n";
+	#print STDERR "* ortholog: ", $self->family->ortholog->id, "\n";
+	#print STDERR "* family: ", $self->family->name, "\n";
 	print STDERR "* hmm: ", $self->family->hmm, "\n";
 	print STDERR "* type: ", $self->type, "\n";
 	print STDERR "* base_dir: $self->{basedir}\n";

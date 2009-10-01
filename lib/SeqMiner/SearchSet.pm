@@ -9,23 +9,25 @@ use SeqMiner::TaxonSet;
 use SeqMiner::PaperSet;
 use SeqMiner::SearchSet::Search;
 use SeqMiner::ItemSet;
-use vars qw( @ISA );
-@ISA = ("SeqMiner::ItemSet");
+use base "SeqMiner::ItemSet";
 
 sub new {
 	my $class = shift;
-	
-	my $self = {};
+	my $self = $class->SUPER::new(@_);
 	bless $self, $class;
-    $self->_initialize(@_);
     return $self;
 }
 
 sub _initialize {
 	my $self = shift;
+	my $param = shift;
+	
+	if (defined $param->{empty}) {
+		return if $param->{empty} == 1;
+	}
 	
 	my $ts = new SeqMiner::TaxonSet;
-	my $ps = new SeqMiner::PaperSet;
+	#my $ps = new SeqMiner::PaperSet;
 	my $os = new SeqMiner::OrthologSet;
 	
 	for my $ortholog ($os->item_list) {
@@ -40,17 +42,17 @@ sub _initialize {
 			}
 		}
 		
-		for my $paper ($ps->item_list) {
-			if ($paper->ortholog->get_item_by_id($ortholog->id)) {
-				my $search = new SeqMiner::SearchSet::Search;
-				$search->id("paper.".$paper->id.".".$ortholog->id);
-				$search->search($paper);
-				$search->family($ortholog);
-				#$search->keywords($paper->keywords($ortholog->id));
-				$search->type('paper');
-				$self->add($search);
-			}
-		}
+#		for my $paper ($ps->item_list) {
+#			if ($paper->ortholog->get_item_by_id($ortholog->id)) {
+#				my $search = new SeqMiner::SearchSet::Search;
+#				$search->id("paper.".$paper->id.".".$ortholog->id);
+#				$search->search($paper);
+#				$search->family($ortholog);
+#				#$search->keywords($paper->keywords($ortholog->id));
+#				$search->type('paper');
+#				$self->add($search);
+#			}
+#		}
 	}
 	
 #	foreach my $taxon ($ts->item_list) {
@@ -62,6 +64,11 @@ sub _initialize {
 #			$self->add($search);
 #		}
 #	}
+}
+
+sub add {
+	my $self = shift;
+	$self->SUPER::add(@_);
 }
 
 sub seed {
@@ -111,6 +118,7 @@ sub analyze_domain {
 sub debug {
 	my $self = shift;
 	print STDERR "** SEARCHSET\n";
+	print STDERR "*  Search items: ", $self->length, "\n";
 }
 
 1;

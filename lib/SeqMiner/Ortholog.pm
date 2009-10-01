@@ -20,6 +20,11 @@ sub _initialize {
 	my $self = shift;
 }
 
+# an alias to id.
+sub name {
+	shift->id(@_);
+}
+
 sub hmm {
 	my $self = shift;
 	$self->{hmm} = shift if @_;

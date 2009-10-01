@@ -8,18 +8,10 @@ sub new {
 
 	my $self = {};
 	$self->{item_list} = [];
-	$self->{nitems} = undef;
+	$self->{nitems} = 0;
 	
 	bless $self, $class;
-	$self->_initialize(@_);
 	return $self;
-}
-
-sub _initialize {
-	my $self = shift;
-	my $param = shift;
-	
-	$self->{nitems} = 0;
 }
 
 sub length {

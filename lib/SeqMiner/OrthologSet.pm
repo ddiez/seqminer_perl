@@ -5,14 +5,11 @@ use warnings;
 use SeqMiner::Config;
 use SeqMiner::Ortholog;
 use SeqMiner::ItemSet;
-use vars qw( @ISA );
-@ISA = ("SeqMiner::ItemSet");
+use base "SeqMiner::ItemSet";
 
 sub new {
 	my $class = shift;
-	
-	my $self = {};
-	
+	my $self = $class->SUPER::new(@_);
 	bless $self, $class;
     $self->_initialize(@_);
     return $self;
@@ -20,6 +17,11 @@ sub new {
 
 sub _initialize {
 	my $self = shift;
+	my $param = shift;
+
+	if (defined $param->{empty}) {
+		return if $param->{empty} == 1;
+	}
 	
 	open IN, "$SM_ORTHOLOG_FILE" or die "$!";
 	while (<IN>) {
@@ -35,18 +37,39 @@ sub _initialize {
 		$ortholog->hmm($hmm);
 	}
 	close IN;
-	#$self->debug if $DEBUG;
+}
+
+sub name {
+	shift->id(@_);
 }
 
 sub ortholog_list {
 	return shift->SUPER::item_list;
 }
 
+sub filter_by_ortholog_name {
+	my $self = shift;
+	my $filter = shift;
+	return $self if $#{$filter} == -1;
+	my $ts = new SeqMiner::OrthologSet({empty => 1});
+	for my $taxon ($self->item_list) {
+		for my $f (@{$filter}) {
+			if ($taxon->name =~ /$f/) {
+				$ts->add($taxon);
+				last;
+			}
+		}
+	}
+	return $ts;
+}
 sub debug {
 	my $self = shift;
+	print STDERR "#---", ref $self, "--->\n";
+	print STDERR "* number of orthologs: ", $self->length, "\n";
 	for my $o ($self->item_list) {
-		print STDERR $o->hmm, "\n";
+		print STDERR "* ", $o->name, "\t", $o->hmm, "\n";
 	}
+	print STDERR "\\\\\n";
 }
 
 1;
