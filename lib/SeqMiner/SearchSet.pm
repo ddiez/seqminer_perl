@@ -74,7 +74,7 @@ sub add {
 	my $os = $param->{ortholog};
 
 	for my $taxon ($ts->item_list) {
-		if ($taxon->type eq "spp") {
+		#if ($taxon->type eq "spp") {
 			for my $ortholog ($os->item_list) {
 				my $search = new SeqMiner::SearchSet::Search;
 				$search->id($taxon->type.".".$taxon->id.".".$ortholog->id);
@@ -83,26 +83,9 @@ sub add {
 				$search->source($taxon->type eq "spp" ? "genome" : "isolate");
 				$self->SUPER::add($search);
 			}
-		}
+		#}
 	}
 }
-
-
-#sub seed {
-#	my $self = shift;
-#	foreach my $search ($self->item_list) {
-#		if ($search->taxon->seed) {
-#			$search->seed;
-#		}
-#	}
-#}
-
-#sub hmm {
-#	my $self = shift;
-#	foreach my $search ($self->item_list) {
-#		$search->hmm;
-#	}
-#}
 
 sub search {
 	my $self = shift;
@@ -151,5 +134,22 @@ sub debug {
 	}
 	print STDERR "\\\\\n";
 }
+
+sub update_seed {
+	my $self = shift;
+	for my $s ($self->item_list) {
+		#if ($s->taxon->seed) {
+			$s->update_seed;
+		#}
+	}
+}
+
+sub update_hmm {
+	my $self = shift;
+	for my $s ($self->item_list) {
+		$s->update_hmm;
+	}
+}
+
 
 1;

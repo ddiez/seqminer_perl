@@ -29,7 +29,7 @@ sub _initialize {
 		chomp;
 		my ($taxon, $ortholog, $name) = split '\t', $_;
 		my $id = "$taxon.$ortholog";
-		my $family = new SeqMiner::Family();
+		my $family = new SeqMiner::Family;
 		$family->id($id);
 		$family->name($name);
 		$family->taxon($taxon);

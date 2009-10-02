@@ -179,8 +179,8 @@ sub _parse_hmmer_file {
 	my $self = shift;
 	my $param = shift;
 	
-#	print STDERR $param->{file}, "\n";
-#	print STDERR $param->{method}, "\n";
+	print STDERR $param->{file}, "\n";
+	print STDERR $param->{method}, "\n";
 
 	
 	my $in = new Bio::SearchIO(-file => $param->{file}, -format => 'hmmer');

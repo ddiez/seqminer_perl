@@ -54,7 +54,7 @@ sub basedir {
 
 sub base {
 	my $self = shift;
-	return $self->family->name."-".$self->taxon->binomial;
+	return $self->ortholog->name."-".$self->taxon->binomial;
 }
 
 sub ortholog {
@@ -89,15 +89,15 @@ sub search {
 	if ($param->{source} eq "genome") {
 		return 2 if ($self->source eq "isolate");
 		if  ($param->{type} eq "sequence") {
-			#$res = $self->_search_sequence_genome;
-			#if ($res == 1) {
+			$res = $self->_search_sequence_genome;
+			if ($res == 1) {
 				$self->_parse_sequence_genome;
-			#}
+			}
 		}
 	} elsif($param->{source} eq "isolate") {
-		return 2 if ($param->{type} eq "genome");
+		return 2 if ($self->source eq "genome");
 		foreach my $db (values %TARGET_DB) {
-			if ($param->type eq "sequence") {
+			if ($param->{type} eq "sequence") {
 				$res = $self->_search_sequence_isolate($db);
 				if ($res == 1) {
 					$self->_parse_sequence_isolate($db);
@@ -124,8 +124,8 @@ sub _search_sequence_isolate {
 	my $db = "$SM_HOME/db/isolate/".$self->taxon->name."/$tdb";
 	
 	if (-e "$db.gb") {
-		my $pssm_file = "$SM_HOME/db/models/pssm/".$self->family->ortholog->id.".chk";
-		my $seed_file = "$SM_HOME/db/models/seed/".$self->family->ortholog->id.".seed";
+		my $pssm_file = "$SM_HOME/db/models/pssm/".$self->ortholog->id.".chk";
+		my $seed_file = "$SM_HOME/db/models/seed/".$self->ortholog->id.".seed";
 		my $evalue = 1e-02;
 		
 		print STDERR "+ db: $tdb\n";
@@ -151,13 +151,13 @@ sub _parse_sequence_isolate {
 	my $self = shift;
 	my $tdb = shift;
 
-	my $family = $self->family->name;
-	my $dir = $self->taxon->dir;
+	my $family = $self->ortholog->name;
+	my $dir = $self->taxon->organism;
 	my $db = "$SM_HOME/db/isolate/".$self->taxon->name."/$tdb";
-	my $hmm_name = $self->family->hmm;
+	my $hmm_name = $self->ortholog->hmm;
 	my $iter = $PSSM_ITER;
 	my $pssm_eval = $PSSM_EVALUE;
-	my $base = $self->family->name."-".$self->taxon->binomial;
+	my $base = $self->ortholog->name."-".$self->taxon->binomial;
 
 	$self->chdir('search');
 	if (-e "$base-$tdb.log") {
@@ -491,10 +491,13 @@ sub commit_file {
 	}	
 }
 
+
 sub update_seed {
 	my $self = shift;
 	
+	print STDERR "## UPDATE SEED MODELS\n";
 	$self->debug;
+	return if $self->source("genome");
 	if ($self->chdir('search') == 0) {
 		return 0;
 	}
@@ -527,6 +530,7 @@ sub update_seed {
 sub update_hmm {
 	my $self = shift;
 	
+	print STDERR "## UPDATE HMM MODELS\n";
 	$self->debug;
 	my $hmm_name = $self->family->hmm;
 	
