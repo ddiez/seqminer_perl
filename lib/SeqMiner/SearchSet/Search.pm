@@ -52,6 +52,11 @@ sub basedir {
 	return shift->{basedir};
 }
 
+sub base {
+	my $self = shift;
+	return $self->family->name."-".$self->taxon->binomial;
+}
+
 sub ortholog {
 	my $self = shift;
 	$self->{ortholog} = shift if @_;
@@ -84,10 +89,10 @@ sub search {
 	if ($param->{source} eq "genome") {
 		return 2 if ($self->source eq "isolate");
 		if  ($param->{type} eq "sequence") {
-			$res = $self->_search_sequence_genome;
-			if ($res == 1) {
+			#$res = $self->_search_sequence_genome;
+			#if ($res == 1) {
 				$self->_parse_sequence_genome;
-			}
+			#}
 		}
 	} elsif($param->{source} eq "isolate") {
 		return 2 if ($param->{type} eq "genome");
@@ -101,12 +106,7 @@ sub search {
 		}
 	}
 	
-	return $res;
-}
-
-sub base {
-	my $self = shift;
-	return $self->family->name."-".$self->taxon->binomial;
+	#return $res;
 }
 
 sub _search_sequence_isolate {
@@ -317,12 +317,12 @@ sub _parse_sequence_genome {
 	my $self = shift;
 	
 	#return 1;
-	my $family = $self->family->name;
-	my $dir = $self->taxon->dir;
-	my $hmm_name = $self->family->hmm;
+	my $family = $self->ortholog->name;
+	my $dir = $self->taxon->organism;
+	my $hmm_name = $self->ortholog->hmm;
 	my $iter = $PSSM_ITER;
 	my $pssm_eval = $PSSM_EVALUE;
-	my $base = $self->family->name."-".$self->taxon->dir;
+	my $base = $self->ortholog->name."-".$self->taxon->organism;
 	
 	# get genome info.
 	use SeqMiner::Genome;
@@ -399,6 +399,98 @@ sub _parse_sequence_genome {
 	return 1;
 }
 
+sub debug {
+	my $self = shift;
+	print STDERR "* id: ", $self->id, "\n";
+	print STDERR "* taxon: [", $self->taxon->id, "] ", $self->taxon->name, "\n";
+	print STDERR "* family: ", $self->ortholog->name, "\n";
+	print STDERR "* hmm: ", $self->ortholog->hmm, "\n";
+	#print STDERR "* type: ", $self->type, "\n";
+	print STDERR "* source: ", $self->source, "\n";
+	print STDERR "* base_dir: $self->{basedir}\n";
+	print STDERR "\n";
+}
+
+# THIS FUNCTION DO NOT KNOW YET WHETHER THEY FIT HERE, SHOULD BE MODIFIED OR REMOVED OR GENERALIZED AND INCLUDED IN AN INDEPENDENT CLASS
+
+sub chdir {
+	my $self = shift;
+	my $dir = shift;
+	
+	my $outdir = "$self->{basedir}/$dir/".$self->ortholog->name;
+	
+	my $res = chdir $outdir;
+	return $res;
+}
+
+sub dir {
+	my $self = shift;
+	my $dir = shift;
+	
+	return "$self->{basedir}/$dir/".$self->ortholog->name;
+}
+
+sub _get_random_dir {
+	my @time = localtime time;
+	$time[5] += 1900;
+	$time[4] ++;
+	$time[4] = sprintf("%02d", $time[4]);
+	$time[3] = sprintf("%02d", $time[3]);
+	$time[2] = sprintf("%02d", $time[2]);
+	$time[1] = sprintf("%02d", $time[1]);
+	$time[0] = sprintf("%02d", $time[0]);
+	
+	return "$time[5]$time[4]$time[3].$time[2]$time[1]$time[0]";
+}
+
+# THIS FUNCTIONS DO NOT FIT IN HERE AND HAVE TO FIND ITS WAY INTO A NEW/OTHER CLASS
+
+sub commit {
+	my $self = shift;
+	
+	my $base = $self->family->name."-".$self->taxon->dir;
+	$self->chdir("sequences");
+	
+	my $file = undef;
+	if ($self->source eq "genome") {
+		$file = $base.".txt";
+		$self->commit_file($file, "sequences");
+	} else {
+		$file = $base."-core.txt";
+		$self->commit_file($file, "sequences");
+		$file = $base."-est.txt";
+		$self->commit_file($file, "sequences");
+	}
+	
+	$self->chdir("domains");
+	if ($self->source eq "genome") {
+		$file = $base."-pfam.txt";
+		$self->commit_file($file, "pfam");
+	} else {
+		#$file = $base."-core.txt";
+		#$self->commit_file($file);
+		#$file = $base."-est.txt";
+		#$self->commit_file($file);
+	}
+}
+
+sub commit_file {
+	my $self = shift;
+	my $file = shift;
+	my $dir = shift;
+
+	my $outdir = $SM_COMMIT_DIR.$dir."/".$self->family->ortholog->id;
+	
+	print STDERR "* commiting $file ... ";
+	if (-e $file) {
+		my $res = system "cp", $file, $outdir;
+		die "ERROR [commit]: some error occured commiting files: $!" if $res == -1;
+		print STDERR "OK\n";
+	} else {
+		print STDERR "ERROR [$!]\n";
+	}	
+}
+
 sub update_seed {
 	my $self = shift;
 	
@@ -444,92 +536,5 @@ sub update_hmm {
 	print STDERR "OK\n";
 }
 
-sub chdir {
-	my $self = shift;
-	my $dir = shift;
-	
-	my $outdir = "$self->{basedir}/$dir/".$self->ortholog->name;
-	
-	my $res = chdir $outdir;
-	return $res;
-}
 
-sub dir {
-	my $self = shift;
-	my $dir = shift;
-	
-	return "$self->{basedir}/$dir/".$self->ortholog->name;
-}
-
-sub _get_random_dir {
-	my @time = localtime time;
-	$time[5] += 1900;
-	$time[4] ++;
-	$time[4] = sprintf("%02d", $time[4]);
-	$time[3] = sprintf("%02d", $time[3]);
-	$time[2] = sprintf("%02d", $time[2]);
-	$time[1] = sprintf("%02d", $time[1]);
-	$time[0] = sprintf("%02d", $time[0]);
-	
-	return "$time[5]$time[4]$time[3].$time[2]$time[1]$time[0]";
-}
-
-sub commit {
-	my $self = shift;
-	
-	my $base = $self->family->name."-".$self->taxon->dir;
-	$self->chdir("sequences");
-	
-	my $file = undef;
-	if ($self->source eq "genome") {
-		$file = $base.".txt";
-		$self->commit_file($file, "sequences");
-	} else {
-		$file = $base."-core.txt";
-		$self->commit_file($file, "sequences");
-		$file = $base."-est.txt";
-		$self->commit_file($file, "sequences");
-	}
-	
-	$self->chdir("domains");
-	if ($self->source eq "genome") {
-		$file = $base."-pfam.txt";
-		$self->commit_file($file, "pfam");
-	} else {
-		#$file = $base."-core.txt";
-		#$self->commit_file($file);
-		#$file = $base."-est.txt";
-		#$self->commit_file($file);
-	}
-}
-
-
-sub commit_file {
-	my $self = shift;
-	my $file = shift;
-	my $dir = shift;
-
-	my $outdir = $SM_COMMIT_DIR.$dir."/".$self->family->ortholog->id;
-	
-	print STDERR "* commiting $file ... ";
-	if (-e $file) {
-		my $res = system "cp", $file, $outdir;
-		die "ERROR [commit]: some error occured commiting files: $!" if $res == -1;
-		print STDERR "OK\n";
-	} else {
-		print STDERR "ERROR [$!]\n";
-	}	
-}
-
-sub debug {
-	my $self = shift;
-	print STDERR "* id: ", $self->id, "\n";
-	print STDERR "* taxon: [", $self->taxon->id, "] ", $self->taxon->name, "\n";
-	print STDERR "* family: ", $self->ortholog->name, "\n";
-	print STDERR "* hmm: ", $self->ortholog->hmm, "\n";
-	#print STDERR "* type: ", $self->type, "\n";
-	print STDERR "* source: ", $self->source, "\n";
-	print STDERR "* base_dir: $self->{basedir}\n";
-	print STDERR "\n";
-}
 1;

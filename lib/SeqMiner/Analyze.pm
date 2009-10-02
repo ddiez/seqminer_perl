@@ -28,16 +28,12 @@ sub analyze {
 		return 2 if ($self->source eq "isolate");
 		if ($param->{type} eq "domain") {
 			$res = $self->_analyze_domain_genome;
-		} elsif ($param->{type} eq "sequence") {
-			$res = $self->_analyze_sequence_genome;
 		}
 	} elsif($param->{source} eq "isolate") {
 		return 2 if ($param->{type} eq "genome");
 		foreach my $db (values %TARGET_DB) {
 			if ($param->{type} eq "domain") {
 				$res = $self->_analyze_domain_isolate($db);
-			} elsif ($param->type eq "sequence") {
-				$res = $self->_analyze_sequence_isolate($db);
 			}
 		}
 	}
@@ -199,7 +195,7 @@ sub analyze {
 #	$p_ls->export_fasta({file => "$base-nucleotide.fa", db => $nuc});
 #}
 
-sub _analyze_domain_genome {
+sub _parse_domain_genome {
 	my $self = shift;
 	
 	$self->chdir('pfam');
@@ -214,7 +210,7 @@ sub _analyze_domain_genome {
 	SeqMiner::ResultSet::export_pfam({file => "$base-pfam.txt", fs => $fs, ls => $ls});
 }
 
-sub _analyze_domain_isolate {
+sub _parse_domain_isolate {
 	my $self = shift;
 	
 	#print STDERR "## NOT YET IMPLEMENTED\n";

@@ -39,6 +39,24 @@ sub _initialize {
 	close IN;
 }
 
+sub get_family_name {
+	my $self = shift;
+	my $taxon = shift;
+	my $ortholog = shift;
+	
+	for my $f ($self->item_list) {
+		if ($f->taxon eq $taxon and $f->ortholog eq $ortholog) {
+			return $f->name;
+		}
+	}
+	
+	# if not, return the generic name of the ortholog group.
+	use SeqMiner::OrthologSet;
+	my $os = new SeqMiner::OrthologSet;
+	my $o = $os->get_item_by_id($ortholog);
+	return $o->name;
+}
+
 sub debug {
 	my $self = shift;
 	print STDERR "#---", ref $self, "--->\n";

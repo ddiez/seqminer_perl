@@ -266,6 +266,9 @@ sub export_nelson {
 	
 	#my $ts = new SeqMiner::TaxonSet;
 	
+	use SeqMiner::FamilySet;
+	my $fs = new SeqMiner::FamilySet;
+	
 	my $pro = $param->{protein};
 	my $nuc = $param->{nucleotide};
 	my $genome = $param->{genome};
@@ -357,7 +360,7 @@ sub export_nelson {
 		
 		print $fh
 			"$id\t",
-			$org_id.".".$search->family->id, "\t",
+			$org_id.".".$fs->get_family_name($org_id, $search->ortholog->name), "\t",
 			$org_tax, "\t",
 			$taxon->strain, "\t",
 			$taxon->id, "\t",
@@ -374,7 +377,7 @@ sub export_nelson {
 			"FALSE", "\t",
 #			$gene->quality($eexons), "\t",
 			$hit->method, "\t",
-			$search->family->hmm."_".$self->model_type, "\t",
+			$search->ortholog->hmm."_".$self->model_type, "\t",
 			$hit->score, "\t",
 			$hit->significance, "\t",
 			$hmmloc, "\t",
@@ -396,7 +399,7 @@ sub export_fasta {
 	foreach my $hit ($self->hit_list) {
 		my $seq = $db->get_seq_by_id($hit->id);
 		if (defined $seq) {
-			print $fh ">", $seq->id, "\n";
+			print $fh ">", $seq->id, " ", $seq->description, "\n";
 			print $fh _format_seq($seq->seq);
 		}
 	}
