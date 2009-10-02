@@ -2,10 +2,12 @@ bin/sm_analyze.pl
 bin/sm_commit.pl
 bin/sm_download.pl
 bin/sm_initialize.pl
+bin/sm_install.pl
 bin/sm_megasearch.pl
 bin/sm_menu.pl
 bin/sm_parse.pl
 bin/sm_search.pl
+bin/sm_update_models.pl
 lib/SeqMiner.pm
 lib/SeqMiner/Analyze.pm
 lib/SeqMiner/AnalyzeSet.pm
@@ -40,6 +42,8 @@ lib/SeqMiner/ResultSet.pm
 lib/SeqMiner/ResultSet/Hit.pm
 lib/SeqMiner/ResultSet/Hsp.pm
 lib/SeqMiner/ResultSet/Result.pm
+lib/SeqMiner/Scan.pm
+lib/SeqMiner/ScanSet.pm
 lib/SeqMiner/SearchSet.pm
 lib/SeqMiner/SearchSet/Search.pm
 lib/SeqMiner/SeqSet.pm

@@ -85,12 +85,18 @@ sub search {
 		return 2 if ($self->source eq "isolate");
 		if  ($param->{type} eq "sequence") {
 			$res = $self->_search_sequence_genome;
+			if ($res == 1) {
+				$self->_parse_sequence_genome;
+			}
 		}
 	} elsif($param->{source} eq "isolate") {
 		return 2 if ($param->{type} eq "genome");
 		foreach my $db (values %TARGET_DB) {
 			if ($param->type eq "sequence") {
 				$res = $self->_search_sequence_isolate($db);
+				if ($res == 1) {
+					$self->_parse_sequence_isolate($db);
+				}
 			}
 		}
 	}
@@ -139,6 +145,36 @@ sub _search_sequence_isolate {
 	} else {
 		print STDERR "* skip db $tdb (no data)\n\n";
 	}
+}
+
+sub _parse_sequence_isolate {
+	my $self = shift;
+	my $tdb = shift;
+
+	my $family = $self->family->name;
+	my $dir = $self->taxon->dir;
+	my $db = "$SM_HOME/db/isolate/".$self->taxon->name."/$tdb";
+	my $hmm_name = $self->family->hmm;
+	my $iter = $PSSM_ITER;
+	my $pssm_eval = $PSSM_EVALUE;
+	my $base = $self->family->name."-".$self->taxon->binomial;
+
+	$self->chdir('search');
+	if (-e "$base-$tdb.log") {
+		use SeqMiner::ResultSet;	
+		my $rs = new SeqMiner::ResultSet({file => "$base-$tdb.log", id => "$tdb"});
+		my $r = $rs->get_result_by_id($tdb);
+		
+		$self->chdir('fasta') or die "cannot change to directory 'fasta'";
+		use SeqMiner::SeqSet;
+		my $seq = new SeqMiner::SeqSet({file => "$db.fa"});
+		$r->export_fasta({file => "$base-$tdb.fa", db => $seq});
+		
+		$self->chdir('sequences');
+		$r->export_nelson_for_isolate({file => "$base-$tdb.txt", search => $self,
+			sequence => $seq});
+	}
+	return 1;
 }
 
 sub _search_sequence_genome {
@@ -277,7 +313,93 @@ sub _search_sequence_genome {
 	return 1;
 }
 
-sub seed {
+sub _parse_sequence_genome {
+	my $self = shift;
+	
+	#return 1;
+	my $family = $self->family->name;
+	my $dir = $self->taxon->dir;
+	my $hmm_name = $self->family->hmm;
+	my $iter = $PSSM_ITER;
+	my $pssm_eval = $PSSM_EVALUE;
+	my $base = $self->family->name."-".$self->taxon->dir;
+	
+	# get genome info.
+	use SeqMiner::Genome;
+	my $genome = new SeqMiner::Genome({file => "$GENOMEDB/$dir/genome.gff"});
+
+	# read result files.
+	$self->chdir('search');
+	use SeqMiner::ResultSet;
+	my $rs = new SeqMiner::ResultSet({file => "$base-protein_ls.log", id => 'protein_ls', model_type => 'ls'});
+	$rs->add({file => "$base-protein_fs.log", id => 'protein_fs', model_type => 'fs'});
+	$rs->add({file => "$base-gene_ls.log", id => 'gene_ls', model_type => 'ls'});
+	$rs->add({file => "$base-gene_fs.log", id => 'gene_fs', model_type => 'fs'});
+	
+	my $p_ls = $rs->get_result_by_id('protein_ls');
+	my $p_fs = $rs->get_result_by_id('protein_fs');
+	my $g_ls = $rs->get_result_by_id('gene_ls');
+	my $g_fs = $rs->get_result_by_id('gene_fs');
+	
+	my $np_ls = $p_ls->length;
+	my $np_fs = $p_fs->length;
+	my $ngg_ls = $g_ls->length;
+	my $ngg_fs = $g_fs->length;
+	
+	use Sets;
+	my $pset = new Sets($p_ls->hit_ids, $p_fs->hit_ids);
+	my $gset = new Sets($g_ls->hit_ids, $g_fs->hit_ids);
+	
+	my $pi = $pset->intersect;
+	my $pu = $pset->union;
+	my $npi = $pi->get_items(0);
+	my $npu = $pu->get_items(0);
+	
+	my $gi = $gset->intersect;
+	my $gu = $gset->union;
+	my $ngi = $gi->get_items(0);
+	my $ngu = $gu->get_items(0);
+	
+	# print number of sequences.
+	#$param->chdir($info, 'analysis');
+	#$rs->export_number({file => "$base-number.txt"});
+	# deprecated.
+	#open NUMBER, ">>number.txt" or die "$!";
+	#print NUMBER "$np_ls\t$family\t$organism_dir\tprotein_ls\n";
+	#print NUMBER "$np_fs\t$family\t$organism_dir\tprotein_fs\n";
+	#print NUMBER "$ngg_ls\t$family\t$organism_dir\tgene_ls-gw\n";
+	#print NUMBER "$ngg_fs\t$family\t$organism_dir\tgene_fs-gw\n";
+	#print NUMBER "$npu\t$family\t$organism_dir\tprotein union\n";
+	#print NUMBER "$npi\t$family\t$organism_dir\tprotein intersect\n";
+	#print NUMBER "$ngu\t$family\t$organism_dir\tgene union\n";
+	#print NUMBER "$ngi\t$family\t$organism_dir\tgene intersect\n";
+	#close NUMBER;
+	
+	# merge different results.
+	$p_ls->merge($p_fs);
+	$g_ls->merge($g_fs);
+	$p_ls->merge($g_ls);
+	
+	# read sequence files.
+	use SeqMiner::SeqSet;
+	my $pro = new SeqMiner::SeqSet({file => "$GENOMEDB/$dir/protein.fa"});
+	my $nuc = new SeqMiner::SeqSet({file => "$GENOMEDB/$dir/gene.fa"});
+	
+	# export in nelson's format.
+	$self->chdir('sequences') or die "cannot change to directory 'sequences'";
+	$p_ls->export_nelson({file => "$base.txt", search => $self,
+						   protein => $pro, nucleotide => $nuc,
+						   genome => $genome});
+	
+	# export FASTA file.
+	$self->chdir('fasta') or die "cannot change to directory 'fasta'";
+	$p_ls->export_fasta({file => "$base-protein.fa", db => $pro});
+	$p_ls->export_fasta({file => "$base-nucleotide.fa", db => $nuc});
+	
+	return 1;
+}
+
+sub update_seed {
 	my $self = shift;
 	
 	$self->debug;
@@ -285,11 +407,11 @@ sub seed {
 		return 0;
 	}
 	
-	my $base = $self->family->name."-".$self->taxon->dir;
-	my $dir = $self->taxon->dir;
-	my $seed_file = "$SM_HOME/db/models/seed/".$self->family->ortholog->id.".seed";
-	my $pssm_file = "$SM_HOME/db/models/pssm/".$self->family->ortholog->id.".chk";
-	my $pgp_file = "$SM_HOME/db/models/pgp/".$self->family->ortholog->id.".pgp";
+	my $base = $self->ortholog->name."-".$self->taxon->organism;
+	my $dir = $self->taxon->organism;
+	my $seed_file = "$SM_HOME/db/models/seed/".$self->ortholog->name.".seed";
+	my $pssm_file = "$SM_HOME/db/models/pssm/".$self->ortholog->name.".chk";
+	my $pgp_file = "$SM_HOME/db/models/pgp/".$self->ortholog->name.".pgp";
 	my @search_type = ("protein\_ls", "protein\_fs", "gene\_ls", "gene\_fs");
 	
 	use SeqMiner::ResultSet;
@@ -310,7 +432,7 @@ sub seed {
 	return 1;
 }
 
-sub fetch_hmm {
+sub update_hmm {
 	my $self = shift;
 	
 	$self->debug;
