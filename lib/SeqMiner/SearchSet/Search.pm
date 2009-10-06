@@ -185,7 +185,7 @@ sub _parse_sequence_isolate {
 
 sub _search_sequence_genome {
 	my $self = shift;
-	my $param = $self->parameter;
+	my $param = $self->super->parameter;
 	
 	print STDERR "# SEARCH INFO\n";
 	$self->debug;
@@ -334,7 +334,7 @@ sub _search_sequence_genome {
 
 sub _parse_sequence_genome {
 	my $self = shift;
-	my $param = $self->parameter;
+	my $param = $self->super->parameter;
 	
 	return if $param->mode eq "modelupdate";
 	
