@@ -4,10 +4,8 @@ use strict;
 use warnings;
 
 use SeqMiner::Config;
-use SeqMiner::TaxonSet::Taxon;
 #use SeqMiner::FamilySet;
-use SeqMiner::Family;
-use SeqMiner::OrthologSet;
+#use SeqMiner::Family;
 use SeqMiner::ItemSet;
 use base "SeqMiner::ItemSet"; 
 
@@ -27,6 +25,7 @@ sub _initialize {
 		return if $param->{empty} == 1;
 	}
 	
+	require SeqMiner::OrthologSet;
 	my $os = new SeqMiner::OrthologSet;
 
 	open IN, "$SM_TAXON_FILE" or die "$!";
@@ -35,6 +34,7 @@ sub _initialize {
 		chomp;
 
 		my ($id, $genus, $spp, $strain, $type, $source) = split '\t', $_;
+		require SeqMiner::TaxonSet::Taxon;
 		my $taxon = new SeqMiner::TaxonSet::Taxon;
 		$taxon->id($id);
 		$taxon->genus($genus);
@@ -86,6 +86,22 @@ sub filter_by_taxon_name {
 	for my $taxon ($self->item_list) {
 		for my $f (@{$filter}) {
 			if ($taxon->name =~ /$f/) {
+				$ts->add($taxon);
+				last;
+			}
+		}
+	}
+	return $ts;
+}
+
+sub filter_by_taxon_type {
+	my $self = shift;
+	my $filter = shift;
+	return $self if $#{$filter} == -1;
+	my $ts = new SeqMiner::TaxonSet({empty => 1});
+	for my $taxon ($self->item_list) {
+		for my $f (@{$filter}) {
+			if ($taxon->type =~ /$f/) {
 				$ts->add($taxon);
 				last;
 			}

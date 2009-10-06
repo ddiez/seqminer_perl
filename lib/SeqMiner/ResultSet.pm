@@ -4,8 +4,6 @@ package SeqMiner::ResultSet;
 # the results may come from different programs or runs.
 use strict;
 use warnings;
-
-use SeqMiner::ResultSet::Result;
 use Bio::SearchIO;
 
 sub new {
@@ -109,6 +107,7 @@ sub _parse_psitblastn_file {
 	
 	my $in = new Bio::SearchIO(-format => "blast", -file => $param->{file});
 	while (my $res = $in->next_result) {
+		require SeqMiner::ResultSet::Result;
 		my $res_ = new SeqMiner::ResultSet::Result;
 		$self->add_result($res_);
 		
@@ -119,6 +118,7 @@ sub _parse_psitblastn_file {
 		
 		while (my $hit = $res->next_hit) {
 			if ($hit->significance <= $res_->cutoff) {
+				require SeqMiner::ResultSet::Hit;
 				my $hit_ = new SeqMiner::ResultSet::Hit;
 				$res_->add_hit($hit_);
 				$hit_->id($hit->name);
@@ -129,6 +129,7 @@ sub _parse_psitblastn_file {
 				$hit_->method($res_->method);
 				$hit_->cutoff($res_->cutoff);
 				while (my $hsp = $hit->next_hsp) {
+					require SeqMiner::ResultSet::Hsp;
 					my $hsp_ = new SeqMiner::ResultSet::Hsp;
 					$hit_->add_hsp($hsp_);
 					#my $what = 'query';
@@ -179,8 +180,8 @@ sub _parse_hmmer_file {
 	my $self = shift;
 	my $param = shift;
 	
-	print STDERR $param->{file}, "\n";
-	print STDERR $param->{method}, "\n";
+	#print STDERR $param->{file}, "\n";
+	#print STDERR $param->{method}, "\n";
 
 	
 	my $in = new Bio::SearchIO(-file => $param->{file}, -format => 'hmmer');

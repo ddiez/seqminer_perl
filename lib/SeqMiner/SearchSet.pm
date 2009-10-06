@@ -7,7 +7,6 @@ use warnings;
 #use SeqMiner::OrthologSet;
 #use SeqMiner::TaxonSet;
 #use SeqMiner::PaperSet;
-use SeqMiner::SearchSet::Search;
 use SeqMiner::ItemSet;
 use base "SeqMiner::ItemSet";
 
@@ -70,20 +69,25 @@ sub add {
 	my $self = shift;
 	my $param = shift;
 	
-	my $ts = $param->{taxon};
-	my $os = $param->{ortholog};
-
-	for my $taxon ($ts->item_list) {
-		#if ($taxon->type eq "spp") {
-			for my $ortholog ($os->item_list) {
-				my $search = new SeqMiner::SearchSet::Search;
-				$search->id($taxon->type.".".$taxon->id.".".$ortholog->id);
-				$search->taxon($taxon);
-				$search->ortholog($ortholog);
-				$search->source($taxon->type eq "spp" ? "genome" : "isolate");
-				$self->SUPER::add($search);
-			}
-		#}
+	if (ref $param eq "SeqMiner::SearchSet::Search") {
+		$self->SUPER::add($param);
+	} else {
+		my $ts = $param->{taxon};
+		my $os = $param->{ortholog};
+	
+		for my $taxon ($ts->item_list) {
+			#if ($taxon->type eq "spp") {
+				for my $ortholog ($os->item_list) {
+					require SeqMiner::SearchSet::Search;
+					my $search = new SeqMiner::SearchSet::Search;
+					$search->id($taxon->type.".".$taxon->id.".".$ortholog->id);
+					$search->taxon($taxon);
+					$search->ortholog($ortholog);
+					$search->source($taxon->type eq "spp" ? "genome" : "isolate");
+					$self->SUPER::add($search);
+				}
+			#}
+		}
 	}
 }
 
@@ -97,33 +101,57 @@ sub search {
 	}
 }
 
-#sub search_sequence {
-#	my $self = shift;
-#	foreach my $search ($self->item_list) {
-#		$search->search_sequence(@_);
-#	}
-#}
-#
-#sub search_domain {
-#	my $self = shift;
-#	foreach my $search ($self->item_list) {
-#		$search->search_domain(@_);
-#	}
-#}
-#
-#sub analyze_sequence {
-#	my $self = shift;
-#	foreach my $search ($self->item_list) {
-#		$search->analyze_sequence(@_);
-#	}
-#}
-#
-#sub analyze_domain {
-#	my $self = shift;
-#	foreach my $search ($self->item_list) {
-#		$search->analyze_domain(@_);
-#	}
-#}
+sub filter_by_ortholog_name {
+	my $self = shift;
+	my $filter = shift;
+	return $self if $#{$filter} == -1;
+	my $ss = new SeqMiner::SearchSet({empty => 1});
+	for my $s ($self->item_list) {
+		for my $f (@{$filter}) {
+			if ($s->ortholog->name =~ /$f/) {
+				$ss->add($s);
+				last;
+			}
+		}
+	}
+	return $ss;
+}
+
+sub get_best_hit {
+	my $self = shift;
+		
+	my $bh = undef;
+	my $taxon  = undef;
+	print STDERR "##### BEST HIT #####\n";
+	for my $s ($self->item_list) {
+		#next if $s->source eq "isolate";
+		$s->debug;
+		$s->chdir("/tmp/");
+		my $base = $s->ortholog->name."-".$s->taxon->organism;
+		my @search_type = ("protein\_ls", "protein\_fs");
+		require SeqMiner::ResultSet;
+		my $cbh = undef;
+		foreach my $search_type (@search_type) {
+			my $rs = new SeqMiner::ResultSet({file => "$base-$search_type.log"});
+			$cbh = $rs->get_result_by_pos(0)->best_hit;
+			if (defined $cbh) {
+				if (! defined $bh) {
+					$bh = $cbh;
+					$taxon = $s->taxon;
+				} else {
+					if ($cbh->significance < $bh->significance) {
+						$bh = $cbh;
+						$taxon = $s->taxon;
+					}
+				}
+			}
+		}
+	}
+	print STDERR "* best hit: ", $bh->id, " [", $bh->score, "/", $bh->significance, "]\n";
+	print STDERR "* in species: ", $taxon->organism, "\n";
+	
+	return ($bh, $taxon);
+}
 
 sub debug {
 	my $self = shift;
@@ -134,22 +162,5 @@ sub debug {
 	}
 	print STDERR "\\\\\n";
 }
-
-sub update_seed {
-	my $self = shift;
-	for my $s ($self->item_list) {
-		#if ($s->taxon->seed) {
-			$s->update_seed;
-		#}
-	}
-}
-
-sub update_hmm {
-	my $self = shift;
-	for my $s ($self->item_list) {
-		$s->update_hmm;
-	}
-}
-
 
 1;

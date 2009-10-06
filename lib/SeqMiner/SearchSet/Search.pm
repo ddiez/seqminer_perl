@@ -89,9 +89,9 @@ sub search {
 	if ($param->{source} eq "genome") {
 		return 2 if ($self->source eq "isolate");
 		if  ($param->{type} eq "sequence") {
-			$res = $self->_search_sequence_genome;
+			$res = $self->_search_sequence_genome({mode => $param->{mode}});
 			if ($res == 1) {
-				$self->_parse_sequence_genome;
+				$self->_parse_sequence_genome({mode => $param->{mode}});
 			}
 		}
 	} elsif($param->{source} eq "isolate") {
@@ -106,7 +106,7 @@ sub search {
 		}
 	}
 	
-	#return $res;
+	return $res;
 }
 
 sub _search_sequence_isolate {
@@ -161,12 +161,12 @@ sub _parse_sequence_isolate {
 
 	$self->chdir('search');
 	if (-e "$base-$tdb.log") {
-		use SeqMiner::ResultSet;	
+		require SeqMiner::ResultSet;	
 		my $rs = new SeqMiner::ResultSet({file => "$base-$tdb.log", id => "$tdb"});
 		my $r = $rs->get_result_by_id($tdb);
 		
 		$self->chdir('fasta') or die "cannot change to directory 'fasta'";
-		use SeqMiner::SeqSet;
+		require SeqMiner::SeqSet;
 		my $seq = new SeqMiner::SeqSet({file => "$db.fa"});
 		$r->export_fasta({file => "$base-$tdb.fa", db => $seq});
 		
@@ -179,12 +179,17 @@ sub _parse_sequence_isolate {
 
 sub _search_sequence_genome {
 	my $self = shift;
+	my $param = shift;
 	
 	print STDERR "# SEARCH INFO\n";
 	$self->debug;
 	
-	if ($self->chdir('search') == 0) {
-		return 0;
+	if ($param->{mode} eq "modelupdate") {
+		$self->chdir('model');
+	} else {
+		if ($self->chdir('search') == 0) {
+			return 0;
+		}
 	}
 
 	my $family = $self->ortholog->name;
@@ -199,22 +204,26 @@ sub _search_sequence_genome {
 
 	# retrieve model with hmmfetch library hmm_name.
 	# use libraries Pfam_ls and Pfam_fs.
-	print STDERR "* fetching Pfam models ... ";
-	if (! -d "$SM_HOME/db/models/hmm/ls/$hmm_name") {
-		system "hmmfetch $SM_HOME/db/pfam/Pfam_ls.bin $hmm_name > $SM_HOME/db/models/hmm/ls/$hmm_name";
-	}
-	if (! -d "$SM_HOME/db/models/hmm/fs/$hmm_name") {
-		system "hmmfetch $SM_HOME/db/pfam/Pfam_fs.bin $hmm_name > $SM_HOME/db/models/hmm/fs/$hmm_name";
-	}
+	#print STDERR "* fetching Pfam models ... ";
+	#if (! -d "$SM_HOME/db/models/hmm/ls/$hmm_name") {
+	#	system "hmmfetch $SM_HOME/db/pfam/Pfam_ls.bin $hmm_name > $SM_HOME/db/models/hmm/ls/$hmm_name";
+	#}
+	#if (! -d "$SM_HOME/db/models/hmm/fs/$hmm_name") {
+	#	system "hmmfetch $SM_HOME/db/pfam/Pfam_fs.bin $hmm_name > $SM_HOME/db/models/hmm/fs/$hmm_name";
+	#}
 	my $ls = "$SM_HOME/db/models/hmm/ls/$hmm_name";
 	my $fs = "$SM_HOME/db/models/hmm/fs/$hmm_name";
-	print STDERR "OK\n";
+	#print STDERR "OK\n";
 
 	# search in protein sequences.
 	print STDERR "* searching protein database (hmmer) ... ";
 	system "hmmsearch $HMMERPARAM $ls $GENOMEDB/$dir/protein.fa > $base-protein\_ls.log";
 	system "hmmsearch $HMMERPARAM $fs $GENOMEDB/$dir/protein.fa > $base-protein\_fs.log";
 	print STDERR "OK\n";
+	
+	if ($param->{mode} eq "modelupdate") {
+		return 1;
+	}
 	
 	# search in nucleotide sequences.
 	#
@@ -315,8 +324,10 @@ sub _search_sequence_genome {
 
 sub _parse_sequence_genome {
 	my $self = shift;
+	my $param = shift;
 	
-	#return 1;
+	return if $param->{mode} eq "modelupdate";
+	
 	my $family = $self->ortholog->name;
 	my $dir = $self->taxon->organism;
 	my $hmm_name = $self->ortholog->hmm;
@@ -325,12 +336,12 @@ sub _parse_sequence_genome {
 	my $base = $self->ortholog->name."-".$self->taxon->organism;
 	
 	# get genome info.
-	use SeqMiner::Genome;
+	require SeqMiner::Genome;
 	my $genome = new SeqMiner::Genome({file => "$GENOMEDB/$dir/genome.gff"});
 
 	# read result files.
 	$self->chdir('search');
-	use SeqMiner::ResultSet;
+	require SeqMiner::ResultSet;
 	my $rs = new SeqMiner::ResultSet({file => "$base-protein_ls.log", id => 'protein_ls', model_type => 'ls'});
 	$rs->add({file => "$base-protein_fs.log", id => 'protein_fs', model_type => 'fs'});
 	$rs->add({file => "$base-gene_ls.log", id => 'gene_ls', model_type => 'ls'});
@@ -407,8 +418,7 @@ sub debug {
 	print STDERR "* hmm: ", $self->ortholog->hmm, "\n";
 	#print STDERR "* type: ", $self->type, "\n";
 	print STDERR "* source: ", $self->source, "\n";
-	print STDERR "* base_dir: $self->{basedir}\n";
-	print STDERR "\n";
+	print STDERR "* base_dir: $self->{basedir}\n\n";
 }
 
 # THIS FUNCTION DO NOT KNOW YET WHETHER THEY FIT HERE, SHOULD BE MODIFIED OR REMOVED OR GENERALIZED AND INCLUDED IN AN INDEPENDENT CLASS
@@ -490,55 +500,5 @@ sub commit_file {
 		print STDERR "ERROR [$!]\n";
 	}	
 }
-
-
-sub update_seed {
-	my $self = shift;
-	
-	print STDERR "## UPDATE SEED MODELS\n";
-	$self->debug;
-	return if $self->source("genome");
-	if ($self->chdir('search') == 0) {
-		return 0;
-	}
-	
-	my $base = $self->ortholog->name."-".$self->taxon->organism;
-	my $dir = $self->taxon->organism;
-	my $seed_file = "$SM_HOME/db/models/seed/".$self->ortholog->name.".seed";
-	my $pssm_file = "$SM_HOME/db/models/pssm/".$self->ortholog->name.".chk";
-	my $pgp_file = "$SM_HOME/db/models/pgp/".$self->ortholog->name.".pgp";
-	my @search_type = ("protein\_ls", "protein\_fs", "gene\_ls", "gene\_fs");
-	
-	use SeqMiner::ResultSet;
-	my $bh = undef;
-	foreach my $search_type (@search_type) {
-		my $rs = new SeqMiner::ResultSet({file => "$base-$search_type.log"});
-		$bh = $rs->get_result_by_pos(0)->best_hit;
-		last if defined $bh
-	}
-	
-	if (defined $bh) {
-		my $seed = $bh->id;
-		#system "extract_fasta.pl -d $seed -i $GENOMEDB/$dir/protein.idx > $seed_file";
-		system "fastacmd -d $GENOMEDB/$dir/protein -s $seed > $seed_file";
-		system "blastpgp -d $GENOMEDB/$dir/protein -i $seed_file -s T -j $PSSM_ITER -h $PSSM_EVALUE -C $pssm_file -F T -b 10000  > $pgp_file";
-	}
-	
-	return 1;
-}
-
-sub update_hmm {
-	my $self = shift;
-	
-	print STDERR "## UPDATE HMM MODELS\n";
-	$self->debug;
-	my $hmm_name = $self->family->hmm;
-	
-	print STDERR "* fetching Pfam models ... ";
-	system "hmmfetch $SM_HOME/db/pfam/Pfam_ls.bin $hmm_name > $SM_HOME/db/models/hmm/ls/$hmm_name";
-	system "hmmfetch $SM_HOME/db/pfam/Pfam_fs.bin $hmm_name > $SM_HOME/db/models/hmm/fs/$hmm_name";
-	print STDERR "OK\n";
-}
-
 
 1;

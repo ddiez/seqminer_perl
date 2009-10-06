@@ -58,8 +58,8 @@ our %TARGET_DB = (
 
 my $OPTIMIZE = 1;
 if ($OPTIMIZE) {
-	our $HMMERPARAM = "--cpu 8";
-	our $WISEPARAM = "-quiet -aln 500 -pthread -pthr_no 8";
+	our $HMMERPARAM = "--cpu 16";
+	our $WISEPARAM = "-quiet -aln 500 -pthread -pthr_no 16";
 	our $BLASTPARAM = "";
 } else {
 	our $HMMERPARAM = "--cpu 1";
