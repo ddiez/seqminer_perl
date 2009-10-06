@@ -81,15 +81,23 @@ sub taxon {
 sub search {
 	my $self = shift;
 	
-	my $param = $self->parameter;
+	my $param = $self->super->parameter;
 	
 	my $res = undef;
 	if ($param->source eq "genome") {
 		return 2 if ($self->source eq "isolate");
 		if  ($param->type eq "sequence") {
-			$res = $self->_search_sequence_genome;
+			if ($param->search) {
+				$res = $self->_search_sequence_genome;	
+			} else {
+				$res = 1;
+			}
 			if ($res == 1) {
-				$self->_parse_sequence_genome;
+				if ($param->parse eq "normal") {
+					$self->_parse_sequence_genome;									
+				} elsif ($param->parse eq "special") {
+					$self->_parse_sequence_genome_special;
+				}
 			}
 		}
 	} elsif($param->{source} eq "isolate") {
@@ -98,7 +106,7 @@ sub search {
 			if ($param->{type} eq "sequence") {
 				$res = $self->_search_sequence_isolate($db);
 				if ($res == 1) {
-					$self->_parse_sequence_isolate($db);
+					$self->_parse_sequence_isolate($db) if $param->parse;
 				}
 			}
 		}
@@ -412,15 +420,37 @@ sub _parse_sequence_genome {
 	return 1;
 }
 
+sub _parse_sequence_genome_special {
+	my $self = shift;
+	
+	my $param = $self->super->parameter;
+	$self->debug;
+	$param->debug;
+	
+#	my $family = $self->ortholog->name;
+#	my $dir = $self->taxon->organism;
+#	my $hmm_name = $self->ortholog->hmm;
+#	my $iter = $PSSM_ITER;
+#	my $pssm_eval = $PSSM_EVALUE;
+	my $base = $self->ortholog->name."-".$self->taxon->organism;
+	
+	$self->chdir('search');
+	require SeqMiner::ResultSet;
+	my $rs = new SeqMiner::ResultSet({file => "$base-protein_ls.log", id => 'protein_ls', model_type => 'ls'});
+	$rs->add({file => "$base-protein_fs.log", id => 'protein_fs', model_type => 'fs'});
+}
+
+
 sub debug {
 	my $self = shift;
+	print STDERR "#--- ", ref $self, "--->\n";
 	print STDERR "* id: ", $self->id, "\n";
 	print STDERR "* taxon: [", $self->taxon->id, "] ", $self->taxon->name, "\n";
 	print STDERR "* family: ", $self->ortholog->name, "\n";
 	print STDERR "* hmm: ", $self->ortholog->hmm, "\n";
 	#print STDERR "* type: ", $self->type, "\n";
 	print STDERR "* source: ", $self->source, "\n";
-	print STDERR "* base_dir: $self->{basedir}\n\n";
+	print STDERR "* base_dir: $self->{basedir}\n";
 }
 
 # THIS FUNCTION DO NOT KNOW YET WHETHER THEY FIT HERE, SHOULD BE MODIFIED OR REMOVED OR GENERALIZED AND INCLUDED IN AN INDEPENDENT CLASS

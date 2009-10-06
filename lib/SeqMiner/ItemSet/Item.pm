@@ -8,6 +8,7 @@ sub new {
 	
 	my $self = {};
 	$self->{id} = undef;
+	$self->{super} = undef;
 	bless $self, $class;
     $self->_initialize(@_);
     return $self;
@@ -22,6 +23,12 @@ sub id {
 	my $self = shift;
 	$self->{id} = shift if @_;
 	return $self->{id};
+}
+
+sub super {
+	my $self = shift;
+	$self->{super} = shift if @_;
+	return $self->{super};
 }
 
 1;

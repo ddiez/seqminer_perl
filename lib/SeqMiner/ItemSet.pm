@@ -21,6 +21,7 @@ sub length {
 sub add {
 	my $self = shift;
 	my $item = shift;
+	$item->super($self);
 	push @{ $self->{item_list} }, $item;
 	$self->{items}->{$item->id} = $item;
 	$self->{nitems}++;

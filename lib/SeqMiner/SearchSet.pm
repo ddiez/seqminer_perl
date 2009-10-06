@@ -109,7 +109,7 @@ sub add {
 sub search {
 	my $self = shift;
 	for my $s ($self->item_list) {
-		my $res = $s->search(@_);
+		my $res = $s->search;
 		if ($res == -1) {
 			die "ERROR: need to specify 'source' and 'type' parameters.\n";
 		}

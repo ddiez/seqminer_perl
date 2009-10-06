@@ -22,6 +22,8 @@ sub _initialize {
 	$self->{source} = "genome";
 	$self->{mode} = "search";
 	$self->{db} = undef;
+	$self->{search} = 1;
+	$self->{parse} = "normal";
 }
 
 sub nucleotide {
@@ -52,6 +54,18 @@ sub db {
 	my $self = shift;
 	$self->{db} = shift if @_;
 	return $self->{db};
+}
+
+sub parse {
+	my $self = shift;
+	$self->{parse} = shift if @_;
+	return $self->{parse};
+}
+
+sub search {
+	my $self = shift;
+	$self->{search} = shift if @_;
+	return $self->{search};
 }
 
 sub mode {
