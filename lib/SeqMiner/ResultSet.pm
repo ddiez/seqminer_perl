@@ -105,9 +105,12 @@ sub _parse_psitblastn_file {
 	my $self = shift;
 	my $param = shift;
 	
+	require SeqMiner::ResultSet::Result;
+	require SeqMiner::ResultSet::Hit;
+	require SeqMiner::ResultSet::Hsp;
+	
 	my $in = new Bio::SearchIO(-format => "blast", -file => $param->{file});
 	while (my $res = $in->next_result) {
-		require SeqMiner::ResultSet::Result;
 		my $res_ = new SeqMiner::ResultSet::Result;
 		$self->add_result($res_);
 		
@@ -118,7 +121,6 @@ sub _parse_psitblastn_file {
 		
 		while (my $hit = $res->next_hit) {
 			if ($hit->significance <= $res_->cutoff) {
-				require SeqMiner::ResultSet::Hit;
 				my $hit_ = new SeqMiner::ResultSet::Hit;
 				$res_->add_hit($hit_);
 				$hit_->id($hit->name);
@@ -129,7 +131,6 @@ sub _parse_psitblastn_file {
 				$hit_->method($res_->method);
 				$hit_->cutoff($res_->cutoff);
 				while (my $hsp = $hit->next_hsp) {
-					require SeqMiner::ResultSet::Hsp;
 					my $hsp_ = new SeqMiner::ResultSet::Hsp;
 					$hit_->add_hsp($hsp_);
 					#my $what = 'query';
@@ -179,6 +180,10 @@ sub _parse_psitblastn_file {
 sub _parse_hmmer_file {
 	my $self = shift;
 	my $param = shift;
+	
+	require SeqMiner::ResultSet::Result;
+	require SeqMiner::ResultSet::Hit;
+	require SeqMiner::ResultSet::Hsp;
 	
 	#print STDERR $param->{file}, "\n";
 	#print STDERR $param->{method}, "\n";
@@ -234,6 +239,10 @@ sub _parse_hmmer_file {
 sub _parse_genewise_file {
 	my $self = shift;
 	my $param = shift;
+	
+	require SeqMiner::ResultSet::Result;
+	require SeqMiner::ResultSet::Hit;
+	require SeqMiner::ResultSet::Hsp;
 	
 	# there is only one result in genewise searches.
 	my $res_ = new SeqMiner::ResultSet::Result;

@@ -31,7 +31,6 @@ sub hmm {
 	return $self->{hmm};
 }
 
-# TODO: add support for alternative libraries (ves1) and missing models (esag6_7)
 sub update_hmm {
 	my $self = shift;
 	
@@ -40,9 +39,21 @@ sub update_hmm {
 	my $hmm_name = $self->hmm;
 	
 	print STDERR "* fetching Pfam models ... ";
-	system "hmmfetch $SM_HOME/db/pfam/Pfam_ls.bin $hmm_name > $SM_HOME/db/models/hmm/ls/$hmm_name";
-	system "hmmfetch $SM_HOME/db/pfam/Pfam_fs.bin $hmm_name > $SM_HOME/db/models/hmm/fs/$hmm_name";
-	print STDERR "OK\n";
+	system "hmmfetch $SM_HOME/db/pfam/Pfam_ls.bin $hmm_name > $SM_HOME/db/models/hmm/ls/$hmm_name 2> /dev/null";
+	if (-s  "$SM_HOME/db/models/hmm/ls/$hmm_name" == 0) {
+		system "hmmfetch $SM_HOME/db/models/Extra_ls $hmm_name > $SM_HOME/db/models/hmm/ls/$hmm_name 2> /dev/null";
+	}
+	system "hmmfetch $SM_HOME/db/pfam/Pfam_fs.bin $hmm_name > $SM_HOME/db/models/hmm/fs/$hmm_name 2> /dev/null";
+	if (-s  "$SM_HOME/db/models/hmm/fs/$hmm_name" == 0) {
+		system "hmmfetch $SM_HOME/db/models/Extra_fs $hmm_name > $SM_HOME/db/models/hmm/fs/$hmm_name 2> /dev/null";
+	}
+	use Term::ANSIColor qw(:constants);
+	$Term::ANSIColor::AUTORESET = 1;
+	if (-s  "$SM_HOME/db/models/hmm/fs/$hmm_name" == 0 or -s  "$SM_HOME/db/models/hmm/fs/$hmm_name" == 0) {
+		print STDERR BOLD RED "FAIL\n\n";
+	} else {
+		print STDERR BOLD GREEN "OK\n\n";
+	}
 }
 
 sub update_seed {
@@ -52,7 +63,7 @@ sub update_seed {
 sub debug {
 	my $self = shift;
 	print STDERR "* taxon: ", $self->name, "\n";
-	print STDERR "* hmm: ", $self->hmm, "\n\n";
+	print STDERR "* hmm: ", $self->hmm, "\n";
 }
 
 
