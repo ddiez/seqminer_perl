@@ -72,6 +72,20 @@ sub get_names_array {
 	return @a;
 }
 
+## TODO: check the pipeline:
+## UPDATE MODELS
+# 1. Update Pfam domains from the current Pfam version (local).
+# 2. For each taxon/ortholog in FamilySet check whether a HMMER result exists.
+#  2.1 If exists use that.
+#  2.2 If not, run a search
+# 3. With the best hit from the HMMER search perform a PSI-Blast search and store model information.
+
+sub update_models {
+	my $self = shift;
+	$self->update_hmm;
+	$self->update_seed;
+}
+
 sub update_hmm {
 	my $self = shift;
 	for my $o ($self->item_list) {
@@ -91,6 +105,7 @@ sub update_seed {
 	
 	require SeqMiner::SearchSet;
 	my $ss = new SeqMiner::SearchSet;
+	$ss->parameter->mode("modelupdate");
 	for my $f ($fs->item_list) {
 		$ss->add({taxon => $ts->filter_by_taxon_name([$f->taxon]), ortholog => $self->filter_by_ortholog_name([$f->ortholog])});
 	}

@@ -20,7 +20,6 @@ sub _initialize {
 	$self->{ortholog} = undef;
 }
 
-# an alias to id.
 sub name {
 	my $self = shift;
 	$self->{name} = shift if @_;

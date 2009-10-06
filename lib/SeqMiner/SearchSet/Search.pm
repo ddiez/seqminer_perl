@@ -80,18 +80,16 @@ sub taxon {
 
 sub search {
 	my $self = shift;
-	my $param = shift;
 	
-	return -1 if ! defined $param->{source};
-	return -1 if ! defined $param->{type};
+	my $param = $self->parameter;
 	
 	my $res = undef;
-	if ($param->{source} eq "genome") {
+	if ($param->source eq "genome") {
 		return 2 if ($self->source eq "isolate");
-		if  ($param->{type} eq "sequence") {
-			$res = $self->_search_sequence_genome({mode => $param->{mode}});
+		if  ($param->type eq "sequence") {
+			$res = $self->_search_sequence_genome;
 			if ($res == 1) {
-				$self->_parse_sequence_genome({mode => $param->{mode}});
+				$self->_parse_sequence_genome;
 			}
 		}
 	} elsif($param->{source} eq "isolate") {
@@ -179,12 +177,12 @@ sub _parse_sequence_isolate {
 
 sub _search_sequence_genome {
 	my $self = shift;
-	my $param = shift;
+	my $param = $self->parameter;
 	
 	print STDERR "# SEARCH INFO\n";
 	$self->debug;
 	
-	if ($param->{mode} eq "modelupdate") {
+	if ($param->mode eq "modelupdate") {
 		$self->chdir('model');
 	} else {
 		if ($self->chdir('search') == 0) {
@@ -214,14 +212,16 @@ sub _search_sequence_genome {
 	my $ls = "$SM_HOME/db/models/hmm/ls/$hmm_name";
 	my $fs = "$SM_HOME/db/models/hmm/fs/$hmm_name";
 	#print STDERR "OK\n";
-
-	# search in protein sequences.
-	print STDERR "* searching protein database (hmmer) ... ";
-	system "hmmsearch $HMMERPARAM $ls $GENOMEDB/$dir/protein.fa > $base-protein\_ls.log";
-	system "hmmsearch $HMMERPARAM $fs $GENOMEDB/$dir/protein.fa > $base-protein\_fs.log";
-	print STDERR "OK\n";
 	
-	if ($param->{mode} eq "modelupdate") {
+	# search in protein sequences.
+	if ($param->protein == 1) {
+		print STDERR "* searching protein database (hmmer) ... ";
+		system "hmmsearch $HMMERPARAM $ls $GENOMEDB/$dir/protein.fa > $base-protein\_ls.log";
+		system "hmmsearch $HMMERPARAM $fs $GENOMEDB/$dir/protein.fa > $base-protein\_fs.log";
+		print STDERR "OK\n";
+	}
+	
+	if ($param->mode eq "modelupdate") {
 		return 1;
 	}
 	
@@ -275,10 +275,12 @@ sub _search_sequence_genome {
 	# am not completely confident that I am doing the correct thing. Please use 
 	# it, but keep in mind that it is an experimental feature.
 	#
-	print STDERR "* searching nucleotide database (genewisedb) ... ";
-	system "genewisedb $WISEPARAM -hmmer $ls $GENOMEDB/$dir/gene.fa > $base-gene\_ls.log";
-	system "genewisedb $WISEPARAM -hmmer $fs $GENOMEDB/$dir/gene.fa > $base-gene\_fs.log";
-	print STDERR "OK\n";
+	if ($param->nucleotide == 1) {
+		print STDERR "* searching nucleotide database (genewisedb) ... ";
+		system "genewisedb $WISEPARAM -hmmer $ls $GENOMEDB/$dir/gene.fa > $base-gene\_ls.log";
+		system "genewisedb $WISEPARAM -hmmer $fs $GENOMEDB/$dir/gene.fa > $base-gene\_fs.log";
+		print STDERR "OK\n";
+	}
 	
 	###########################################################
 	## 2. do psi-blast find best protein hits and get pssm.
@@ -324,9 +326,9 @@ sub _search_sequence_genome {
 
 sub _parse_sequence_genome {
 	my $self = shift;
-	my $param = shift;
+	my $param = $self->parameter;
 	
-	return if $param->{mode} eq "modelupdate";
+	return if $param->mode eq "modelupdate";
 	
 	my $family = $self->ortholog->name;
 	my $dir = $self->taxon->organism;
@@ -357,7 +359,7 @@ sub _parse_sequence_genome {
 	my $ngg_ls = $g_ls->length;
 	my $ngg_fs = $g_fs->length;
 	
-	use Sets;
+	require Sets;
 	my $pset = new Sets($p_ls->hit_ids, $p_fs->hit_ids);
 	my $gset = new Sets($g_ls->hit_ids, $g_fs->hit_ids);
 	

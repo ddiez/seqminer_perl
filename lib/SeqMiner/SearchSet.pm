@@ -12,13 +12,22 @@ use base "SeqMiner::ItemSet";
 
 sub new {
 	my $class = shift;
-	my $self = $class->SUPER::new(@_);
+	my $self = $class->SUPER::new;
 	bless $self, $class;
+	$self->_initialize(@_);
     return $self;
 }
 
 sub _initialize {
 	my $self = shift;
+	my $param = shift;
+	
+	if (! defined $param) {
+		require SeqMiner::SearchParameter;
+		$self->{parameter} = new SeqMiner::SearchParameter;
+	} elsif (ref $param eq "SeqMiner::SearchParameter") {
+		$self->{parameter} = $param;
+	}# else ignore.
 #	my $param = shift;
 	
 #	if (defined $param->{empty}) {
@@ -65,6 +74,12 @@ sub _initialize {
 #	}
 }
 
+sub parameter {
+	my $self = shift;
+	$self->{parameter} = shift if @_;
+	return $self->{parameter};
+}
+
 sub add {
 	my $self = shift;
 	my $param = shift;
@@ -105,7 +120,8 @@ sub filter_by_ortholog_name {
 	my $self = shift;
 	my $filter = shift;
 	return $self if $#{$filter} == -1;
-	my $ss = new SeqMiner::SearchSet({empty => 1});
+	my $ss = new SeqMiner::SearchSet;
+	$ss->parameter($self->parameter);
 	for my $s ($self->item_list) {
 		for my $f (@{$filter}) {
 			if ($s->ortholog->name =~ /$f/) {
