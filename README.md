@@ -4,7 +4,7 @@ seqminer_perl
 Summary
 -------
 
-`seqminer_perl` is a framework for the identification of sequences from protein families. It was developed to generate the dataset used to populate the [varDB](http://vardb.org) database of antigenic variant families.
+`seqminer_perl` is a framework for the identification of sequences from protein families. It was developed to generate the dataset used to populate the [varDB](http://www.vardb.org) database of antigenic variant families.
 
 Release history
 ---------------
